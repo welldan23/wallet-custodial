@@ -1,19 +1,22 @@
 import Ionicons from '@expo/vector-icons/Ionicons';
+import { router } from 'expo-router';
 import { useState } from 'react';
 import { Pressable, Text, View } from 'react-native';
 
 import { StackScreen } from '@/components/layout/stack-screen';
 import { SwapAssetCard } from '@/components/swap/swap-asset-card';
 import { SwapAssetPickerSheet, type SwapSide } from '@/components/swap/swap-asset-picker-sheet';
+import { SwapDetailsCard } from '@/components/swap/swap-details-card';
 import { DemoBanner } from '@/components/ui/demo-banner';
 import { useToast } from '@/components/ui/toast';
 import { useBalanceVisibility } from '@/hooks/use-balance-visibility';
-import { defaultSwapPair, useSwapAssets } from '@/hooks/use-swap-assets';
+import { useNetworkFee } from '@/hooks/use-network-fee';
+import { defaultSwapPair, useSwapAssets, type SwapAsset } from '@/hooks/use-swap-assets';
+import { useSwapQuote } from '@/hooks/use-swap-quote';
 import { useWalletAccounts } from '@/hooks/use-wallet-accounts';
 import { useI18n } from '@/i18n';
 import { checkAmount, formatAmountForInput } from '@/lib/amount';
-import { formatFiat, formatNumber, formatTokenAmount } from '@/lib/format';
-import { getMockSwapQuote } from '@/mocks/swap';
+import { formatFiat, formatTokenAmount } from '@/lib/format';
 import { MOCK_FX_RATES } from '@/mocks/wallet';
 import { cardShadow, colors } from '@/theme/colors';
 import type { FiatCurrency } from '@/types/wallet';
@@ -27,15 +30,11 @@ const DISPLAY_CURRENCY: FiatCurrency = 'IDR';
  */
 export default function SwapScreen() {
   const { t } = useI18n();
-  const toast = useToast();
   const assets = useSwapAssets();
-  const { isDemo } = useWalletAccounts();
-  const { hidden } = useBalanceVisibility();
   const [initialPair] = useState(() => defaultSwapPair(assets));
   const [fromId, setFromId] = useState(initialPair?.from.tokenId);
   const [toId, setToId] = useState(initialPair?.to.tokenId);
   const [amountInput, setAmountInput] = useState('');
-  const [picking, setPicking] = useState<SwapSide | null>(null);
 
   const from = assets.find((asset) => asset.tokenId === fromId);
   const to = assets.find((asset) => asset.tokenId === toId);
@@ -51,17 +50,54 @@ export default function SwapScreen() {
     );
   }
 
+  return (
+    <SwapForm
+      from={from}
+      to={to}
+      assets={assets}
+      amountInput={amountInput}
+      setAmountInput={setAmountInput}
+      setFromId={setFromId}
+      setToId={setToId}
+    />
+  );
+}
+
+type SwapFormProps = {
+  from: SwapAsset;
+  to: SwapAsset;
+  assets: SwapAsset[];
+  amountInput: string;
+  setAmountInput: (value: string) => void;
+  setFromId: (tokenId: string) => void;
+  setToId: (tokenId: string) => void;
+};
+
+function SwapForm({
+  from,
+  to,
+  assets,
+  amountInput,
+  setAmountInput,
+  setFromId,
+  setToId,
+}: SwapFormProps) {
+  const { t } = useI18n();
+  const toast = useToast();
+  const { isDemo } = useWalletAccounts();
+  const { hidden } = useBalanceVisibility();
+  const [picking, setPicking] = useState<SwapSide | null>(null);
+  const fee = useNetworkFee(from.network);
+
   const fiat = (usd: number) => formatFiat(usd, DISPLAY_CURRENCY, MOCK_FX_RATES);
   const check = checkAmount(amountInput, from.balance, from.decimals);
   const amount = check.status === 'valid' ? check.amount : 0;
-  const quote = getMockSwapQuote({
-    fromSymbol: from.symbol,
-    toSymbol: to.symbol,
-    fromNetwork: from.network,
-    toNetwork: to.network,
-    amount,
-  });
-  const canReview = check.status === 'valid' && quote !== null;
+  const { quote, loading } = useSwapQuote(from, to, amount);
+  const nativeSymbol = from.network.nativeSymbol;
+  const networkFeeNative =
+    quote && fee && fee.nativeUsdPrice > 0 ? quote.networkFeeUsd / fee.nativeUsdPrice : 0;
+  const hasEnoughGas = !quote || (fee?.nativeBalance ?? 0) + 1e-12 >= networkFeeNative;
+  const canReview = check.status === 'valid' && quote !== null && !loading && hasEnoughGas;
 
   const flip = () => {
     setFromId(to.tokenId);
@@ -120,22 +156,50 @@ export default function SwapScreen() {
           hidden={hidden}
           onPickAsset={() => setPicking('to')}
           editable={false}
-          value={amount > 0 && quote ? formatTokenAmount(quote.toAmount, true) : ''}
-          caption={amount > 0 && quote ? `≈ ${fiat(quote.toAmount * to.usdPrice)}` : t.swap.estimateHint}
+          value={quote ? formatTokenAmount(quote.toAmount, true) : loading ? '…' : ''}
+          caption={
+            quote
+              ? `≈ ${fiat(quote.toAmount * to.usdPrice)}`
+              : loading
+                ? t.swap.findingRoute
+                : t.swap.estimateHint
+          }
         />
       </View>
 
-      {quote && (
-        <View className="flex-row items-center justify-between gap-3 px-1">
-          <Text className="flex-1 text-xs text-ink-muted" style={{ fontVariant: ['tabular-nums'] }}>
-            {t.swap.rate(from.symbol, formatNumber(quote.rate, { maximumFractionDigits: 4 }), to.symbol)}
-          </Text>
-          <View className="flex-row items-center gap-1 rounded-full bg-surface px-2.5 py-1">
-            <Ionicons name="git-branch-outline" size={12} color={colors.ink.muted} />
-            <Text className="text-[11px] font-semibold text-ink-soft">
-              {quote.crossChain ? t.swap.viaBridge(quote.provider) : t.swap.via(quote.provider)}
+      {amount > 0 && (
+        <SwapDetailsCard
+          from={from}
+          to={to}
+          quote={quote}
+          loading={loading}
+          networkFeeNative={networkFeeNative}
+          nativeSymbol={nativeSymbol}
+          fiat={fiat}
+        />
+      )}
+
+      {!hasEnoughGas && (
+        <View
+          className="gap-2 rounded-2xl border border-danger-500/40 bg-danger-50 px-4 py-3.5"
+          accessibilityRole="alert">
+          <View className="flex-row items-center gap-2">
+            <Ionicons name="close-circle" size={18} color={colors.danger[600]} />
+            <Text className="flex-1 text-sm font-bold text-danger-600">
+              {t.send.notEnoughGasTitle(nativeSymbol, from.network.name)}
             </Text>
           </View>
+          <Text className="text-[13px] leading-5 text-ink-soft">
+            {t.send.notEnoughGasBody(formatTokenAmount(networkFeeNative, false), nativeSymbol)}
+          </Text>
+          <Pressable
+            onPress={() =>
+              router.push({ pathname: '/receive', params: { network: from.network.id } })
+            }
+            accessibilityRole="button"
+            className="self-start rounded-full bg-surface px-4 py-2 active:opacity-70">
+            <Text className="text-[13px] font-semibold text-primary-500">{t.send.topUpGas}</Text>
+          </Pressable>
         </View>
       )}
 
