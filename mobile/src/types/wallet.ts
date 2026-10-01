@@ -46,3 +46,12 @@ export type TokenBalance = {
   tokenId: string;
   amount: number;
 };
+
+/**
+ * Alamat publik wallet. Satu alamat EVM dipakai di semua jaringan EVM
+ * (Ethereum, Arbitrum, Base, Polygon), plus satu alamat Solana.
+ */
+export type WalletAccounts = {
+  evm: string;
+  solana: string;
+};

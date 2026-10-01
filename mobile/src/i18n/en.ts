@@ -47,7 +47,15 @@ export const en: Dictionary = {
   },
   receive: {
     title: 'Receive',
-    preview: 'Soon your wallet address and QR code for each network will show up here.',
+    demoWarning:
+      'Demo mode: the address below is only an example and nobody holds its keys. Do not send real assets here.',
+    chooseNetworkTitle: 'Which network will you receive on?',
+    chooseNetworkSubtitle: 'Pick the same network the sender uses.',
+    networkLabel: 'Network',
+    supportedAssets: (symbols: string) => `Accepts ${symbols}`,
+    addressTitle: (network: string) => `Your ${network} address`,
+    sharedEvmAddressNote:
+      'This address is the same on Ethereum, Arbitrum, Base, and Polygon, but balances are separate per network.',
   },
   swap: {
     title: 'Swap',

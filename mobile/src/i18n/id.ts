@@ -45,7 +45,15 @@ export const id = {
   },
   receive: {
     title: 'Terima',
-    preview: 'Nanti di sini muncul alamat wallet dan QR code per jaringan buat nerima dana.',
+    demoWarning:
+      'Mode demo: alamat di bawah cuma contoh dan nggak ada yang pegang kuncinya. Jangan kirim aset beneran ke sini.',
+    chooseNetworkTitle: 'Mau terima di jaringan apa?',
+    chooseNetworkSubtitle: 'Pilih jaringan yang sama dengan yang dipakai pengirim.',
+    networkLabel: 'Jaringan',
+    supportedAssets: (symbols: string) => `Bisa terima ${symbols}`,
+    addressTitle: (network: string) => `Alamat ${network} kamu`,
+    sharedEvmAddressNote:
+      'Alamat ini sama di Ethereum, Arbitrum, Base, dan Polygon, tapi saldonya terpisah per jaringan.',
   },
   swap: {
     title: 'Swap',
