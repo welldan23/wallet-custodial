@@ -3,12 +3,14 @@ import { router, type Href } from 'expo-router';
 import { AssetSection } from '@/components/home/asset-section';
 import { BalanceCard } from '@/components/home/balance-card';
 import { EmptyAssets } from '@/components/home/empty-assets';
+import { GasBalanceCard } from '@/components/home/gas-balance-card';
 import { QuickActions, type QuickAction } from '@/components/home/quick-actions';
 import { TabScreen } from '@/components/layout/tab-screen';
 import { useBalanceVisibility } from '@/hooks/use-balance-visibility';
+import { useGasSummary } from '@/hooks/use-gas-summary';
 import { usePortfolio } from '@/hooks/use-portfolio';
 import { useI18n } from '@/i18n';
-import type { FiatCurrency } from '@/types/wallet';
+import type { FiatCurrency, NetworkId } from '@/types/wallet';
 
 /** Mata uang pendamping USD. Nanti diambil dari Pengaturan. */
 const DISPLAY_CURRENCY: FiatCurrency = 'IDR';
@@ -21,10 +23,14 @@ const QUICK_ACTION_ROUTES: Record<QuickAction, Href> = {
 
 const openPortfolio = () => router.navigate('/portfolio');
 const openQuickAction = (action: QuickAction) => router.push(QUICK_ACTION_ROUTES[action]);
+/** Sementara isi gas diarahkan ke Swap (tukar sedikit stablecoin ke koin gas). */
+const topUpGas = (networkId: NetworkId) =>
+  router.push({ pathname: '/swap', params: { network: networkId } });
 
 export default function HomeScreen() {
   const { t } = useI18n();
   const { portfolio, networks, fxRates, pricesUpdatedAt } = usePortfolio();
+  const gas = useGasSummary();
   const { hidden: balanceHidden, toggleHidden } = useBalanceVisibility();
 
   return (
@@ -53,14 +59,12 @@ export default function HomeScreen() {
             emptyText={t.home.emptyStablecoins}
             onSeeAll={openPortfolio}
           />
-          <AssetSection
-            title={t.home.gasCoins}
-            subtitle={t.home.gasCoinsHint}
-            assets={portfolio.gasCoins}
+          <GasBalanceCard
+            summary={gas}
             currency={DISPLAY_CURRENCY}
             fxRates={fxRates}
             hidden={balanceHidden}
-            emptyText={t.home.emptyGasCoins}
+            onTopUp={topUpGas}
           />
         </>
       )}

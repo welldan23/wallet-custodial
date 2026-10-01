@@ -29,15 +29,12 @@ export const en: Dictionary = {
       swap: 'Swap',
     },
     stablecoinAssets: 'Stablecoin Assets',
-    gasCoins: 'Gas Coins',
-    gasCoinsHint: 'Used to pay network fees',
     emptyTitle: 'No assets yet',
     emptyDescription:
       'Your wallet is empty. Receive USDC or USDT from an exchange or a friend and your balance will show up here.',
     emptyCta: 'Receive Assets',
     supportedNetworks: 'Supported networks',
     emptyStablecoins: 'No stablecoins yet. Receive USDC or USDT to get started.',
-    emptyGasCoins: 'No gas coins yet. You need ETH, POL, or SOL to pay network fees.',
     networkCount: (count: number) => `${count} ${count === 1 ? 'network' : 'networks'}`,
     showBreakdown: 'Show per-network breakdown',
     hideBreakdown: 'Hide per-network breakdown',
@@ -55,5 +52,23 @@ export const en: Dictionary = {
   swap: {
     title: 'Swap',
     preview: 'Soon you can swap between stablecoins here, with clear rates, slippage, and fees.',
+  },
+  gas: {
+    title: 'Gas Balance',
+    subtitle: 'Pays network fees on each chain',
+    status: {
+      ok: 'Enough',
+      low: 'Low',
+      empty: 'Empty',
+    },
+    txEstimate: (count: number) => `~${count} ${count === 1 ? 'transaction' : 'transactions'}`,
+    manyTx: '100+ transactions',
+    lessThanOneTx: '<1 transaction',
+    topUp: 'Top up',
+    topUpLabel: (network: string) => `Top up gas on ${network}`,
+    warningNamed: (networks: string) =>
+      `Top up gas on ${networks} so transactions there don't fail.`,
+    warningCount: (count: number) => `${count} networks need gas so transactions don't fail.`,
+    estimateNote: 'Estimate based on the fee for one stablecoin transfer.',
   },
 };

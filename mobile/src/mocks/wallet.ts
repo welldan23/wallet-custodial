@@ -3,7 +3,7 @@
  * Bentuknya meniru kontrak API backend (networks, tokens, prices) dan
  * saldo dari RPC, jadi nanti tinggal diganti sumber datanya.
  */
-import type { FxRates, Network, Price, Token, TokenBalance } from '@/types/wallet';
+import type { FxRates, Network, NetworkId, Price, Token, TokenBalance } from '@/types/wallet';
 
 export const MOCK_NETWORKS: Network[] = [
   {
@@ -210,6 +210,19 @@ export const MOCK_FX_RATES: FxRates = {
   IDR: 16350,
 };
 
+/**
+ * Perkiraan biaya 1 kali kirim stablecoin per jaringan (USD). Nanti diganti
+ * estimasi gas langsung dari backend/RPC.
+ */
+export const MOCK_TRANSFER_FEES_USD: Record<NetworkId, number> = {
+  ethereum: 0.6,
+  arbitrum: 0.02,
+  base: 0.01,
+  polygon: 0.005,
+  solana: 0.001,
+};
+
+// Gas sengaja dibuat bervariasi: Ethereum menipis, Polygon kosong, sisanya cukup.
 export const MOCK_BALANCES: TokenBalance[] = [
   { tokenId: 'usdc-arbitrum', amount: 520 },
   { tokenId: 'usdc-base', amount: 350 },
@@ -220,10 +233,9 @@ export const MOCK_BALANCES: TokenBalance[] = [
   { tokenId: 'usdt-polygon', amount: 130 },
   { tokenId: 'usdt-arbitrum', amount: 120 },
   { tokenId: 'usdt-solana', amount: 100 },
-  { tokenId: 'eth-ethereum', amount: 0.0421 },
+  { tokenId: 'eth-ethereum', amount: 0.0006 },
   { tokenId: 'eth-arbitrum', amount: 0.0185 },
   { tokenId: 'eth-base', amount: 0.0094 },
-  { tokenId: 'pol-polygon', amount: 12.5 },
   { tokenId: 'sol-solana', amount: 0.215 },
   { tokenId: 'dai-ethereum', amount: 25 },
 ];

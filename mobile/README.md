@@ -35,7 +35,7 @@ Buat ngetes tampilan saat wallet kosong, pakai env `EXPO_PUBLIC_MOCK_WALLET`:
 
 | Nilai | Isi wallet |
 | --- | --- |
-| `funded` (default) | Ada stablecoin & koin gas |
+| `funded` (default) | Ada stablecoin & koin gas (gas Ethereum menipis, Polygon kosong) |
 | `empty` | Wallet baru, belum ada aset sama sekali |
 | `no-gas` | Cuma punya stablecoin, belum punya koin gas |
 

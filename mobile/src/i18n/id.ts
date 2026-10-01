@@ -27,15 +27,12 @@ export const id = {
       swap: 'Swap',
     },
     stablecoinAssets: 'Aset Stablecoin',
-    gasCoins: 'Koin Gas',
-    gasCoinsHint: 'Buat bayar biaya jaringan',
     emptyTitle: 'Belum ada aset',
     emptyDescription:
       'Wallet kamu masih kosong. Terima USDC atau USDT dari exchange atau teman, nanti saldonya muncul di sini.',
     emptyCta: 'Terima Aset',
     supportedNetworks: 'Jaringan yang didukung',
     emptyStablecoins: 'Belum ada stablecoin. Terima USDC atau USDT buat mulai.',
-    emptyGasCoins: 'Belum ada koin gas. Kamu butuh ETH, POL, atau SOL buat bayar biaya jaringan.',
     networkCount: (count: number) => `${count} jaringan`,
     showBreakdown: 'Lihat rincian per jaringan',
     hideBreakdown: 'Tutup rincian per jaringan',
@@ -54,6 +51,25 @@ export const id = {
     title: 'Swap',
     preview:
       'Nanti di sini kamu bisa tukar antar stablecoin, lengkap dengan kurs, slippage, dan biaya yang jelas.',
+  },
+  gas: {
+    title: 'Saldo Gas',
+    subtitle: 'Buat bayar biaya jaringan di tiap chain',
+    status: {
+      ok: 'Cukup',
+      low: 'Menipis',
+      empty: 'Kosong',
+    },
+    txEstimate: (count: number) => `±${count} transaksi`,
+    manyTx: '100+ transaksi',
+    lessThanOneTx: '<1 transaksi',
+    topUp: 'Isi',
+    topUpLabel: (network: string) => `Isi gas ${network}`,
+    warningNamed: (networks: string) =>
+      `Gas di ${networks} perlu diisi biar transaksi di sana nggak gagal.`,
+    warningCount: (count: number) =>
+      `${count} jaringan perlu diisi gas biar transaksi nggak gagal.`,
+    estimateNote: 'Perkiraan dihitung dari biaya 1 kali kirim stablecoin.',
   },
 };
 

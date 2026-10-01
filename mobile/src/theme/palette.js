@@ -33,5 +33,16 @@ module.exports = {
   /** Latar tombol aksi cepat. */
   tile: '#EDF2F9',
   line: '#E8EDF3',
-  danger: '#E5484D',
+  /** Peringatan ringan, mis. gas menipis. */
+  warning: {
+    50: '#FFF5E6',
+    500: '#F59E0B',
+    600: '#B26A00',
+  },
+  /** Bahaya/kosong, mis. gas habis. */
+  danger: {
+    50: '#FDEDED',
+    500: '#E5484D',
+    600: '#C2353A',
+  },
 };
