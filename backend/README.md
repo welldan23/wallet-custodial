@@ -136,6 +136,29 @@ tidak gagal) — perlindungan dari *address poisoning*.
 - EVM: riwayat semua jaringan EVM ikut dicek (alamatnya sama di semua chain).
 - `Cache-Control: no-store` (berisi riwayat pribadi).
 
+### `GET /v1/contacts[?network=…]`
+
+Buku Alamat milik perangkat ini. **Wajib** header
+`Authorization: Device <token>` — token acak (≥32 karakter, mis. UUID v4) yang
+dibuat & disimpan aman di HP. Backend hanya menyimpan hash SHA-256-nya (tabel
+`users.device_id_hash`). Kontak sengaja tidak bisa dibaca dengan alamat wallet,
+karena alamat itu publik.
+
+```json
+{
+  "contacts": [
+    { "id": "…", "name": "Deposit Tokocrypto", "address": "0x5b7E…", "chainType": "evm",
+      "networkId": "arbitrum", "isFavorite": true, "createdAt": "…", "updatedAt": "…" }
+  ]
+}
+```
+
+- Urutan: favorit dulu, lalu nama.
+- `network=arbitrum`: hanya kontak jaringan itu + kontak "semua jaringan"
+  (`networkId: null`) dengan tipe alamat yang sama.
+- Perangkat yang belum pernah menyimpan kontak mendapat daftar kosong.
+- `401` tanpa/salah token, `no-store`.
+
 ### `GET /v1/balances/summary?evm=0x…&solana=…`
 
 Ringkasan saldo USDC, USDT, dan koin gas (ETH/POL/SOL) di **semua jaringan**:

@@ -3,6 +3,7 @@ import { cors } from 'hono/cors';
 
 import { addressCheckRoutes } from './routes/address-check.js';
 import { balancesRoutes } from './routes/balances.js';
+import { contactsRoutes, type ContactsRouteDeps } from './routes/contacts.js';
 import { feesRoutes, type FeesRouteDeps } from './routes/fees.js';
 import { networksRoutes } from './routes/networks.js';
 import { transactionsRoutes, type TransactionsRouteDeps } from './routes/transactions.js';
@@ -14,6 +15,8 @@ export type AppDeps = BalanceSummaryDeps &
   Omit<FeesRouteDeps, 'feeEstimators'> & {
     /** Penghitung biaya per jaringan; kosong = endpoint biaya menjawab 503. */
     feeEstimators?: FeesRouteDeps['feeEstimators'];
+    /** Tanpa ini, /v1/contacts tidak dipasang. */
+    contactStore?: ContactsRouteDeps['contactStore'];
     /** Tanpa ini, POST /v1/transactions dan /v1/address-check tidak dipasang. */
     transactions?: Omit<TransactionsRouteDeps, 'loadCatalog' | 'rpcTimeoutMs'>;
     /** Matikan log request (mis. saat tes). */
@@ -35,12 +38,20 @@ export function createApp(deps: AppDeps): Hono {
   // Endpoint transaksi menerima POST; sisanya data baca-saja (GET).
   app.use('/v1/transactions', cors({ origin: '*', allowMethods: ['GET', 'POST'] }));
   app.use('/v1/transactions/*', cors({ origin: '*', allowMethods: ['GET', 'POST'] }));
+  // Kontak memakai header Authorization (token perangkat).
+  app.use(
+    '/v1/contacts',
+    cors({ origin: '*', allowMethods: ['GET'], allowHeaders: ['Authorization', 'Content-Type'] }),
+  );
   app.use('/v1/*', cors({ origin: '*', allowMethods: ['GET'] }));
 
   app.get('/health', (c) => c.json({ ok: true }));
   app.route('/v1/networks', networksRoutes(deps));
   app.route('/v1/fees', feesRoutes({ ...deps, feeEstimators: deps.feeEstimators ?? new Map() }));
   app.route('/v1/balances', balancesRoutes(deps));
+  if (deps.contactStore) {
+    app.route('/v1/contacts', contactsRoutes({ ...deps, contactStore: deps.contactStore }));
+  }
   if (deps.transactions) {
     app.route('/v1/transactions', transactionsRoutes({ ...deps, ...deps.transactions }));
     app.route('/v1/address-check', addressCheckRoutes({ ...deps, ...deps.transactions }));

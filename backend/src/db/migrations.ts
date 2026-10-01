@@ -104,4 +104,34 @@ export const MIGRATIONS: Migration[] = [
       CREATE INDEX transactions_pending ON transactions (status) WHERE status = 'pending';
     `,
   },
+  {
+    id: 5,
+    name: 'users_contacts',
+    sql: `
+      -- Pengguna anonim per perangkat (tabel users di PRD). device_id_hash =
+      -- SHA-256 token acak dari HP; token aslinya tidak disimpan.
+      CREATE TABLE users (
+        id TEXT PRIMARY KEY,
+        device_id_hash TEXT NOT NULL UNIQUE,
+        created_at TEXT NOT NULL
+      );
+
+      -- Buku Alamat (tabel contacts di PRD) + is_favorite untuk urutan tampil.
+      -- network_id NULL = bisa dipakai di semua jaringan bertipe sama.
+      CREATE TABLE contacts (
+        id TEXT PRIMARY KEY,
+        user_id TEXT NOT NULL REFERENCES users (id) ON DELETE CASCADE,
+        name TEXT NOT NULL CHECK (length(trim(name)) BETWEEN 1 AND 60),
+        address TEXT NOT NULL,
+        chain_type TEXT NOT NULL CHECK (chain_type IN ('evm', 'solana')),
+        network_id TEXT REFERENCES networks (id),
+        is_favorite INTEGER NOT NULL DEFAULT 0,
+        created_at TEXT NOT NULL,
+        updated_at TEXT NOT NULL
+      );
+
+      -- COALESCE: di SQLite NULL dianggap berbeda, jadi UNIQUE biasa tidak cukup.
+      CREATE UNIQUE INDEX contacts_unique ON contacts (user_id, address, COALESCE(network_id, ''));
+    `,
+  },
 ];

@@ -9,6 +9,7 @@ import { SqliteBalanceStore } from './cache/balance-store.js';
 import { loadCatalog } from './catalog/repository.js';
 import { createBalanceReaders } from './chains/readers.js';
 import { createTokenAccountOwnerResolver } from './chains/solana.js';
+import { ContactStore } from './contacts/store.js';
 import { loadConfig } from './config.js';
 import { openDatabase } from './db/database.js';
 import { createFeeEstimators } from './fees/estimators.js';
@@ -71,6 +72,7 @@ const app = createApp({
   loadCatalog: () => loadCatalog(db),
   readers: createBalanceReaders(loadCatalog(db).networks, config.rpcUrls),
   feeEstimators: createFeeEstimators(loadCatalog(db).networks, config.rpcUrls),
+  contactStore: new ContactStore(db),
   transactions: {
     broadcasters: createBroadcasters(loadCatalog(db).networks, config.rpcUrls, {
       evm: (serialized) => keccak256(serialized as `0x${string}`),
