@@ -1,8 +1,9 @@
 import { router, useLocalSearchParams } from 'expo-router';
 import { useState } from 'react';
-import { Text } from 'react-native';
+import { Pressable, Text } from 'react-native';
 
 import { StackScreen } from '@/components/layout/stack-screen';
+import { AmountInput } from '@/components/send/amount-input';
 import { AssetPickerSheet } from '@/components/send/asset-picker-sheet';
 import { AssetSelector } from '@/components/send/asset-selector';
 import { ContactPickerSheet } from '@/components/send/contact-picker-sheet';
@@ -11,11 +12,13 @@ import { RecipientInput } from '@/components/send/recipient-input';
 import { useToast } from '@/components/ui/toast';
 import { useBalanceVisibility } from '@/hooks/use-balance-visibility';
 import { useContacts } from '@/hooks/use-contacts';
+import { useNetworkFee } from '@/hooks/use-network-fee';
 import { useSupportedNetworks } from '@/hooks/use-supported-networks';
 import { useSendableAssets } from '@/hooks/use-sendable-assets';
 import { useWalletAccounts } from '@/hooks/use-wallet-accounts';
 import { useI18n } from '@/i18n';
 import { validateRecipient } from '@/lib/address-validation';
+import { checkAmount, normalizeAmountInput } from '@/lib/amount';
 import { parseScannedAddress } from '@/lib/payment-uri';
 import type { Contact, FiatCurrency } from '@/types/wallet';
 
@@ -34,6 +37,7 @@ export default function SendScreen() {
   const { accounts } = useWalletAccounts();
   const [pickerOpen, setPickerOpen] = useState(false);
   const [recipient, setRecipient] = useState('');
+  const [amount, setAmount] = useState('');
   const [contactName, setContactName] = useState<string | null>(null);
   const [scannerOpen, setScannerOpen] = useState(false);
   const [contactsOpen, setContactsOpen] = useState(false);
@@ -77,6 +81,31 @@ export default function SendScreen() {
     ? validateRecipient(recipient, selected.network, accounts)
     : ({ status: 'empty' } as const);
 
+  const fee = useNetworkFee(selected?.network ?? null);
+  const isNative = selected ? selected.symbol === selected.network.nativeSymbol : false;
+  // Kirim koin gas: sisakan biaya jaringan supaya transaksi tidak gagal.
+  const maxAmount =
+    selected && fee
+      ? Math.max(0, selected.amount - (isNative ? fee.feeUsd / (fee.nativeUsdPrice || 1) : 0))
+      : 0;
+  const amountCheck = selected
+    ? checkAmount(amount, maxAmount, selected.decimals)
+    : ({ status: 'empty' } as const);
+  const canContinue = recipientCheck.status === 'valid' && amountCheck.status === 'valid';
+
+  const goToConfirm = () => {
+    if (!selected || recipientCheck.status !== 'valid' || amountCheck.status !== 'valid') return;
+    router.push({
+      pathname: '/send/confirm',
+      params: {
+        token: selected.tokenId,
+        to: recipientCheck.address,
+        amount: normalizeAmountInput(amount),
+        ...(contactName ? { contact: contactName } : {}),
+      },
+    });
+  };
+
   return (
     <StackScreen title={t.send.title}>
       {selected ? (
@@ -97,6 +126,31 @@ export default function SendScreen() {
             onOpenScanner={() => setScannerOpen(true)}
             onOpenContacts={() => setContactsOpen(true)}
           />
+          {fee && (
+            <AmountInput
+              value={amount}
+              onChange={setAmount}
+              asset={selected}
+              check={amountCheck}
+              maxAmount={maxAmount}
+              usdPrice={fee.priceOf(selected.symbol)}
+              currency={DISPLAY_CURRENCY}
+              fxRates={fxRates}
+            />
+          )}
+          <Pressable
+            onPress={goToConfirm}
+            disabled={!canContinue}
+            accessibilityRole="button"
+            accessibilityState={{ disabled: !canContinue }}
+            className={`items-center rounded-full py-4 ${
+              canContinue ? 'bg-primary-500 active:opacity-80' : 'bg-line'
+            }`}>
+            <Text
+              className={`text-base font-semibold ${canContinue ? 'text-white' : 'text-ink-faint'}`}>
+              {t.send.continue}
+            </Text>
+          </Pressable>
           <ContactPickerSheet
             visible={contactsOpen}
             onClose={() => setContactsOpen(false)}
