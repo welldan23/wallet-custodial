@@ -4,6 +4,7 @@ import { Pressable, Text, View } from 'react-native';
 
 import { StackScreen } from '@/components/layout/stack-screen';
 import { SwapAssetCard } from '@/components/swap/swap-asset-card';
+import { SwapAssetPickerSheet, type SwapSide } from '@/components/swap/swap-asset-picker-sheet';
 import { DemoBanner } from '@/components/ui/demo-banner';
 import { useToast } from '@/components/ui/toast';
 import { useBalanceVisibility } from '@/hooks/use-balance-visibility';
@@ -34,6 +35,7 @@ export default function SwapScreen() {
   const [fromId, setFromId] = useState(initialPair?.from.tokenId);
   const [toId, setToId] = useState(initialPair?.to.tokenId);
   const [amountInput, setAmountInput] = useState('');
+  const [picking, setPicking] = useState<SwapSide | null>(null);
 
   const from = assets.find((asset) => asset.tokenId === fromId);
   const to = assets.find((asset) => asset.tokenId === toId);
@@ -68,6 +70,14 @@ export default function SwapScreen() {
     setAmountInput('');
   };
 
+  /** Memilih koin yang sama dengan sisi seberang = tukar arah saja. */
+  const selectAsset = (side: SwapSide, tokenId: string) => {
+    const other = side === 'from' ? to : from;
+    if (tokenId === other.tokenId) return flip();
+    if (side === 'from') setFromId(tokenId);
+    else setToId(tokenId);
+  };
+
   const review = () =>
     toast({ title: t.swap.reviewSoonTitle, message: t.swap.reviewSoonBody });
 
@@ -80,6 +90,7 @@ export default function SwapScreen() {
           label={t.swap.fromLabel}
           asset={from}
           hidden={hidden}
+          onPickAsset={() => setPicking('from')}
           editable
           value={amountInput}
           onChange={setAmountInput}
@@ -107,6 +118,7 @@ export default function SwapScreen() {
           label={t.swap.toLabel}
           asset={to}
           hidden={hidden}
+          onPickAsset={() => setPicking('to')}
           editable={false}
           value={amount > 0 && quote ? formatTokenAmount(quote.toAmount, true) : ''}
           caption={amount > 0 && quote ? `≈ ${fiat(quote.toAmount * to.usdPrice)}` : t.swap.estimateHint}
@@ -139,6 +151,18 @@ export default function SwapScreen() {
           {t.swap.review}
         </Text>
       </Pressable>
+
+      <SwapAssetPickerSheet
+        key={picking ?? 'closed'}
+        side={picking}
+        onClose={() => setPicking(null)}
+        assets={assets}
+        selected={picking === 'to' ? to : from}
+        otherNetworkId={picking === 'to' ? from.network.id : to.network.id}
+        otherTokenId={picking === 'to' ? from.tokenId : to.tokenId}
+        hidden={hidden}
+        onSelect={(tokenId) => picking && selectAsset(picking, tokenId)}
+      />
     </StackScreen>
   );
 }

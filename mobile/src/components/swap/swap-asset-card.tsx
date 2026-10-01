@@ -1,3 +1,4 @@
+import Ionicons from '@expo/vector-icons/Ionicons';
 import { Pressable, Text, TextInput, View } from 'react-native';
 
 import { NetworkIcon } from '@/components/crypto/network-icon';
@@ -14,6 +15,8 @@ type SwapAssetCardProps = {
   /** Teks di bawah angka, mis. `≈ Rp 16.350` atau pesan error. */
   caption: string;
   captionIsError?: boolean;
+  /** Buka pemilih koin + jaringan untuk sisi ini. */
+  onPickAsset: () => void;
 } & (
   | { editable: true; value: string; onChange: (value: string) => void; onMax: () => void }
   | { editable: false; value: string }
@@ -24,7 +27,7 @@ const tabularNums = { fontVariant: ['tabular-nums' as const] };
 /** Kartu "Dari" (bisa diketik) atau "Ke" (hasil perkiraan) di layar Swap. */
 export function SwapAssetCard(props: SwapAssetCardProps) {
   const { t } = useI18n();
-  const { label, asset, hidden, caption, captionIsError } = props;
+  const { label, asset, hidden, caption, captionIsError, onPickAsset } = props;
   const balance = hidden ? MASKED_VALUE : formatTokenAmount(asset.balance, true);
 
   return (
@@ -37,10 +40,12 @@ export function SwapAssetCard(props: SwapAssetCardProps) {
       </View>
 
       <View className="mt-2.5 flex-row items-center gap-3">
-        <View
-          className="flex-row items-center gap-2.5 rounded-2xl bg-subtle py-2 pl-2 pr-3"
-          accessible
-          accessibilityLabel={t.swap.assetLabel(label, asset.symbol, asset.network.name)}>
+        <Pressable
+          onPress={onPickAsset}
+          accessibilityRole="button"
+          accessibilityLabel={t.swap.assetLabel(label, asset.symbol, asset.network.name)}
+          accessibilityHint={t.swap.changeAssetHint}
+          className="flex-row items-center gap-2.5 rounded-2xl bg-subtle py-2 pl-2 pr-2.5 active:opacity-70">
           <TokenNetworkIcon symbol={asset.symbol} networkId={asset.network.id} size={34} />
           <View>
             <Text className="text-[15px] font-bold text-ink">{asset.symbol}</Text>
@@ -49,7 +54,8 @@ export function SwapAssetCard(props: SwapAssetCardProps) {
               <Text className="text-[11px] font-semibold text-ink-soft">{asset.network.name}</Text>
             </View>
           </View>
-        </View>
+          <Ionicons name="chevron-down" size={16} color={colors.ink.muted} />
+        </Pressable>
 
         {props.editable ? (
           <TextInput
