@@ -1,8 +1,9 @@
 export const id = {
   tabs: {
     home: 'Home',
-    history: 'Riwayat',
-    profile: 'Profil',
+    history: 'Tracker',
+    portfolio: 'Portfolio',
+    profile: 'Profile',
   },
   common: {
     seeAll: 'Lihat Semua',
@@ -10,12 +11,9 @@ export const id = {
     comingSoonDescription: 'Halaman ini lagi disiapin. Tunggu di update berikutnya, ya!',
   },
   home: {
-    walletName: 'MyWallet',
-    walletSubtitle: 'Stablecoin • Multi Chain',
-    support: 'Bantuan',
-    notifications: 'Notifikasi',
     totalBalance: 'Total Saldo (USD)',
     hideBalance: 'Sembunyikan saldo',
+    balanceDetail: 'Lihat rincian saldo di Portfolio',
     showBalance: 'Tampilkan saldo',
     fxRate: (rate: string) => `Kurs 1 USD ≈ ${rate}`,
     updatedAt: (time: string) => `diperbarui ${time}`,

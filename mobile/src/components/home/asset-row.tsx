@@ -18,10 +18,10 @@ type AssetRowProps = {
 export function AssetRow({ asset, currency, fxRates, hidden, isLast }: AssetRowProps) {
   return (
     <View className={`flex-row items-center gap-3 py-3 ${isLast ? '' : 'border-b border-line'}`}>
-      <TokenIcon symbol={asset.symbol} size={40} />
+      <TokenIcon symbol={asset.symbol} size={44} />
 
       <View className="flex-1 gap-1">
-        <Text className="text-[15px] font-bold text-ink">{asset.symbol}</Text>
+        <Text className="text-base font-bold text-ink">{asset.symbol}</Text>
         <NetworkBadges networks={asset.holdings.map((holding) => holding.network)} />
       </View>
 

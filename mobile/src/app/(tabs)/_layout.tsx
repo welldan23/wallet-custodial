@@ -27,7 +27,7 @@ export default function TabsLayout() {
     <Tabs
       screenOptions={{
         headerShown: false,
-        tabBarActiveTintColor: colors.brand[600],
+        tabBarActiveTintColor: colors.primary[500],
         tabBarInactiveTintColor: colors.ink.faint,
         tabBarStyle: { backgroundColor: colors.surface, borderTopColor: colors.line },
         tabBarLabelStyle: { fontSize: 11, fontWeight: '600' },
@@ -43,7 +43,14 @@ export default function TabsLayout() {
         name="history"
         options={{
           title: t.tabs.history,
-          tabBarIcon: (props) => <TabIcon {...props} icons={['time', 'time-outline']} />,
+          tabBarIcon: (props) => <TabIcon {...props} icons={['pie-chart', 'pie-chart-outline']} />,
+        }}
+      />
+      <Tabs.Screen
+        name="portfolio"
+        options={{
+          title: t.tabs.portfolio,
+          tabBarIcon: (props) => <TabIcon {...props} icons={['wallet', 'wallet-outline']} />,
         }}
       />
       <Tabs.Screen

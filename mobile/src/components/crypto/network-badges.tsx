@@ -11,25 +11,20 @@ type NetworkBadgesProps = {
   size?: number;
 };
 
-/** Deretan logo jaringan kecil yang saling menumpuk, mis. [ETH][ARB][BASE] +2. */
+/** Deretan logo jaringan kecil, mis. [ETH] [ARB] [BASE] +2. */
 export function NetworkBadges({ networks, max = 3, size = 16 }: NetworkBadgesProps) {
   const visible = networks.slice(0, max);
   const hiddenCount = networks.length - visible.length;
 
   return (
     <View
-      className="flex-row items-center"
+      className="flex-row items-center gap-1"
       accessibilityLabel={networks.map((network) => network.name).join(', ')}>
-      {visible.map((network, index) => (
-        <View
-          key={network.id}
-          className="rounded-full border-[1.5px] border-surface bg-surface"
-          style={{ marginLeft: index === 0 ? 0 : -4, zIndex: visible.length - index }}>
-          <NetworkIcon networkId={network.id} size={size} />
-        </View>
+      {visible.map((network) => (
+        <NetworkIcon key={network.id} networkId={network.id} size={size} />
       ))}
       {hiddenCount > 0 && (
-        <View className="ml-1 rounded-full bg-mint-100 px-1.5 py-px">
+        <View className="rounded-full bg-subtle px-1.5 py-px">
           <Text className="text-[10px] font-semibold text-ink-muted">+{hiddenCount}</Text>
         </View>
       )}

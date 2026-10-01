@@ -1,32 +1,37 @@
-// Palet warna MyWallet (tema hijau). Dipakai bareng oleh tailwind.config.js
-// (class NativeWind) dan kode TS (ikon, gradient) lewat src/theme/colors.ts.
+// Palet warna MyWallet: header teal, aksen biru, hijau untuk dana masuk.
+// Dipakai bareng oleh tailwind.config.js (class NativeWind) dan kode TS
+// (ikon, gradient) lewat src/theme/colors.ts.
 module.exports = {
-  brand: {
-    50: '#EAF8F2',
-    100: '#D2F0E4',
-    200: '#A6E0CA',
-    300: '#71CBAA',
-    400: '#3FB088',
-    500: '#16946C',
-    600: '#0F7B5A',
-    700: '#0C634A',
-    800: '#0A4F3C',
-    900: '#073D2F',
+  teal: {
+    300: '#86DAD4',
+    400: '#5ECEC8',
+    500: '#3BC1BB',
   },
-  mint: {
-    50: '#F3FBF8',
-    100: '#E2F5EE',
-    200: '#C4EBDF',
-    300: '#A3E0D0',
+  primary: {
+    50: '#EEF4FF',
+    100: '#DCE8FF',
+    500: '#2F6BF2',
+    600: '#2457D6',
+    700: '#1D46AE',
+  },
+  success: {
+    50: '#E6F6EC',
+    500: '#1FA35B',
+    600: '#178A4B',
   },
   ink: {
-    DEFAULT: '#0E1B17',
-    soft: '#3A4A44',
-    muted: '#6E7D78',
-    faint: '#A3B0AB',
+    DEFAULT: '#0F172A',
+    soft: '#334155',
+    muted: '#64748B',
+    faint: '#94A3B8',
   },
-  canvas: '#F4F8F7',
+  /** Latar lembaran konten. */
+  canvas: '#F3F5F9',
   surface: '#FFFFFF',
-  line: '#E6EEEB',
+  /** Kartu abu-abu muda, mis. kartu Total Saldo. */
+  subtle: '#F1F4F8',
+  /** Latar tombol aksi cepat. */
+  tile: '#EDF2F9',
+  line: '#E8EDF3',
   danger: '#E5484D',
 };

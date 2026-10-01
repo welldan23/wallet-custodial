@@ -3,7 +3,8 @@ import type { Dictionary } from './id';
 export const en: Dictionary = {
   tabs: {
     home: 'Home',
-    history: 'History',
+    history: 'Tracker',
+    portfolio: 'Portfolio',
     profile: 'Profile',
   },
   common: {
@@ -12,12 +13,9 @@ export const en: Dictionary = {
     comingSoonDescription: 'This page is being prepared. Stay tuned for the next update!',
   },
   home: {
-    walletName: 'MyWallet',
-    walletSubtitle: 'Stablecoin • Multi Chain',
-    support: 'Support',
-    notifications: 'Notifications',
     totalBalance: 'Total Balance (USD)',
     hideBalance: 'Hide balance',
+    balanceDetail: 'See balance details in Portfolio',
     showBalance: 'Show balance',
     fxRate: (rate: string) => `Rate 1 USD ≈ ${rate}`,
     updatedAt: (time: string) => `updated ${time}`,

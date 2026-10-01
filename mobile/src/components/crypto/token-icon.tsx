@@ -27,7 +27,7 @@ export function TokenIcon({ symbol, size = 40 }: TokenIconProps) {
         <Svg width={size} height={size} viewBox="0 0 32 32" style={{ position: 'absolute' }}>
           <FallbackGlyph />
         </Svg>
-        <Text className="font-bold text-brand-700" style={{ fontSize: size * 0.4 }}>
+        <Text className="font-bold text-primary-700" style={{ fontSize: size * 0.4 }}>
           {symbol.charAt(0)}
         </Text>
       </View>

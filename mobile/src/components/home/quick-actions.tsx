@@ -3,14 +3,17 @@ import type { ComponentProps } from 'react';
 import { Pressable, Text, View } from 'react-native';
 
 import { useI18n } from '@/i18n';
-import { cardShadow, colors } from '@/theme/colors';
+import { colors } from '@/theme/colors';
 
 export type QuickAction = 'send' | 'receive' | 'swap';
 
-const ACTION_ICONS: Record<QuickAction, ComponentProps<typeof Ionicons>['name']> = {
-  send: 'paper-plane-outline',
-  receive: 'arrow-down',
-  swap: 'swap-horizontal',
+const ACTION_STYLES: Record<
+  QuickAction,
+  { icon: ComponentProps<typeof Ionicons>['name']; tileClassName: string; color: string }
+> = {
+  send: { icon: 'paper-plane', tileClassName: 'bg-tile', color: colors.primary[500] },
+  receive: { icon: 'arrow-down', tileClassName: 'bg-success-50', color: colors.success[500] },
+  swap: { icon: 'swap-horizontal', tileClassName: 'bg-tile', color: colors.primary[500] },
 };
 
 const ACTIONS: QuickAction[] = ['send', 'receive', 'swap'];
@@ -21,19 +24,19 @@ export function QuickActions({ onPress }: { onPress?: (action: QuickAction) => v
 
   return (
     <View className="flex-row gap-3">
-      {ACTIONS.map((action) => (
-        <Pressable
-          key={action}
-          onPress={() => onPress?.(action)}
-          accessibilityRole="button"
-          className="flex-1 items-center gap-2 rounded-2xl bg-surface py-3 active:opacity-70"
-          style={cardShadow}>
-          <View className="h-10 w-10 items-center justify-center rounded-full bg-brand-50">
-            <Ionicons name={ACTION_ICONS[action]} size={20} color={colors.brand[600]} />
-          </View>
-          <Text className="text-[13px] font-semibold text-ink">{t.home.actions[action]}</Text>
-        </Pressable>
-      ))}
+      {ACTIONS.map((action) => {
+        const { icon, tileClassName, color } = ACTION_STYLES[action];
+        return (
+          <Pressable
+            key={action}
+            onPress={() => onPress?.(action)}
+            accessibilityRole="button"
+            className={`flex-1 items-center justify-center gap-1.5 rounded-[18px] py-4 active:opacity-70 ${tileClassName}`}>
+            <Ionicons name={icon} size={26} color={color} />
+            <Text className="text-[13px] font-medium text-ink">{t.home.actions[action]}</Text>
+          </Pressable>
+        );
+      })}
     </View>
   );
 }

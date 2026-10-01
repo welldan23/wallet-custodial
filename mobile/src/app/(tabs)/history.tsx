@@ -3,5 +3,5 @@ import { useI18n } from '@/i18n';
 
 export default function HistoryScreen() {
   const { t } = useI18n();
-  return <ComingSoon title={t.tabs.history} />;
+  return <ComingSoon title={t.tabs.history} active="history" />;
 }

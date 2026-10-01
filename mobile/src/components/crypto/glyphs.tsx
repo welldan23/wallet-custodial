@@ -130,5 +130,5 @@ export function BaseGlyph() {
 }
 
 export function FallbackGlyph() {
-  return <Rect x={0} y={0} width={32} height={32} rx={16} fill="#D2F0E4" />;
+  return <Rect x={0} y={0} width={32} height={32} rx={16} fill="#DCE8FF" />;
 }
