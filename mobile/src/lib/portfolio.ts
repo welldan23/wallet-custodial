@@ -1,6 +1,9 @@
 import type { Network, Price, Token, TokenBalance } from '@/types/wallet';
 
 export type AssetHolding = {
+  /** Id token di jaringan ini, mis. `usdc-arbitrum`. */
+  tokenId: string;
+  decimals: number;
   network: Network;
   amount: number;
   valueUsd: number;
@@ -63,7 +66,14 @@ export function buildPortfolio({ networks, tokens, prices, balances }: Portfolio
     };
     asset.amount += amount;
     asset.valueUsd += valueUsd;
-    asset.holdings.push({ network, amount, valueUsd, share: 0 });
+    asset.holdings.push({
+      tokenId: token.id,
+      decimals: token.decimals,
+      network,
+      amount,
+      valueUsd,
+      share: 0,
+    });
     assets.set(token.symbol, asset);
   }
 

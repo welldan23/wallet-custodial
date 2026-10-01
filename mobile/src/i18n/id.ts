@@ -41,8 +41,14 @@ export const id = {
   },
   send: {
     title: 'Kirim',
-    preview:
-      'Nanti di sini kamu bisa kirim USDC atau USDT ke alamat lain, lengkap dengan cek alamat mirip dan konfirmasi sidik jari.',
+    assetLabel: 'Pilih aset',
+    changeAssetLabel: (symbol: string, network: string) =>
+      `Aset: ${symbol} di ${network}. Ketuk untuk ganti`,
+    available: 'Saldo tersedia',
+    pickAssetTitle: 'Pilih Aset',
+    searchAsset: 'Cari aset atau jaringan',
+    noAssetFound: 'Aset nggak ketemu.',
+    noAssets: 'Belum ada aset yang bisa dikirim. Terima aset dulu, ya.',
   },
   receive: {
     title: 'Terima',

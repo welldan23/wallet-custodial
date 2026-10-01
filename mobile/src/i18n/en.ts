@@ -43,8 +43,14 @@ export const en: Dictionary = {
   },
   send: {
     title: 'Send',
-    preview:
-      'Soon you can send USDC or USDT to another address here, with look-alike address checks and fingerprint confirmation.',
+    assetLabel: 'Choose asset',
+    changeAssetLabel: (symbol: string, network: string) =>
+      `Asset: ${symbol} on ${network}. Tap to change`,
+    available: 'Available balance',
+    pickAssetTitle: 'Choose Asset',
+    searchAsset: 'Search asset or network',
+    noAssetFound: 'No asset found.',
+    noAssets: 'No assets to send yet. Receive some first.',
   },
   receive: {
     title: 'Receive',
