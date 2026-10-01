@@ -1,6 +1,7 @@
 import { Hono, type MiddlewareHandler } from 'hono';
 import { cors } from 'hono/cors';
 
+import { addressCheckRoutes } from './routes/address-check.js';
 import { balancesRoutes } from './routes/balances.js';
 import { feesRoutes, type FeesRouteDeps } from './routes/fees.js';
 import { networksRoutes } from './routes/networks.js';
@@ -13,7 +14,7 @@ export type AppDeps = BalanceSummaryDeps &
   Omit<FeesRouteDeps, 'feeEstimators'> & {
     /** Penghitung biaya per jaringan; kosong = endpoint biaya menjawab 503. */
     feeEstimators?: FeesRouteDeps['feeEstimators'];
-    /** Tanpa ini, POST /v1/transactions tidak dipasang. */
+    /** Tanpa ini, POST /v1/transactions dan /v1/address-check tidak dipasang. */
     transactions?: Omit<TransactionsRouteDeps, 'loadCatalog' | 'rpcTimeoutMs'>;
     /** Matikan log request (mis. saat tes). */
     logRequests?: boolean;
@@ -42,6 +43,7 @@ export function createApp(deps: AppDeps): Hono {
   app.route('/v1/balances', balancesRoutes(deps));
   if (deps.transactions) {
     app.route('/v1/transactions', transactionsRoutes({ ...deps, ...deps.transactions }));
+    app.route('/v1/address-check', addressCheckRoutes({ ...deps, ...deps.transactions }));
   }
   app.route('/v1/prices', pricesRoutes(deps));
 

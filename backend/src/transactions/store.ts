@@ -15,6 +15,13 @@ export type NewTransaction = {
   txHash: string;
 };
 
+export type SentCounterparty = {
+  address: string;
+  timesUsed: number;
+  lastUsedAt: string;
+  networkIds: string[];
+};
+
 const SELECT = `
   SELECT id, wallet_key AS walletKey, network_id AS networkId, token_id AS tokenId, type, status,
          amount_raw AS amountRaw, amount_usd AS amountUsd, fee_raw AS feeRaw,
@@ -67,6 +74,28 @@ export class TransactionStore {
     const transaction = this.findByHash(input.walletKey, input.networkId, input.txHash);
     if (!transaction) throw new Error('transaction_not_saved');
     return { transaction, created: result.changes === 1 };
+  }
+
+  /**
+   * Alamat yang pernah dikirimi wallet ini di jaringan-jaringan tertentu
+   * (kiriman yang tidak gagal), dengan jumlah pemakaian dan waktu terakhir.
+   */
+  listSentCounterparties(walletKey: string, networkIds: string[]): SentCounterparty[] {
+    if (networkIds.length === 0) return [];
+    const rows = this.db
+      .prepare(
+        `SELECT counterparty_address AS address, COUNT(*) AS timesUsed,
+                MAX(created_at) AS lastUsedAt, GROUP_CONCAT(DISTINCT network_id) AS networks
+         FROM transactions
+         WHERE wallet_key = ? AND type = 'send' AND status != 'failed'
+           AND network_id IN (${networkIds.map(() => '?').join(', ')})
+         GROUP BY counterparty_address
+         ORDER BY lastUsedAt DESC`,
+      )
+      .all(walletKey, ...networkIds) as (Omit<SentCounterparty, 'networkIds'> & {
+      networks: string;
+    })[];
+    return rows.map(({ networks, ...row }) => ({ ...row, networkIds: networks.split(',').sort() }));
   }
 
   setStatus(id: string, status: TransactionStatus, feeRaw?: bigint | null): void {

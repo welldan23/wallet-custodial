@@ -117,6 +117,25 @@ menolak (`insufficient_funds`, `nonce_too_low`, `fee_too_low`,
 `blockhash_expired`, `rejected`) — tidak dicatat, `502` RPC tidak bisa dihubungi
 (aman kirim ulang transaksi yang sama), `413` body > 64 KB.
 
+### `GET /v1/address-check?network=…&owner=…&to=…`
+
+Cek alamat tujuan terhadap alamat yang pernah dikirimi `owner` (kiriman yang
+tidak gagal) — perlindungan dari *address poisoning*.
+
+```json
+{
+  "result": "lookalike",
+  "match": { "address": "0xd8dA6BF2…96045", "timesUsed": 3, "lastUsedAt": "2026-09-30T04:20:00.000Z",
+             "networkIds": ["arbitrum", "ethereum"], "samePrefix": 5, "sameSuffix": 5 },
+  "checkedAddresses": 4
+}
+```
+
+- `known` = persis sama, `lookalike` = awal ≥3 & akhir ≥3 karakter sama (total ≥7)
+  tapi berbeda (aturan sama dengan aplikasi), `new` = belum pernah dipakai.
+- EVM: riwayat semua jaringan EVM ikut dicek (alamatnya sama di semua chain).
+- `Cache-Control: no-store` (berisi riwayat pribadi).
+
 ### `GET /v1/balances/summary?evm=0x…&solana=…`
 
 Ringkasan saldo USDC, USDT, dan koin gas (ETH/POL/SOL) di **semua jaringan**:
