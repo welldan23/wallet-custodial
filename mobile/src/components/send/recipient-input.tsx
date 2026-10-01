@@ -13,12 +13,24 @@ type RecipientInputProps = {
   onChange: (value: string) => void;
   network: Network;
   check: RecipientCheck;
+  /** Nama kontak kalau alamat dipilih dari Buku Alamat. */
+  contactName?: string | null;
+  onOpenScanner: () => void;
+  onOpenContacts: () => void;
 };
 
 const monoFont = Platform.select({ ios: 'Menlo', default: 'monospace' });
 
 /** Kolom alamat tujuan dengan tombol tempel/hapus dan hasil validasi jaringan. */
-export function RecipientInput({ value, onChange, network, check }: RecipientInputProps) {
+export function RecipientInput({
+  value,
+  onChange,
+  network,
+  check,
+  contactName,
+  onOpenScanner,
+  onOpenContacts,
+}: RecipientInputProps) {
   const { t } = useI18n();
   const toast = useToast();
 
@@ -78,7 +90,18 @@ export function RecipientInput({ value, onChange, network, check }: RecipientInp
         )}
       </View>
 
+      {contactName && (
+        <View className="mt-2 flex-row items-center gap-1.5 self-start rounded-full bg-primary-50 px-2.5 py-1">
+          <Ionicons name="person" size={12} color={colors.primary[600]} />
+          <Text className="text-xs font-semibold text-primary-600">{contactName}</Text>
+        </View>
+      )}
       <RecipientFeedback check={check} network={network} />
+
+      <View className="mt-3 flex-row gap-2.5">
+        <SourceButton icon="scan-outline" label={t.send.scanQr} onPress={onOpenScanner} />
+        <SourceButton icon="book-outline" label={t.send.addressBook} onPress={onOpenContacts} />
+      </View>
     </View>
   );
 }
@@ -114,5 +137,24 @@ function RecipientFeedback({ check, network }: { check: RecipientCheck; network:
         {message}
       </Text>
     </View>
+  );
+}
+
+type SourceButtonProps = {
+  icon: 'scan-outline' | 'book-outline';
+  label: string;
+  onPress: () => void;
+};
+
+function SourceButton({ icon, label, onPress }: SourceButtonProps) {
+  return (
+    <Pressable
+      onPress={onPress}
+      accessibilityRole="button"
+      accessibilityLabel={label}
+      className="flex-1 flex-row items-center justify-center gap-1.5 rounded-full border border-line bg-surface py-2.5 active:opacity-70">
+      <Ionicons name={icon} size={16} color={colors.primary[500]} />
+      <Text className="text-[13px] font-semibold text-primary-500">{label}</Text>
+    </Pressable>
   );
 }

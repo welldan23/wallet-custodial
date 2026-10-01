@@ -56,6 +56,22 @@ export const id = {
     clearAddress: 'Hapus alamat',
     validAddress: (network: string) => `Format alamat ${network} valid.`,
     ownAddressWarning: 'Ini alamat wallet kamu sendiri. Yakin mau kirim ke diri sendiri?',
+    scanQr: 'Scan QR',
+    addressBook: 'Buku Alamat',
+    addressBookTitle: 'Buku Alamat',
+    addressBookHint: (network: string) => `Kontak yang alamatnya bisa dipakai di ${network}.`,
+    addressBookEmpty: (network: string) => `Belum ada kontak untuk jaringan ${network}.`,
+    contactUsualNetwork: (network: string) => `Biasa di ${network}`,
+    contactUsualNetworkOther: (network: string) => `Biasa di ${network}, cek lagi jaringannya`,
+    cameraPermissionTitle: 'Izinkan kamera untuk scan QR',
+    cameraDeniedTitle: 'Akses kamera ditolak',
+    cameraPermissionBody:
+      'Kamera cuma dipakai untuk membaca QR alamat. Kalau sudah ditolak, aktifkan lewat Pengaturan HP.',
+    allowCamera: 'Izinkan kamera',
+    scanHint: 'Arahkan kamera ke QR alamat',
+    qrNetworkMismatchTitle: 'Jaringan QR berbeda',
+    qrNetworkMismatch: (qrNetwork: string, network: string) =>
+      `QR ini untuk ${qrNetwork}, sedangkan aset yang dipilih ada di ${network}. Pastikan jaringannya sama.`,
     invalidReason: {
       evm_format: (_network: string) => 'Alamat harus 0x diikuti 40 karakter (0-9, a-f).',
       evm_checksum: (_network: string) =>

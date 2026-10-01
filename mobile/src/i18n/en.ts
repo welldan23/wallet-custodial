@@ -58,6 +58,23 @@ export const en: Dictionary = {
     clearAddress: 'Clear address',
     validAddress: (network: string) => `Valid ${network} address format.`,
     ownAddressWarning: 'This is your own wallet address. Sure you want to send to yourself?',
+    scanQr: 'Scan QR',
+    addressBook: 'Address Book',
+    addressBookTitle: 'Address Book',
+    addressBookHint: (network: string) => `Contacts whose address works on ${network}.`,
+    addressBookEmpty: (network: string) => `No contacts for the ${network} network yet.`,
+    contactUsualNetwork: (network: string) => `Usually on ${network}`,
+    contactUsualNetworkOther: (network: string) =>
+      `Usually on ${network}, double-check the network`,
+    cameraPermissionTitle: 'Allow the camera to scan QR codes',
+    cameraDeniedTitle: 'Camera access denied',
+    cameraPermissionBody:
+      'The camera is only used to read address QR codes. If you denied it, enable it in your phone settings.',
+    allowCamera: 'Allow camera',
+    scanHint: 'Point the camera at an address QR',
+    qrNetworkMismatchTitle: 'Different QR network',
+    qrNetworkMismatch: (qrNetwork: string, network: string) =>
+      `This QR is for ${qrNetwork}, but the selected asset is on ${network}. Make sure the networks match.`,
     invalidReason: {
       evm_format: (_network: string) =>
         'The address must be 0x followed by 40 characters (0-9, a-f).',

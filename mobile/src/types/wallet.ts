@@ -55,3 +55,13 @@ export type WalletAccounts = {
   evm: string;
   solana: string;
 };
+
+/** Kontak di Buku Alamat — tabel `contacts` di PRD. */
+export type Contact = {
+  id: string;
+  name: string;
+  address: string;
+  /** Jaringan yang biasa dipakai; `null` = semua jaringan bertipe sama. */
+  networkId: NetworkId | null;
+  isFavorite: boolean;
+};
