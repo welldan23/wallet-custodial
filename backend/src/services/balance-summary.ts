@@ -4,7 +4,8 @@ import type { Catalog } from '../catalog/repository.js';
 import type { BalanceReader, RawBalance } from '../chains/types.js';
 import type { TtlCache } from '../lib/ttl-cache.js';
 import { TimeoutError, withTimeout } from '../lib/timeout.js';
-import type { ChainType, Price } from '../types.js';
+import { latestPrice } from '../prices/latest.js';
+import type { ChainType } from '../types.js';
 
 export type Owners = Record<ChainType, string | null>;
 
@@ -66,14 +67,6 @@ export type BalanceSummaryDeps = {
 type NetworkResult = { summary: NetworkSummary; items: BalanceItem[] };
 
 const roundUsd = (value: number) => Math.round(value * 1e6) / 1e6;
-
-function latestPrice(prices: Iterable<Price>): Price | null {
-  let latest: Price | null = null;
-  for (const price of prices) {
-    if (!latest || price.updatedAt > latest.updatedAt) latest = price;
-  }
-  return latest;
-}
 
 /**
  * Ringkasan saldo semua jaringan untuk satu pemilik (alamat EVM + Solana).

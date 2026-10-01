@@ -6,14 +6,17 @@ import type { Db } from './database.js';
 /**
  * Isi katalog jaringan & token MVP (aman dijalankan berulang). Status
  * `is_active`/`is_visible` yang sudah diubah di database tidak ditimpa.
+ *
+ * Harga awal diberi waktu `pricesUpdatedAt` (default 1970) supaya terbaca
+ * kedaluwarsa sampai PriceService berhasil mengambil harga asli.
  */
 export function seedCatalog(
   db: Db,
   {
     networks = MVP_NETWORKS,
     tokens = MVP_TOKENS,
-    now = new Date(),
-  }: { networks?: Network[]; tokens?: Token[]; now?: Date } = {},
+    pricesUpdatedAt = new Date(0),
+  }: { networks?: Network[]; tokens?: Token[]; pricesUpdatedAt?: Date } = {},
 ): void {
   const upsertNetwork = db.prepare(`
     INSERT INTO networks (id, name, chain_id, chain_type, native_symbol, explorer_url, is_active)
@@ -57,7 +60,7 @@ export function seedCatalog(
       insertPrice.run({
         ...price,
         id: price.symbol.toLowerCase(),
-        updatedAt: now.toISOString(),
+        updatedAt: pricesUpdatedAt.toISOString(),
       });
     }
   })();

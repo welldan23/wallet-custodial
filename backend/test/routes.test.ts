@@ -12,6 +12,7 @@ function testApp() {
       ethereum: fakeReader({ 'usdc-ethereum': 2_500_000n }).reader,
       solana: fakeReader({ 'usdt-solana': 1_000_000n }).reader,
     }),
+    priceStaleAfterMs: 15 * 60_000,
     logRequests: false,
   });
 }
@@ -68,5 +69,27 @@ describe('API', () => {
     const res = await testApp().request('/nggak-ada');
     expect(res.status).toBe(404);
     expect(await res.json()).toEqual({ error: 'not_found' });
+  });
+});
+
+describe('GET /v1/prices', () => {
+  it('mengembalikan harga token yang tampil + kurs, urut seperti katalog', async () => {
+    const res = await testApp().request('/v1/prices');
+    expect(res.status).toBe(200);
+    expect(res.headers.get('cache-control')).toBe('public, max-age=30');
+
+    const body = (await res.json()) as {
+      fx: { USD: number; IDR: number };
+      prices: { symbol: string; usdPrice: number; idrPrice: number }[];
+      isStale: boolean;
+    };
+    expect(body.fx).toEqual({ USD: 1, IDR: 16350 });
+    expect(body.prices.map((price) => price.symbol)).toEqual(['USDC', 'USDT', 'ETH', 'POL', 'SOL']);
+    expect(body.prices.find((price) => price.symbol === 'ETH')).toMatchObject({
+      usdPrice: 2980.5,
+      idrPrice: 48731175,
+    });
+    // Harga tes dicatat 10:42, "sekarang" 11:00 → 18 menit > batas 15 menit.
+    expect(body.isStale).toBe(true);
   });
 });

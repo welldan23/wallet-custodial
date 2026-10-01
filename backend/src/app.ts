@@ -2,12 +2,14 @@ import { Hono, type MiddlewareHandler } from 'hono';
 import { cors } from 'hono/cors';
 
 import { balancesRoutes } from './routes/balances.js';
+import { pricesRoutes, type PricesRouteDeps } from './routes/prices.js';
 import type { BalanceSummaryDeps } from './services/balance-summary.js';
 
-export type AppDeps = BalanceSummaryDeps & {
-  /** Matikan log request (mis. saat tes). */
-  logRequests?: boolean;
-};
+export type AppDeps = BalanceSummaryDeps &
+  PricesRouteDeps & {
+    /** Matikan log request (mis. saat tes). */
+    logRequests?: boolean;
+  };
 
 /** Log singkat tanpa query string, supaya alamat wallet tidak ikut tercatat. */
 const requestLogger: MiddlewareHandler = async (c, next) => {
@@ -25,6 +27,7 @@ export function createApp(deps: AppDeps): Hono {
 
   app.get('/health', (c) => c.json({ ok: true }));
   app.route('/v1/balances', balancesRoutes(deps));
+  app.route('/v1/prices', pricesRoutes(deps));
 
   app.notFound((c) => c.json({ error: 'not_found' }, 404));
   app.onError((error, c) => {

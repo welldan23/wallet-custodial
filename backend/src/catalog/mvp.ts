@@ -120,14 +120,14 @@ export const MVP_TOKENS: Token[] = [
 ];
 
 /**
- * Harga awal supaya API langsung bisa menghitung nilai USD. Hanya diisi
- * kalau belum ada, jadi tidak menimpa harga yang sudah diperbarui.
+ * Harga cadangan supaya API langsung bisa menghitung nilai USD sebelum
+ * PriceService jalan. Hanya diisi kalau belum ada, dan ditandai kedaluwarsa.
  */
 export const SEED_PRICES: Omit<Price, 'updatedAt'>[] = [
-  { symbol: 'USDC', usdPrice: 1, idrRate: 16350 },
-  { symbol: 'USDT', usdPrice: 1, idrRate: 16350 },
-  { symbol: 'DAI', usdPrice: 1, idrRate: 16350 },
-  { symbol: 'ETH', usdPrice: 2980.5, idrRate: 16350 },
-  { symbol: 'POL', usdPrice: 0.42, idrRate: 16350 },
-  { symbol: 'SOL', usdPrice: 152.3, idrRate: 16350 },
+  { symbol: 'USDC', usdPrice: 1, idrRate: 17900 },
+  { symbol: 'USDT', usdPrice: 1, idrRate: 17900 },
+  { symbol: 'DAI', usdPrice: 1, idrRate: 17900 },
+  { symbol: 'ETH', usdPrice: 2700, idrRate: 17900 },
+  { symbol: 'POL', usdPrice: 0.11, idrRate: 17900 },
+  { symbol: 'SOL', usdPrice: 120, idrRate: 17900 },
 ];

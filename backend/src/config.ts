@@ -14,6 +14,12 @@ export type Config = {
   rpcUrls: Record<string, string>;
   balanceCacheTtlMs: number;
   rpcTimeoutMs: number;
+  priceRefreshIntervalMs: number;
+  fxRefreshIntervalMs: number;
+  priceStaleAfterMs: number;
+  priceFetchTimeoutMs: number;
+  /** API key demo CoinGecko (opsional, untuk sumber cadangan). */
+  coingeckoApiKey: string | null;
 };
 
 function toNonNegativeInt(value: string | undefined, fallback: number): number {
@@ -35,5 +41,10 @@ export function loadConfig(env: NodeJS.ProcessEnv = process.env): Config {
     rpcUrls,
     balanceCacheTtlMs: toNonNegativeInt(env.BALANCE_CACHE_TTL_MS, 20_000),
     rpcTimeoutMs: toNonNegativeInt(env.RPC_TIMEOUT_MS, 8_000),
+    priceRefreshIntervalMs: toNonNegativeInt(env.PRICE_REFRESH_INTERVAL_MS, 60_000),
+    fxRefreshIntervalMs: toNonNegativeInt(env.FX_REFRESH_INTERVAL_MS, 60 * 60_000),
+    priceStaleAfterMs: toNonNegativeInt(env.PRICE_STALE_AFTER_MS, 15 * 60_000),
+    priceFetchTimeoutMs: toNonNegativeInt(env.PRICE_FETCH_TIMEOUT_MS, 8_000),
+    coingeckoApiKey: env.COINGECKO_API_KEY || null,
   };
 }

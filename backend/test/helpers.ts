@@ -9,10 +9,33 @@ import type { Token } from '../src/types.js';
 export const EVM_OWNER = '0x1111111111111111111111111111111111111111';
 export const SOLANA_OWNER = '9WzDXwBbmkg8ZTbNMqUxvQRAyrZzDsGYdLVL9zYtAWWM';
 
+export const TEST_PRICES_AT = '2026-10-01T10:42:00.000Z';
+
+/** Database berisi katalog MVP + harga tes yang tetap (tidak ikut harga seed). */
 export function seededDb(): Db {
   const db = openDatabase(':memory:');
-  seedCatalog(db, { now: new Date('2026-10-01T10:42:00.000Z') });
+  seedCatalog(db);
+  setPrices(
+    db,
+    { USDC: 1, USDT: 1, DAI: 1, ETH: 2980.5, POL: 0.42, SOL: 152.3 },
+    16350,
+    TEST_PRICES_AT,
+  );
   return db;
+}
+
+export function setPrices(
+  db: Db,
+  usdBySymbol: Record<string, number>,
+  idrRate: number,
+  updatedAt: string,
+): void {
+  const update = db.prepare(
+    'UPDATE prices SET usd_price = ?, idr_rate = ?, updated_at = ? WHERE symbol = ?',
+  );
+  for (const [symbol, usdPrice] of Object.entries(usdBySymbol)) {
+    update.run(usdPrice, idrRate, updatedAt, symbol);
+  }
 }
 
 /** Pembaca palsu: saldo diambil dari tabel tokenId → raw, sisanya 0. */

@@ -79,6 +79,38 @@ Contoh jawaban (dipotong):
 - Log server tidak mencatat query string, jadi alamat wallet tidak ikut
   tercatat.
 
+### `GET /v1/prices`
+
+Harga token yang tampil di aplikasi + kurs USD→Rupiah. Sama untuk semua
+pengguna, jadi boleh di-cache 30 detik.
+
+```json
+{
+  "base": "USD",
+  "fx": { "USD": 1, "IDR": 17891 },
+  "prices": [
+    { "symbol": "USDC", "usdPrice": 0.99983, "idrPrice": 17887.96, "updatedAt": "2026-10-01T07:03:06.569Z" },
+    { "symbol": "ETH", "usdPrice": 2712.8, "idrPrice": 48534773.31, "updatedAt": "2026-10-01T07:03:06.569Z" }
+  ],
+  "updatedAt": "2026-10-01T07:03:06.569Z",
+  "isStale": false
+}
+```
+
+## Harga & kurs
+
+Server memperbarui tabel `prices` secara otomatis:
+
+- **Harga USD** tiap 60 detik dari [DefiLlama](https://defillama.com/docs/api)
+  (gratis, tanpa key). Kalau gagal atau ada simbol yang tidak ketemu, dicoba
+  ke CoinGecko.
+- **Kurs USD→IDR** tiap 1 jam dari [Frankfurter](https://frankfurter.dev)
+  (kurs referensi ECB), cadangannya [open.er-api.com](https://open.er-api.com).
+- Kalau semua sumber gagal, harga lama tetap dipakai dan `isStale` jadi
+  `true`. Aplikasi bisa menampilkan peringatan alih-alih angka nol.
+- Harga awal dari seed sengaja bertanda kedaluwarsa sampai refresh pertama
+  berhasil (biasanya beberapa detik setelah server menyala).
+
 ## Konfigurasi
 
 Lihat [`.env.example`](.env.example). Yang penting:
@@ -90,6 +122,10 @@ Lihat [`.env.example`](.env.example). Yang penting:
 | `RPC_URL_<JARINGAN>` | RPC per jaringan. Default-nya node publik yang ada batas request; untuk production pakai provider sendiri |
 | `BALANCE_CACHE_TTL_MS` | Lama cache saldo (ms) |
 | `RPC_TIMEOUT_MS` | Batas waktu baca saldo per jaringan (ms) |
+| `PRICE_REFRESH_INTERVAL_MS` | Interval refresh harga (default 60 detik) |
+| `FX_REFRESH_INTERVAL_MS` | Interval refresh kurs (default 1 jam) |
+| `PRICE_STALE_AFTER_MS` | Batas umur harga sebelum ditandai `isStale` (default 15 menit) |
+| `COINGECKO_API_KEY` | Opsional, API key demo CoinGecko untuk sumber cadangan |
 
 ## Perintah lain
 
@@ -111,6 +147,7 @@ src/
   app.ts          # rakitan Hono (middleware + route)
   routes/         # endpoint HTTP
   services/       # logika ringkasan saldo
+  prices/         # sumber harga & kurs + PriceService (refresh berkala)
   chains/         # pembaca saldo EVM (viem) & Solana (@solana/kit)
   catalog/        # katalog jaringan/token MVP + pembacanya
   db/             # koneksi SQLite, migrasi, seed
