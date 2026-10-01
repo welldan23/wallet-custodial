@@ -1,6 +1,5 @@
 import { describe, expect, it } from 'vitest';
 
-import { TtlCache } from '../src/lib/ttl-cache.js';
 import { getBalanceSummary } from '../src/services/balance-summary.js';
 
 import {
@@ -8,9 +7,11 @@ import {
   failingReader,
   fakeReader,
   hangingReader,
+  makeBalanceCache,
   makeDeps,
   seededDb,
   SOLANA_OWNER,
+  TEST_NOW,
 } from './helpers.js';
 
 const owners = { evm: EVM_OWNER, solana: SOLANA_OWNER };
@@ -123,7 +124,7 @@ describe('getBalanceSummary', () => {
   it('memakai cache per jaringan + alamat selama masih berlaku', async () => {
     const db = seededDb();
     const ethereum = fakeReader({ 'usdc-ethereum': 1_000_000n });
-    const deps = makeDeps(db, { ethereum: ethereum.reader }, { cache: new TtlCache(60_000) });
+    const deps = makeDeps(db, { ethereum: ethereum.reader });
 
     await getBalanceSummary(deps, { evm: EVM_OWNER, solana: null });
     await getBalanceSummary(deps, { evm: EVM_OWNER, solana: null });
@@ -134,5 +135,64 @@ describe('getBalanceSummary', () => {
       solana: null,
     });
     expect(ethereum.calls).toHaveLength(2);
+  });
+});
+
+describe('getBalanceSummary + cache SQLite', () => {
+  it('memakai saldo terakhir (stale) saat RPC gagal, lengkap dengan waktunya', async () => {
+    const db = seededDb();
+    let now = TEST_NOW;
+    const balanceCache = makeBalanceCache(db, { now: () => now });
+    const otherEvm = {
+      arbitrum: fakeReader({}).reader,
+      base: fakeReader({}).reader,
+      polygon: fakeReader({}).reader,
+    };
+
+    const first = await getBalanceSummary(
+      makeDeps(
+        db,
+        { ethereum: fakeReader({ 'usdc-ethereum': 42_000_000n }).reader, ...otherEvm },
+        { balanceCache },
+      ),
+      { evm: EVM_OWNER, solana: null },
+    );
+    expect(first.networks[0]).toMatchObject({ status: 'ok', fetchedAt: TEST_NOW.toISOString() });
+
+    now = new Date(TEST_NOW.getTime() + 60 * 60_000); // 1 jam kemudian, cache sudah tidak segar
+    const second = await getBalanceSummary(
+      makeDeps(db, { ethereum: failingReader(), ...otherEvm }, { balanceCache }),
+      { evm: EVM_OWNER, solana: null },
+    );
+
+    expect(second.networks[0]).toEqual({
+      networkId: 'ethereum',
+      status: 'stale',
+      totalUsd: 42,
+      fetchedAt: TEST_NOW.toISOString(),
+      error: 'rpc_error',
+    });
+    expect(second.totalUsd).toBe(42);
+    expect(second.isStale).toBe(true);
+    expect(second.isPartial).toBe(false);
+  });
+
+  it('saldo yang terlalu lama tidak dipakai lagi → error', async () => {
+    const db = seededDb();
+    let now = TEST_NOW;
+    const balanceCache = makeBalanceCache(db, { now: () => now, maxStaleMs: 60 * 60_000 });
+
+    await getBalanceSummary(
+      makeDeps(db, { ethereum: fakeReader({ 'usdc-ethereum': 1n }).reader }, { balanceCache }),
+      { evm: EVM_OWNER, solana: null },
+    );
+    now = new Date(TEST_NOW.getTime() + 2 * 60 * 60_000);
+    const summary = await getBalanceSummary(
+      makeDeps(db, { ethereum: failingReader() }, { balanceCache }),
+      { evm: EVM_OWNER, solana: null },
+    );
+
+    expect(summary.networks[0]).toMatchObject({ status: 'error', fetchedAt: null });
+    expect(summary.isPartial).toBe(true);
   });
 });

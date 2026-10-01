@@ -69,13 +69,19 @@ Contoh jawaban (dipotong):
 - `amount` dan `raw` berupa string supaya presisi tidak hilang (`raw` = satuan
   terkecil, mis. wei/lamport).
 - Saldo nol tetap dikirim, supaya aplikasi bisa menampilkan status "gas kosong".
-- `networks[].status`: `ok`, `error` (RPC gagal/timeout, lihat `error`),
-  `skipped` (alamat jenis itu tidak dikirim), atau `unsupported`.
-- Kalau ada jaringan yang gagal atau belum didukung, jawaban tetap `200` dengan
-  `isPartial: true`.
+- `networks[].status`:
+  - `ok`: saldo terbaca (dari RPC atau cache yang masih segar)
+  - `stale`: RPC gagal, memakai saldo terakhir yang tersimpan (lihat
+    `fetchedAt` dan `error`)
+  - `error`: RPC gagal dan tidak ada saldo tersimpan
+  - `skipped`: alamat jenis itu tidak dikirim
+  - `unsupported`: belum ada RPC untuk jaringan itu
+- `networks[].fetchedAt`: kapan saldo jaringan itu dibaca dari blockchain.
+- Jawaban tetap `200` walau ada masalah: `isStale: true` kalau ada jaringan
+  yang memakai saldo lama, `isPartial: true` kalau ada jaringan yang tidak
+  terbaca sama sekali.
 - Alamat tidak valid → `400` dengan `error`: `missing_address`,
   `invalid_evm_address`, atau `invalid_solana_address`.
-- Saldo per jaringan + alamat di-cache di memori (default 20 detik).
 - Log server tidak mencatat query string, jadi alamat wallet tidak ikut
   tercatat.
 
@@ -96,6 +102,25 @@ pengguna, jadi boleh di-cache 30 detik.
   "isStale": false
 }
 ```
+
+## Cache saldo (SQLite)
+
+Saldo terakhir per jaringan + alamat disimpan di tabel `balance_cache`, jadi
+tetap ada walau server restart:
+
+- Saldo yang lebih muda dari `BALANCE_CACHE_TTL_MS` (default 20 detik)
+  dipakai langsung tanpa memanggil RPC. Permintaan bersamaan untuk alamat
+  yang sama cukup memicu satu pembacaan.
+- Kalau RPC gagal, saldo tersimpan yang umurnya masih di bawah
+  `BALANCE_MAX_STALE_MS` (default 24 jam) tetap dikirim dengan status `stale`.
+- **Alamat wallet tidak disimpan mentah.** Kuncinya HMAC-SHA256 dari alamat
+  dengan `CACHE_KEY_SECRET`, jadi kalau database bocor, isinya tidak
+  menunjukkan alamat siapa saja yang memakai MyWallet. Isi `CACHE_KEY_SECRET`
+  di production. Kalau kosong, server memakai kunci acak per proses.
+- Data yang lebih tua dari `BALANCE_CACHE_RETENTION_MS` (default 7 hari)
+  dihapus otomatis tiap jam.
+
+Harga dan kurs juga tersimpan di SQLite (tabel `prices`), lihat bagian berikut.
 
 ## Harga & kurs
 
@@ -120,7 +145,10 @@ Lihat [`.env.example`](.env.example). Yang penting:
 | `PORT` | Port HTTP (default `8787`) |
 | `DATABASE_PATH` | Lokasi file SQLite. Di server, taruh di volume persisten |
 | `RPC_URL_<JARINGAN>` | RPC per jaringan. Default-nya node publik yang ada batas request; untuk production pakai provider sendiri |
-| `BALANCE_CACHE_TTL_MS` | Lama cache saldo (ms) |
+| `BALANCE_CACHE_TTL_MS` | Umur saldo tersimpan yang masih dianggap segar (default 20 detik) |
+| `BALANCE_MAX_STALE_MS` | Batas umur saldo lama yang boleh dipakai saat RPC gagal (default 24 jam) |
+| `BALANCE_CACHE_RETENTION_MS` | Saldo tersimpan lebih tua dari ini dihapus (default 7 hari) |
+| `CACHE_KEY_SECRET` | Kunci HMAC untuk menyamarkan alamat di cache. **Wajib di production** |
 | `RPC_TIMEOUT_MS` | Batas waktu baca saldo per jaringan (ms) |
 | `PRICE_REFRESH_INTERVAL_MS` | Interval refresh harga (default 60 detik) |
 | `FX_REFRESH_INTERVAL_MS` | Interval refresh kurs (default 1 jam) |
@@ -151,7 +179,8 @@ src/
   chains/         # pembaca saldo EVM (viem) & Solana (@solana/kit)
   catalog/        # katalog jaringan/token MVP + pembacanya
   db/             # koneksi SQLite, migrasi, seed
-  lib/            # cache & timeout
+  cache/          # cache saldo di SQLite (alamat di-HMAC)
+  lib/            # batas waktu (timeout)
 test/             # tes Vitest
 scripts/          # verify-tokens
 ```

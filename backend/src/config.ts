@@ -13,6 +13,12 @@ export type Config = {
   /** URL RPC per id jaringan. */
   rpcUrls: Record<string, string>;
   balanceCacheTtlMs: number;
+  /** Kalau RPC gagal, saldo tersimpan selama masih lebih muda dari ini tetap dipakai. */
+  balanceMaxStaleMs: number;
+  /** Saldo tersimpan lebih tua dari ini dihapus. */
+  balanceCacheRetentionMs: number;
+  /** Kunci HMAC untuk menyamarkan alamat di cache. `null` = acak per proses. */
+  cacheKeySecret: string | null;
   rpcTimeoutMs: number;
   priceRefreshIntervalMs: number;
   fxRefreshIntervalMs: number;
@@ -40,6 +46,9 @@ export function loadConfig(env: NodeJS.ProcessEnv = process.env): Config {
     databasePath: env.DATABASE_PATH || './data/mywallet.db',
     rpcUrls,
     balanceCacheTtlMs: toNonNegativeInt(env.BALANCE_CACHE_TTL_MS, 20_000),
+    balanceMaxStaleMs: toNonNegativeInt(env.BALANCE_MAX_STALE_MS, 24 * 60 * 60_000),
+    balanceCacheRetentionMs: toNonNegativeInt(env.BALANCE_CACHE_RETENTION_MS, 7 * 24 * 60 * 60_000),
+    cacheKeySecret: env.CACHE_KEY_SECRET || null,
     rpcTimeoutMs: toNonNegativeInt(env.RPC_TIMEOUT_MS, 8_000),
     priceRefreshIntervalMs: toNonNegativeInt(env.PRICE_REFRESH_INTERVAL_MS, 60_000),
     fxRefreshIntervalMs: toNonNegativeInt(env.FX_REFRESH_INTERVAL_MS, 60 * 60_000),

@@ -44,4 +44,22 @@ export const MIGRATIONS: Migration[] = [
       );
     `,
   },
+  {
+    id: 2,
+    name: 'balance_cache',
+    sql: `
+      -- Saldo terakhir yang terbaca dari RPC, per jaringan + pemilik.
+      -- owner_key = HMAC dari alamat (alamat asli tidak disimpan).
+      CREATE TABLE balance_cache (
+        network_id TEXT NOT NULL REFERENCES networks (id),
+        owner_key TEXT NOT NULL,
+        token_id TEXT NOT NULL REFERENCES tokens (id),
+        raw_balance TEXT NOT NULL, -- satuan terkecil (wei/lamport) sebagai teks
+        fetched_at TEXT NOT NULL,
+        PRIMARY KEY (network_id, owner_key, token_id)
+      );
+
+      CREATE INDEX balance_cache_fetched_at ON balance_cache (fetched_at);
+    `,
+  },
 ];

@@ -1,8 +1,9 @@
+import { BalanceCache, type BalanceCacheOptions } from '../src/cache/balance-cache.js';
+import { SqliteBalanceStore } from '../src/cache/balance-store.js';
 import { loadCatalog } from '../src/catalog/repository.js';
 import type { BalanceReader, RawBalance } from '../src/chains/types.js';
 import { openDatabase, type Db } from '../src/db/database.js';
 import { seedCatalog } from '../src/db/seed.js';
-import { TtlCache } from '../src/lib/ttl-cache.js';
 import type { BalanceSummaryDeps } from '../src/services/balance-summary.js';
 import type { Token } from '../src/types.js';
 
@@ -58,6 +59,23 @@ export function hangingReader(): BalanceReader {
   return { read: () => new Promise<RawBalance[]>(() => {}) };
 }
 
+export const TEST_NOW = new Date('2026-10-01T11:00:00.000Z');
+
+/** Cache saldo di atas SQLite tes, dengan jam yang bisa diatur. */
+export function makeBalanceCache(
+  db: Db,
+  overrides: Partial<BalanceCacheOptions> = {},
+): BalanceCache {
+  return new BalanceCache({
+    store: new SqliteBalanceStore(db),
+    ttlMs: 20_000,
+    maxStaleMs: 24 * 60 * 60_000,
+    ownerKeySecret: 'rahasia-tes',
+    now: () => TEST_NOW,
+    ...overrides,
+  });
+}
+
 export function makeDeps(
   db: Db,
   readers: Record<string, BalanceReader>,
@@ -66,9 +84,9 @@ export function makeDeps(
   return {
     loadCatalog: () => loadCatalog(db),
     readers: new Map(Object.entries(readers)),
-    cache: new TtlCache(20_000),
+    balanceCache: makeBalanceCache(db),
     rpcTimeoutMs: 1_000,
-    now: () => new Date('2026-10-01T11:00:00.000Z'),
+    now: () => TEST_NOW,
     ...overrides,
   };
 }
