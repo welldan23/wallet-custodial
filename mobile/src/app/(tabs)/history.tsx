@@ -93,6 +93,7 @@ export default function HistoryScreen() {
                 fxRates={MOCK_FX_RATES}
                 hidden={hidden}
                 isLast={index === group.items.length - 1}
+                onPress={() => router.push({ pathname: '/history/[id]', params: { id: item.id } })}
               />
             ))}
           </View>
