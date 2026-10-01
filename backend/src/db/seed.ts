@@ -5,7 +5,8 @@ import type { Db } from './database.js';
 
 /**
  * Isi katalog jaringan & token MVP (aman dijalankan berulang). Status
- * `is_active`/`is_visible` yang sudah diubah di database tidak ditimpa.
+ * `is_active`/`is_visible` yang sudah diubah di database tidak ditimpa;
+ * urutan tampil (`sort_order`) selalu mengikuti urutan katalog.
  *
  * Harga awal diberi waktu `pricesUpdatedAt` (default 1970) supaya terbaca
  * kedaluwarsa sampai PriceService berhasil mengambil harga asli.
@@ -19,9 +20,10 @@ export function seedCatalog(
   }: { networks?: Network[]; tokens?: Token[]; pricesUpdatedAt?: Date } = {},
 ): void {
   const upsertNetwork = db.prepare(`
-    INSERT INTO networks (id, name, chain_id, chain_type, native_symbol, explorer_url, is_active)
-    VALUES (@id, @name, @chainId, @chainType, @nativeSymbol, @explorerUrl, @isActive)
+    INSERT INTO networks (id, name, chain_id, chain_type, native_symbol, explorer_url, is_active, sort_order)
+    VALUES (@id, @name, @chainId, @chainType, @nativeSymbol, @explorerUrl, @isActive, @sortOrder)
     ON CONFLICT (id) DO UPDATE SET
+      sort_order = excluded.sort_order,
       name = excluded.name,
       chain_id = excluded.chain_id,
       chain_type = excluded.chain_type,
@@ -46,9 +48,10 @@ export function seedCatalog(
   `);
 
   db.transaction(() => {
-    for (const network of networks) {
-      upsertNetwork.run({ ...network, isActive: network.isActive ? 1 : 0 });
-    }
+    // Urutan tampil mengikuti urutan di katalog.
+    networks.forEach((network, index) => {
+      upsertNetwork.run({ ...network, isActive: network.isActive ? 1 : 0, sortOrder: index + 1 });
+    });
     for (const token of tokens) {
       upsertToken.run({
         ...token,

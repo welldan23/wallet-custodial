@@ -4,7 +4,10 @@ import { describe, expect, it } from 'vitest';
 
 import { MVP_NETWORKS, MVP_TOKENS } from '../src/catalog/mvp.js';
 import { loadCatalog } from '../src/catalog/repository.js';
+import Database from 'better-sqlite3';
+
 import { runMigrations } from '../src/db/database.js';
+import { MIGRATIONS } from '../src/db/migrations.js';
 import { seedCatalog } from '../src/db/seed.js';
 
 import { seededDb } from './helpers.js';
@@ -53,6 +56,42 @@ describe('seed & migrasi', () => {
     expect(catalog.networks.map((network) => network.id)).toEqual(
       MVP_NETWORKS.map((network) => network.id),
     );
+  });
+
+  it('urutan jaringan dari sort_order, bukan urutan baris di database', () => {
+    const db = seededDb();
+    // Hapus lalu tambah lagi: rowid Ethereum jadi paling besar.
+    db.pragma('foreign_keys = OFF');
+    db.prepare("DELETE FROM networks WHERE id = 'ethereum'").run();
+    db.pragma('foreign_keys = ON');
+    seedCatalog(db);
+
+    expect(loadCatalog(db).networks.map((network) => network.id)).toEqual(
+      MVP_NETWORKS.map((network) => network.id),
+    );
+  });
+
+  it('migrasi sort_order mengisi urutan untuk database lama', () => {
+    const db = new Database(':memory:');
+    runMigrations(
+      db,
+      MIGRATIONS.filter((migration) => migration.id < 3),
+    );
+    const insert = db.prepare(
+      `INSERT INTO networks (id, name, chain_id, chain_type, native_symbol, explorer_url)
+       VALUES (?, ?, '1', 'evm', 'ETH', 'https://example.org')`,
+    );
+    insert.run('ethereum', 'Ethereum');
+    insert.run('arbitrum', 'Arbitrum');
+
+    runMigrations(db);
+    const rows = db
+      .prepare('SELECT id, sort_order AS sortOrder FROM networks ORDER BY sort_order')
+      .all();
+    expect(rows).toEqual([
+      { id: 'ethereum', sortOrder: 1 },
+      { id: 'arbitrum', sortOrder: 2 },
+    ]);
   });
 
   it('tidak menimpa pengaturan tampil/aktif dan harga yang sudah diperbarui', () => {

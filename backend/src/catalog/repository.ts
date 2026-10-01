@@ -22,14 +22,14 @@ type TokenRow = Omit<Token, 'isStablecoin' | 'isVisible'> & {
   isVisible: number;
 };
 
-/** Baca jaringan, token, dan harga dari SQLite (urutan jaringan sesuai urutan seed). */
+/** Baca jaringan, token, dan harga dari SQLite (jaringan urut `sort_order`). */
 export function loadCatalog(db: Db): Catalog {
   const networks = (
     db
       .prepare(
         `SELECT id, name, chain_id AS chainId, chain_type AS chainType,
                 native_symbol AS nativeSymbol, explorer_url AS explorerUrl, is_active AS isActive
-         FROM networks ORDER BY rowid`,
+         FROM networks ORDER BY sort_order, id`,
       )
       .all() as NetworkRow[]
   ).map((row) => ({ ...row, isActive: row.isActive === 1 }));
