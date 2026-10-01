@@ -290,6 +290,15 @@ Solana, terbaru dulu.
   "months": ["2026-10", "2026-09", "2026-08"] }
 ```
 
+### `GET /v1/history/:id`
+
+Detail satu transaksi (id dari `/v1/history` atau `/v1/transactions`): bentuk
+status yang sama (`transaction` + `swap`, `isFinal`, `isStuck`, `checkFailed`,
+status diperbarui kalau masih pending), ditambah `network`, `token`, `fee`
+(`amount` dalam koin gas + `usd`, `null` kalau belum diketahui), dan
+`counterpartyContact` — nama kontak Buku Alamat untuk alamat lawan transaksi,
+**hanya** kalau dikirim `Authorization: Device <token>` milik perangkat itu.
+
 ### `GET /v1/balances/summary?evm=0x…&solana=…`
 
 Ringkasan saldo USDC, USDT, dan koin gas (ETH/POL/SOL) di **semua jaringan**:

@@ -1,19 +1,29 @@
 import { isAddress as isSolanaAddress } from '@solana/kit';
 import { Hono } from 'hono';
-import { getAddress, isAddress as isEvmAddress } from 'viem';
+import { formatUnits, getAddress, isAddress as isEvmAddress } from 'viem';
 
 import type { Catalog } from '../catalog/repository.js';
+import type { ContactStore } from '../contacts/store.js';
 import { isMonth, monthRange } from '../lib/month.js';
+import type { StatusRefresher } from '../transactions/refresh.js';
 import type { TransactionStore } from '../transactions/store.js';
 import type { TransactionType } from '../types.js';
 
-import { publicTransaction } from './transactions.js';
+import { deviceTokenFrom } from './contacts.js';
+import { isTransactionId, publicTransaction, statusBody } from './transactions.js';
 
 export type HistoryRouteDeps = {
   loadCatalog: () => Catalog;
   transactionStore: TransactionStore;
   walletKey: (address: string) => string;
+  /** Untuk detail: perbarui status transaksi yang masih pending. */
+  refresher?: StatusRefresher;
+  /** Untuk detail: nama kontak lawan transaksi (butuh token perangkat). */
+  contactStore?: ContactStore;
 };
+
+const sameAddress = (a: string, b: string) =>
+  a.startsWith('0x') ? a.toLowerCase() === b.toLowerCase() : a === b;
 
 const DEFAULT_LIMIT = 20;
 const MAX_LIMIT = 50;
@@ -81,6 +91,75 @@ export function historyRoutes(deps: HistoryRouteDeps): Hono {
             summary: { month, ...deps.transactionStore.summarizeHistory(keys, filter) },
             months: deps.transactionStore.historyMonths(keys, tzOffset),
           }),
+    });
+  });
+
+  /**
+   * GET /v1/history/:id — detail satu transaksi: data lengkap (+ detail swap),
+   * jaringan & token, biaya dalam koin gas dan USD, status terbaru, dan nama
+   * kontak lawan transaksi kalau ada header `Authorization: Device <token>`.
+   */
+  app.get('/:id', async (c) => {
+    c.header('Cache-Control', 'no-store');
+    const id = c.req.param('id');
+    const stored = isTransactionId(id) ? deps.transactionStore.findById(id) : null;
+    if (!stored) return c.json({ error: 'not_found', message: 'Transaction not found.' }, 404);
+
+    const result = deps.refresher
+      ? await deps.refresher.refresh(stored)
+      : { transaction: stored, isStuck: false, checkFailed: false };
+    const body = statusBody(result, deps);
+    const tx = result.transaction;
+    const catalog = deps.loadCatalog();
+    const network = catalog.networks.find((item) => item.id === tx.networkId);
+    const token = catalog.tokens.find((item) => item.id === tx.tokenId);
+    const native = catalog.tokens.find(
+      (item) => item.networkId === tx.networkId && item.contractAddress === null,
+    );
+    const nativePrice = network && catalog.pricesBySymbol.get(network.nativeSymbol);
+
+    let fee = null;
+    if (tx.feeRaw !== null && native) {
+      const amount = formatUnits(BigInt(tx.feeRaw), native.decimals);
+      fee = {
+        amount,
+        symbol: native.symbol,
+        usd: nativePrice ? Math.round(Number(amount) * nativePrice.usdPrice * 1e6) / 1e6 : null,
+      };
+    }
+
+    let counterpartyContact: string | null = null;
+    const deviceToken = deviceTokenFrom(c.req.header('Authorization'));
+    if (deviceToken && deps.contactStore) {
+      const userId = deps.contactStore.findUserId(deviceToken);
+      const match = userId
+        ? deps.contactStore
+            .list(userId)
+            .find(
+              (contact) =>
+                sameAddress(contact.address, tx.counterpartyAddress) &&
+                (contact.networkId === null || contact.networkId === tx.networkId),
+            )
+        : undefined;
+      counterpartyContact = match?.name ?? null;
+    }
+
+    return c.json({
+      ...body,
+      network: network
+        ? {
+            id: network.id,
+            name: network.name,
+            chainType: network.chainType,
+            nativeSymbol: network.nativeSymbol,
+            explorerUrl: network.explorerUrl,
+          }
+        : null,
+      token: token
+        ? { tokenId: token.id, symbol: token.symbol, name: token.name, decimals: token.decimals }
+        : null,
+      fee,
+      counterpartyContact,
     });
   });
 

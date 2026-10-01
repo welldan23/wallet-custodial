@@ -55,6 +55,10 @@ export function createApp(deps: AppDeps): Hono {
   app.use('/v1/swap/*', cors({ origin: '*', allowMethods: ['GET', 'POST'] }));
   // Kontak memakai header Authorization (token perangkat).
   app.use(
+    '/v1/history/*',
+    cors({ origin: '*', allowMethods: ['GET'], allowHeaders: ['Authorization', 'Content-Type'] }),
+  );
+  app.use(
     '/v1/contacts',
     cors({ origin: '*', allowMethods: ['GET'], allowHeaders: ['Authorization', 'Content-Type'] }),
   );
@@ -73,7 +77,15 @@ export function createApp(deps: AppDeps): Hono {
       transactionsRoutes({ ...deps, ...deps.transactions, statusRefresher }),
     );
     app.route('/v1/address-check', addressCheckRoutes({ ...deps, ...deps.transactions }));
-    app.route('/v1/history', historyRoutes({ ...deps, ...deps.transactions }));
+    app.route(
+      '/v1/history',
+      historyRoutes({
+        ...deps,
+        ...deps.transactions,
+        refresher: statusRefresher,
+        contactStore: deps.contactStore,
+      }),
+    );
   }
   app.route('/v1/prices', pricesRoutes(deps));
   app.route(
