@@ -16,7 +16,10 @@ import { createFeeEstimators } from './fees/estimators.js';
 import { createWalletKey } from './lib/wallet-key.js';
 import { seedCatalog } from './db/seed.js';
 import { PriceService } from './prices/price-service.js';
+import { createAllowanceReader } from './swap/allowance.js';
 import { createSwapQuoteService } from './swap/create.js';
+import { SwapIntentStore } from './swap/intents.js';
+import { buildJupiterSwap } from './swap/jupiter.js';
 import {
   coinGeckoSource,
   defiLlamaSource,
@@ -76,6 +79,21 @@ const app = createApp({
   feeEstimators: createFeeEstimators(loadCatalog(db).networks, config.rpcUrls),
   contactStore: new ContactStore(db),
   swapQuotes: createSwapQuoteService(config),
+  swapExecution: {
+    // Cukup untuk tanda tangan di HP; blockhash Solana sendiri berlaku ±1 menit.
+    intents: new SwapIntentStore(2 * 60_000),
+    allowanceOf: createAllowanceReader(config.rpcUrls),
+    buildJupiterSwap: (quoteResponse, userPublicKey) =>
+      buildJupiterSwap(
+        {
+          baseUrl: config.jupiterBaseUrl,
+          apiKey: config.jupiterApiKey ?? undefined,
+          timeoutMs: config.swapQuoteTimeoutMs,
+        },
+        quoteResponse,
+        userPublicKey,
+      ),
+  },
   transactions: {
     broadcasters: createBroadcasters(loadCatalog(db).networks, config.rpcUrls, {
       evm: (serialized) => keccak256(serialized as `0x${string}`),

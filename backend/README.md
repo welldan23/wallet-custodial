@@ -225,6 +225,30 @@ Estimasi swap antar stablecoin (token id, mis. `usdc-arbitrum` → `usdt-arbitru
 - Error: `400` parameter salah, `422` `no_route` / `amount_too_small` /
   `unsupported_pair`, `502` agregator gagal, `503` layanan quote tidak dikonfigurasi.
 
+### `POST /v1/swap/prepare` → `POST /v1/swap/execute`
+
+Swap sungguhan, tetap **non-custodial** (tanda tangan selalu di HP):
+
+1. **`prepare`** — body sama dengan parameter `/quote`, `fromAddress` wajib
+   (`toAddress` wajib kalau tipe jaringan tujuan beda). Jawaban:
+   `intentId` (berlaku 2 menit, sekali pakai), `quote` (bentuk `/quote`),
+   `transaction` (EVM: `to`/`data`/`value`/`gasLimit`; Solana:
+   `serializedTransaction` base64 belum ditandatangani), dan `approval` kalau
+   token asal EVM belum diberi izin — **jumlahnya persis sebesar swap**, bukan
+   izin tak terbatas.
+2. **`execute`** — `{ "intentId": "…", "signedTransaction": "…", "signedApproval": "…" }`.
+   Backend memastikan yang ditandatangani **sama persis** dengan yang disiapkan
+   (EVM: chain, tujuan, data, nilai, penanda tangan; Solana: byte pesan +
+   tanda tangan pembayar biaya). Lalu approve (kalau ada) dan swap disiarkan
+   berurutan, dan swap dicatat (`transactions` + `swap_details`, status `pending`).
+
+Status swap dipantau lewat `GET /v1/transactions/:id` (ikut membawa `swap`:
+koin tujuan, perkiraan / minimal / diterima, status bridge).
+
+Error `execute`: `400` isi tidak cocok (`unsupported_transaction`), penanda
+tangan lain (`unsigned`), `approval_required`; `410 intent_expired`; `422`
+jaringan menolak (mis. `insufficient_funds`); `502` RPC tidak bisa dihubungi.
+
 ### `GET /v1/balances/summary?evm=0x…&solana=…`
 
 Ringkasan saldo USDC, USDT, dan koin gas (ETH/POL/SOL) di **semua jaringan**:

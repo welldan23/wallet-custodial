@@ -17,7 +17,7 @@ import {
   type DecodedTransfer,
   type TransactionBroadcaster,
 } from '../transactions/types.js';
-import type { Network, Transaction } from '../types.js';
+import type { Network, SwapTransaction, Transaction } from '../types.js';
 
 export type TransactionsRouteDeps = {
   loadCatalog: () => Catalog;
@@ -45,10 +45,15 @@ export const STUCK_AFTER_MS = 30 * 60_000;
 
 const UUID_PATTERN = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
-/** Bentuk transaksi untuk aplikasi (tanpa `walletKey`). */
-export function publicTransaction(tx: Transaction, catalog: Catalog) {
+/** Bentuk transaksi untuk aplikasi (tanpa `walletKey`); swap ikut membawa detailnya. */
+export function publicTransaction(tx: Transaction | SwapTransaction, catalog: Catalog) {
   const token = catalog.tokens.find((item) => item.id === tx.tokenId);
   const network = catalog.networks.find((item) => item.id === tx.networkId);
+  const swap = 'swap' in tx ? tx.swap : null;
+  const toToken = swap && catalog.tokens.find((item) => item.id === swap.toTokenId);
+  const toNetwork = swap && catalog.networks.find((item) => item.id === swap.toNetworkId);
+  const toAmount = (raw: string | null) =>
+    raw !== null && toToken ? formatUnits(BigInt(raw), toToken.decimals) : null;
   return {
     id: tx.id,
     type: tx.type,
@@ -65,6 +70,24 @@ export function publicTransaction(tx: Transaction, catalog: Catalog) {
     explorerUrl: network ? `${network.explorerUrl.replace(/\/$/, '')}/tx/${tx.txHash}` : null,
     createdAt: tx.createdAt,
     updatedAt: tx.updatedAt,
+    swap: swap
+      ? {
+          provider: swap.provider,
+          toNetworkId: swap.toNetworkId,
+          toTokenId: swap.toTokenId,
+          toSymbol: toToken?.symbol ?? null,
+          quotedAmount: toAmount(swap.quotedAmountRaw),
+          minAmount: toAmount(swap.minAmountRaw),
+          receivedAmount: toAmount(swap.receivedAmountRaw),
+          slippageBps: swap.slippageBps,
+          bridgeStatus: swap.bridgeStatus,
+          destinationTxHash: swap.destinationTxHash,
+          destinationExplorerUrl:
+            swap.destinationTxHash && toNetwork
+              ? `${toNetwork.explorerUrl.replace(/\/$/, '')}/tx/${swap.destinationTxHash}`
+              : null,
+        }
+      : null,
   };
 }
 
@@ -227,8 +250,12 @@ export function transactionsRoutes(deps: TransactionsRouteDeps): Hono {
     }
     if (transaction.status !== 'pending') lastChecked.delete(transaction.id);
 
+    const full =
+      transaction.type === 'swap'
+        ? (deps.transactionStore.findSwap(transaction.id) ?? transaction)
+        : transaction;
     return c.json({
-      transaction: publicTransaction(transaction, catalog),
+      transaction: publicTransaction(full, catalog),
       isFinal: transaction.status !== 'pending',
       isStuck:
         transaction.status === 'pending' && network?.chainType === 'evm' && age > STUCK_AFTER_MS,

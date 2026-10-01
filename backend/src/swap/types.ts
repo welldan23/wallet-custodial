@@ -47,6 +47,12 @@ export type SwapQuote = {
   quoteId: string | null;
   /** Alamat yang perlu diberi izin (approve) token asal — EVM saja. */
   approvalAddress: string | null;
+  /** LI.FI dari EVM: transaksi siap tanda tangan (butuh alamat pengirim asli). */
+  evmTransaction?: { to: string; data: string; value: bigint; gasLimit: bigint | null };
+  /** LI.FI dari Solana: transaksi (base64) siap tanda tangan. */
+  solanaTransaction?: string;
+  /** Jupiter: jawaban quote mentah, dipakai lagi untuk membuat transaksi swap. */
+  jupiterQuoteResponse?: unknown;
 };
 
 export type SwapQuoteErrorCode =

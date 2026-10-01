@@ -25,6 +25,7 @@ type LifiQuote = {
     gasCosts?: LifiCost[];
     feeCosts?: LifiCost[];
   };
+  transactionRequest?: { to?: string; data?: string; value?: string; gasLimit?: string };
   message?: string;
   code?: number;
 };
@@ -112,6 +113,8 @@ export function lifiQuoteSource(options: LifiOptions): SwapQuoteSource {
       ].filter((fee): fee is SwapFee => fee !== null);
 
       const amountOutRaw = BigInt(estimate.toAmount!);
+      const tx = body.transactionRequest;
+      const fromSolana = request.fromNetwork.chainType === 'solana';
       return {
         provider: 'lifi',
         tool: body.tool ?? null,
@@ -123,7 +126,17 @@ export function lifiQuoteSource(options: LifiOptions): SwapQuoteSource {
         priceImpactPct: null,
         etaSeconds: estimate.executionDuration ?? 0,
         quoteId: body.id ?? null,
-        approvalAddress: estimate.approvalAddress ?? null,
+        approvalAddress: fromSolana ? null : (estimate.approvalAddress ?? null),
+        evmTransaction:
+          !fromSolana && tx?.to && tx.data
+            ? {
+                to: tx.to,
+                data: tx.data,
+                value: BigInt(tx.value ?? '0'),
+                gasLimit: tx.gasLimit ? BigInt(tx.gasLimit) : null,
+              }
+            : undefined,
+        solanaTransaction: fromSolana && tx?.data ? tx.data : undefined,
       };
     },
   };

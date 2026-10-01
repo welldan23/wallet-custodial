@@ -18,6 +18,11 @@ export type AppDeps = BalanceSummaryDeps &
     feeEstimators?: FeesRouteDeps['feeEstimators'];
     /** Penyedia quote swap (LI.FI/Jupiter); tanpa ini /v1/swap/quote menjawab 503. */
     swapQuotes?: SwapRouteDeps['swapQuotes'];
+    /** Penyimpan intent + pembaca izin + pembuat transaksi Jupiter untuk /v1/swap/prepare & /execute. */
+    swapExecution?: Pick<
+      NonNullable<SwapRouteDeps['swapExecution']>,
+      'intents' | 'allowanceOf' | 'buildJupiterSwap'
+    >;
     /** Tanpa ini, /v1/contacts tidak dipasang. */
     contactStore?: ContactsRouteDeps['contactStore'];
     /** Tanpa ini, POST /v1/transactions dan /v1/address-check tidak dipasang. */
@@ -41,6 +46,7 @@ export function createApp(deps: AppDeps): Hono {
   // Endpoint transaksi menerima POST; sisanya data baca-saja (GET).
   app.use('/v1/transactions', cors({ origin: '*', allowMethods: ['GET', 'POST'] }));
   app.use('/v1/transactions/*', cors({ origin: '*', allowMethods: ['GET', 'POST'] }));
+  app.use('/v1/swap/*', cors({ origin: '*', allowMethods: ['GET', 'POST'] }));
   // Kontak memakai header Authorization (token perangkat).
   app.use(
     '/v1/contacts',
@@ -60,7 +66,17 @@ export function createApp(deps: AppDeps): Hono {
     app.route('/v1/address-check', addressCheckRoutes({ ...deps, ...deps.transactions }));
   }
   app.route('/v1/prices', pricesRoutes(deps));
-  app.route('/v1/swap', swapRoutes(deps));
+  app.route(
+    '/v1/swap',
+    swapRoutes({
+      ...deps,
+      // Eksekusi swap butuh broadcaster & riwayat dari konfigurasi transaksi.
+      swapExecution:
+        deps.swapExecution && deps.transactions
+          ? { ...deps.swapExecution, ...deps.transactions }
+          : undefined,
+    }),
+  );
 
   app.notFound((c) => c.json({ error: 'not_found' }, 404));
   app.onError((error, c) => {

@@ -90,7 +90,39 @@ export function jupiterQuoteSource(options: JupiterOptions): SwapQuoteSource {
         etaSeconds: 5,
         quoteId: null,
         approvalAddress: null,
+        jupiterQuoteResponse: body,
       } satisfies SwapQuote;
     },
   };
+}
+
+/**
+ * Buat transaksi swap Jupiter (`POST /swap/v1/swap`) untuk dompet pengguna.
+ * Hasilnya transaksi versioned (base64) yang BELUM ditandatangani.
+ */
+export async function buildJupiterSwap(
+  options: Pick<JupiterOptions, 'baseUrl' | 'apiKey' | 'timeoutMs' | 'fetch'>,
+  quoteResponse: unknown,
+  userPublicKey: string,
+): Promise<string> {
+  const doFetch = options.fetch ?? fetch;
+  let response: Response;
+  try {
+    response = await doFetch(`${options.baseUrl ?? 'https://lite-api.jup.ag'}/swap/v1/swap`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        ...(options.apiKey ? { 'x-api-key': options.apiKey } : {}),
+      },
+      body: JSON.stringify({ quoteResponse, userPublicKey, dynamicComputeUnitLimit: true }),
+      signal: AbortSignal.timeout(options.timeoutMs),
+    });
+  } catch (error) {
+    throw new SwapQuoteError('provider_error', error instanceof Error ? error.name : undefined);
+  }
+  const body = (await response.json().catch(() => ({}))) as { swapTransaction?: string };
+  if (!response.ok || !body.swapTransaction) {
+    throw new SwapQuoteError('provider_error', `http ${response.status}`);
+  }
+  return body.swapTransaction;
 }
