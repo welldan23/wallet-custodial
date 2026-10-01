@@ -9,8 +9,12 @@ import { useHistory } from '@/hooks/use-history';
 import { useSupportedNetworks } from '@/hooks/use-supported-networks';
 import { useI18n } from '@/i18n';
 import { daysAgo, groupByDay } from '@/lib/history';
+import { MOCK_FX_RATES } from '@/mocks/wallet';
 import { cardShadow, colors } from '@/theme/colors';
-import type { NetworkId } from '@/types/wallet';
+import type { FiatCurrency, NetworkId } from '@/types/wallet';
+
+/** Mata uang pendamping USD. Nanti diambil dari Pengaturan. */
+const DISPLAY_CURRENCY: FiatCurrency = 'IDR';
 
 /** Riwayat: semua kirim, terima, dan swap, dikelompokkan per hari. */
 export default function HistoryScreen() {
@@ -66,6 +70,8 @@ export default function HistoryScreen() {
                   key={item.id}
                   item={item}
                   networkName={networkName}
+                  currency={DISPLAY_CURRENCY}
+                  fxRates={MOCK_FX_RATES}
                   hidden={hidden}
                   isLast={index === group.items.length - 1}
                 />

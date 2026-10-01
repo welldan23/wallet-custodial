@@ -110,3 +110,45 @@ export function daysAgo(day: string, now: Date = new Date()): number {
   const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
   return Math.round((today.getTime() - then.getTime()) / 86_400_000);
 }
+
+export type HistoryAmountLine = {
+  sign: '+' | '−';
+  amount: number;
+  symbol: string;
+  isStablecoin: boolean;
+};
+
+/**
+ * Angka utama baris riwayat: swap → koin yang diterima (+) dan yang
+ * ditukar (−); terima → (+); kirim → (−). Transaksi gagal tidak mengubah
+ * saldo, jadi tetap ditampilkan tapi dicoret.
+ */
+export function historyAmounts(item: HistoryItem): {
+  main: HistoryAmountLine;
+  swapped?: HistoryAmountLine;
+} {
+  if (item.type === 'swap' && item.swap) {
+    return {
+      main: {
+        sign: '+',
+        amount: item.swap.toAmount,
+        symbol: item.swap.toSymbol,
+        isStablecoin: true,
+      },
+      swapped: {
+        sign: '−',
+        amount: item.amount,
+        symbol: item.symbol,
+        isStablecoin: item.isStablecoin,
+      },
+    };
+  }
+  return {
+    main: {
+      sign: item.type === 'receive' ? '+' : '−',
+      amount: item.amount,
+      symbol: item.symbol,
+      isStablecoin: item.isStablecoin,
+    },
+  };
+}
