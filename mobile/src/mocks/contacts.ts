@@ -34,3 +34,12 @@ export const MOCK_CONTACTS: Contact[] = [
     isFavorite: false,
   },
 ];
+
+/**
+ * Alamat yang pernah dipakai sebagai penerima (contoh). Nanti dari Riwayat.
+ * Dipakai untuk mendeteksi alamat mirip (address poisoning).
+ */
+export const MOCK_RECENT_RECIPIENTS: string[] = [
+  '0xd8dA6BF26964aF9D7eEd9e03E53415D37aA96045',
+  '9WzDXwBbmkg8ZTbNMqUxvQRAyrZzDsGYdLVL9zYtAWWM',
+];

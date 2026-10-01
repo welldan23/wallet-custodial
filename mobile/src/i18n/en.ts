@@ -110,6 +110,15 @@ export const en: Dictionary = {
     demoAuthApprove: 'Simulate successful verification',
     invalidDraft: 'The transfer details are incomplete or changed. Go back and fill them in again.',
     backToForm: 'Back to form',
+    recentRecipient: 'Previous recipient',
+    knownRecipient: (label: string) => `Address exactly matches ${label}.`,
+    lookalikeTitle: 'Warning: look-alike address that is DIFFERENT',
+    lookalikeBody: (label: string) =>
+      `This address starts and ends like ${label}, but the middle is different. This is the "address poisoning" scam pattern. Never copy addresses from your transaction history.`,
+    lookalikeYours: 'Destination address',
+    lookalikeKnown: (label: string) => `${label} address`,
+    lookalikeAcknowledge:
+      'I have checked the ENTIRE address character by character, and this is the address I mean.',
     scanQr: 'Scan QR',
     addressBook: 'Address Book',
     addressBookTitle: 'Address Book',

@@ -8,10 +8,12 @@ import { AssetPickerSheet } from '@/components/send/asset-picker-sheet';
 import { AssetSelector } from '@/components/send/asset-selector';
 import { ContactPickerSheet } from '@/components/send/contact-picker-sheet';
 import { QrScannerModal } from '@/components/send/qr-scanner-modal';
+import { KnownRecipientNote, LookalikeWarning } from '@/components/send/lookalike-warning';
 import { RecipientInput } from '@/components/send/recipient-input';
 import { useToast } from '@/components/ui/toast';
 import { useBalanceVisibility } from '@/hooks/use-balance-visibility';
 import { useContacts } from '@/hooks/use-contacts';
+import { useKnownAddresses } from '@/hooks/use-known-addresses';
 import { useNetworkFee } from '@/hooks/use-network-fee';
 import { useSupportedNetworks } from '@/hooks/use-supported-networks';
 import { useSendableAssets } from '@/hooks/use-sendable-assets';
@@ -19,6 +21,7 @@ import { useWalletAccounts } from '@/hooks/use-wallet-accounts';
 import { useI18n } from '@/i18n';
 import { validateRecipient } from '@/lib/address-validation';
 import { checkAmount, normalizeAmountInput } from '@/lib/amount';
+import { recognizeRecipient } from '@/lib/lookalike';
 import { parseScannedAddress } from '@/lib/payment-uri';
 import type { Contact, FiatCurrency } from '@/types/wallet';
 
@@ -44,6 +47,7 @@ export default function SendScreen() {
   const { contacts } = useContacts();
   const networks = useSupportedNetworks().map((item) => item.network);
   const toast = useToast();
+  const knownAddresses = useKnownAddresses();
 
   const selected = assets.find((asset) => asset.tokenId === params.token) ?? assets[0] ?? null;
   const editRecipient = (value: string) => {
@@ -80,6 +84,11 @@ export default function SendScreen() {
   const recipientCheck = selected
     ? validateRecipient(recipient, selected.network, accounts)
     : ({ status: 'empty' } as const);
+
+  const recognition =
+    recipientCheck.status === 'valid'
+      ? recognizeRecipient(recipientCheck.address, knownAddresses)
+      : ({ kind: 'unknown' } as const);
 
   const fee = useNetworkFee(selected?.network ?? null);
   const isNative = selected ? selected.symbol === selected.network.nativeSymbol : false;
@@ -126,6 +135,12 @@ export default function SendScreen() {
             onOpenScanner={() => setScannerOpen(true)}
             onOpenContacts={() => setContactsOpen(true)}
           />
+          {recipientCheck.status === 'valid' && recognition.kind === 'lookalike' && (
+            <LookalikeWarning recipient={recipientCheck.address} match={recognition.match} />
+          )}
+          {recognition.kind === 'exact' && !contactName && (
+            <KnownRecipientNote label={recognition.known.label} />
+          )}
           {fee && (
             <AmountInput
               value={amount}

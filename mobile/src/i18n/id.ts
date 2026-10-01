@@ -108,6 +108,15 @@ export const id = {
     demoAuthApprove: 'Simulasikan verifikasi berhasil',
     invalidDraft: 'Data kiriman nggak lengkap atau sudah berubah. Kembali dan isi ulang, ya.',
     backToForm: 'Kembali ke form',
+    recentRecipient: 'Penerima sebelumnya',
+    knownRecipient: (label: string) => `Alamat cocok persis dengan ${label}.`,
+    lookalikeTitle: 'Awas: alamat mirip tapi BEDA',
+    lookalikeBody: (label: string) =>
+      `Awal dan akhir alamat ini sama dengan ${label}, tapi bagian tengahnya berbeda. Ini pola penipuan "address poisoning". Jangan salin alamat dari riwayat transaksi.`,
+    lookalikeYours: 'Alamat tujuan',
+    lookalikeKnown: (label: string) => `Alamat ${label}`,
+    lookalikeAcknowledge:
+      'Saya sudah mencocokkan SELURUH alamat karakter per karakter, dan ini memang alamat yang saya maksud.',
     scanQr: 'Scan QR',
     addressBook: 'Buku Alamat',
     addressBookTitle: 'Buku Alamat',

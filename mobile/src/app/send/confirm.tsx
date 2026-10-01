@@ -8,7 +8,9 @@ import { TokenNetworkIcon } from '@/components/crypto/token-network-icon';
 import { StackScreen } from '@/components/layout/stack-screen';
 import { ConfirmRow } from '@/components/send/confirm-row';
 import { DemoAuthSheet } from '@/components/send/demo-auth-sheet';
+import { LookalikeWarning } from '@/components/send/lookalike-warning';
 import { useToast } from '@/components/ui/toast';
+import { useKnownAddresses } from '@/hooks/use-known-addresses';
 import { useNetworkFee } from '@/hooks/use-network-fee';
 import { useSendableAssets } from '@/hooks/use-sendable-assets';
 import { useWalletAccounts } from '@/hooks/use-wallet-accounts';
@@ -18,6 +20,7 @@ import { validateRecipient } from '@/lib/address-validation';
 import { checkAmount } from '@/lib/amount';
 import { authorizeSigning } from '@/lib/biometric';
 import { formatFiat, formatTokenAmount } from '@/lib/format';
+import { recognizeRecipient } from '@/lib/lookalike';
 import { buildSendQuote } from '@/lib/send-quote';
 import { cardShadow, colors } from '@/theme/colors';
 import type { FiatCurrency } from '@/types/wallet';
@@ -43,6 +46,8 @@ export default function ConfirmSendScreen() {
   const { accounts, isDemo } = useWalletAccounts();
   const [authorizing, setAuthorizing] = useState(false);
   const [demoAuthOpen, setDemoAuthOpen] = useState(false);
+  const [lookalikeAcknowledged, setLookalikeAcknowledged] = useState(false);
+  const knownAddresses = useKnownAddresses();
 
   const asset = assets.find((item) => item.tokenId === params.token) ?? null;
   const fee = useNetworkFee(asset?.network ?? null);
@@ -78,7 +83,9 @@ export default function ConfirmSendScreen() {
     nativeBalance: fee.nativeBalance,
   });
   const groups = groupAddress(recipient.address);
-  const canSign = quote.hasEnoughGas && !authorizing;
+  const recognition = recognizeRecipient(recipient.address, knownAddresses);
+  const needsAcknowledge = recognition.kind === 'lookalike' && !lookalikeAcknowledged;
+  const canSign = quote.hasEnoughGas && !authorizing && !needsAcknowledge;
 
   /** Setelah lolos verifikasi: tanda tangan & kirim (belum aktif di mode demo). */
   const onAuthorized = () => {
@@ -149,6 +156,15 @@ export default function ConfirmSendScreen() {
           <Text className="text-sm font-bold text-ink">≈ {fiat(quote.totalUsd)}</Text>
         </ConfirmRow>
       </View>
+
+      {recognition.kind === 'lookalike' && (
+        <LookalikeWarning
+          recipient={recipient.address}
+          match={recognition.match}
+          acknowledged={lookalikeAcknowledged}
+          onAcknowledge={setLookalikeAcknowledged}
+        />
+      )}
 
       {!quote.hasEnoughGas && (
         <View
