@@ -358,6 +358,26 @@ Lihat [`.env.example`](.env.example). Yang penting:
 | `FX_REFRESH_INTERVAL_MS` | Interval refresh kurs (default 1 jam) |
 | `PRICE_STALE_AFTER_MS` | Batas umur harga sebelum ditandai `isStale` (default 15 menit) |
 | `COINGECKO_API_KEY` | Opsional, API key demo CoinGecko untuk sumber cadangan |
+| `LIFI_API_KEY` / `LIFI_INTEGRATOR` | Opsional, key & nama integrator LI.FI (batas request lebih longgar) |
+| `JUPITER_BASE_URL` / `JUPITER_API_KEY` | Default `https://lite-api.jup.ag` (gratis); `https://api.jup.ag` butuh key |
+| `SWAP_QUOTE_TIMEOUT_MS` | Batas waktu minta quote ke agregator (default 10 detik) |
+
+## Quote swap (agregator)
+
+`src/swap/` menyeragamkan quote dari dua agregator:
+
+- **Jupiter** (`/swap/v1/quote`) untuk swap di dalam Solana. Biaya jaringan
+  tidak diberi Jupiter, jadi dihitung sendiri: 5000 lamport + priority fee
+  median (bukan nol) di akun mint × 300 ribu compute unit. Kalau Jupiter error,
+  otomatis dicoba lewat LI.FI.
+- **LI.FI** (`/v1/quote`) untuk swap EVM dan semua swap beda jaringan
+  (termasuk EVM ↔ Solana). Biaya LI.FI (saat ini 0,25%) dan bridge sudah
+  dipotong dari jumlah diterima; biaya gas dibayar terpisah.
+
+`summarizeQuote` menghasilkan jumlah keluar & minimal diterima, kurs setelah
+biaya, dan biaya dalam USD yang dipisah: `includedFeesUsd` (dipotong) vs
+`networkFeesUsd` (bayar terpisah dengan koin gas). Quote tanpa alamat pengguna
+memakai alamat pengganti (tidak pernah dipakai mengirim).
 
 ## Perintah lain
 

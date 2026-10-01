@@ -26,6 +26,12 @@ export type Config = {
   priceFetchTimeoutMs: number;
   /** API key demo CoinGecko (opsional, untuk sumber cadangan). */
   coingeckoApiKey: string | null;
+  /** Agregator swap: LI.FI (EVM & bridge) dan Jupiter (Solana). Key opsional. */
+  lifiApiKey: string | null;
+  lifiIntegrator: string | null;
+  jupiterBaseUrl: string;
+  jupiterApiKey: string | null;
+  swapQuoteTimeoutMs: number;
 };
 
 function toNonNegativeInt(value: string | undefined, fallback: number): number {
@@ -55,5 +61,10 @@ export function loadConfig(env: NodeJS.ProcessEnv = process.env): Config {
     priceStaleAfterMs: toNonNegativeInt(env.PRICE_STALE_AFTER_MS, 15 * 60_000),
     priceFetchTimeoutMs: toNonNegativeInt(env.PRICE_FETCH_TIMEOUT_MS, 8_000),
     coingeckoApiKey: env.COINGECKO_API_KEY || null,
+    lifiApiKey: env.LIFI_API_KEY || null,
+    lifiIntegrator: env.LIFI_INTEGRATOR || null,
+    jupiterBaseUrl: env.JUPITER_BASE_URL || 'https://lite-api.jup.ag',
+    jupiterApiKey: env.JUPITER_API_KEY || null,
+    swapQuoteTimeoutMs: toNonNegativeInt(env.SWAP_QUOTE_TIMEOUT_MS, 10_000),
   };
 }

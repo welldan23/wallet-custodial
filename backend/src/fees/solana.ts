@@ -88,8 +88,13 @@ export function solanaFeeEstimatorFromRpc(rpc: SolanaFeeRpc): FeeEstimator {
 }
 
 export function createSolanaFeeEstimator(rpcUrl: string): FeeEstimator {
+  return solanaFeeEstimatorFromRpc(createSolanaFeeRpc(rpcUrl));
+}
+
+/** RPC Solana untuk keperluan estimasi biaya (priority fee, akun, sewa). */
+export function createSolanaFeeRpc(rpcUrl: string): SolanaFeeRpc {
   const rpc = createSolanaRpc(rpcUrl);
-  return solanaFeeEstimatorFromRpc({
+  return {
     async recentPriorityFees(accounts) {
       const fees = await rpc
         .getRecentPrioritizationFees(accounts.map((item) => address(item)))
@@ -103,5 +108,5 @@ export function createSolanaFeeEstimator(rpcUrl: string): FeeEstimator {
     async rentExemptMinimum(size) {
       return BigInt(await rpc.getMinimumBalanceForRentExemption(size).send());
     },
-  });
+  };
 }
