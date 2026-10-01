@@ -58,6 +58,37 @@ export type ImportedTransaction = {
 
 export type HistorySyncState = { cursor: string | null; syncedAt: string };
 
+export type HistoryFilter = {
+  /** Rentang waktu [from, to) dalam ISO UTC. */
+  range?: { from: string; to: string };
+  type?: TransactionType;
+};
+
+export type HistoryTotals = {
+  count: number;
+  /** USD masuk (terima yang tidak gagal). */
+  inUsd: number;
+  /** USD keluar (kirim yang tidak gagal). Biaya jaringan tidak termasuk. */
+  outUsd: number;
+  swaps: number;
+  pending: number;
+  failed: number;
+};
+
+function historyWhere(walletKeys: string[], filter: HistoryFilter) {
+  const clauses = [`wallet_key IN (${walletKeys.map(() => '?').join(', ')})`];
+  const params: unknown[] = [...walletKeys];
+  if (filter.range) {
+    clauses.push('created_at >= ? AND created_at < ?');
+    params.push(filter.range.from, filter.range.to);
+  }
+  if (filter.type) {
+    clauses.push('type = ?');
+    params.push(filter.type);
+  }
+  return { where: clauses.join(' AND '), params };
+}
+
 const SWAP_SELECT = `
   SELECT transaction_id AS transactionId, provider, to_network_id AS toNetworkId,
          to_token_id AS toTokenId, quoted_amount_raw AS quotedAmountRaw,
@@ -274,6 +305,64 @@ export class TransactionStore {
            synced_at = excluded.synced_at`,
       )
       .run(walletKey, networkId, cursor, this.now().toISOString());
+  }
+
+  /**
+   * Riwayat semua jenis transaksi untuk wallet-wallet ini, terbaru dulu.
+   * `range` = rentang waktu [from, to) dalam ISO (mis. satu bulan lokal).
+   * `before` = kursor `createdAt|id` dari halaman sebelumnya.
+   */
+  listHistory(
+    walletKeys: string[],
+    options: HistoryFilter & { limit: number; before?: string },
+  ): (Transaction | SwapTransaction)[] {
+    if (walletKeys.length === 0) return [];
+    const { where, params } = historyWhere(walletKeys, options);
+    const [beforeAt, beforeId] = options.before?.split('|') ?? [];
+    const cursor = beforeAt && beforeId ? 'AND (created_at, id) < (?, ?)' : '';
+    const rows = this.db
+      .prepare(`${SELECT} WHERE ${where} ${cursor} ORDER BY created_at DESC, id DESC LIMIT ?`)
+      .all(...params, ...(cursor ? [beforeAt, beforeId] : []), options.limit) as Transaction[];
+    return rows.map((row) => (row.type === 'swap' ? (this.findSwap(row.id) ?? row) : row));
+  }
+
+  /** Ringkasan seluruh transaksi yang cocok filter (bukan cuma satu halaman). */
+  summarizeHistory(walletKeys: string[], filter: HistoryFilter): HistoryTotals {
+    const empty = { count: 0, inUsd: 0, outUsd: 0, swaps: 0, pending: 0, failed: 0 };
+    if (walletKeys.length === 0) return empty;
+    const { where, params } = historyWhere(walletKeys, filter);
+    const row = this.db
+      .prepare(
+        `SELECT COUNT(*) AS count,
+           COALESCE(SUM(CASE WHEN type = 'receive' AND status != 'failed' THEN amount_usd END), 0) AS inUsd,
+           COALESCE(SUM(CASE WHEN type = 'send' AND status != 'failed' THEN amount_usd END), 0) AS outUsd,
+           SUM(type = 'swap') AS swaps, SUM(status = 'pending') AS pending, SUM(status = 'failed') AS failed
+         FROM transactions WHERE ${where}`,
+      )
+      .get(...params) as HistoryTotals;
+    return {
+      count: row.count,
+      inUsd: Math.round(row.inUsd * 1e6) / 1e6,
+      outUsd: Math.round(row.outUsd * 1e6) / 1e6,
+      swaps: row.swaps ?? 0,
+      pending: row.pending ?? 0,
+      failed: row.failed ?? 0,
+    };
+  }
+
+  /** Bulan (`YYYY-MM`, zona waktu `offsetMinutes`) yang punya transaksi, terbaru dulu. */
+  historyMonths(walletKeys: string[], offsetMinutes: number): string[] {
+    if (walletKeys.length === 0) return [];
+    const rows = this.db
+      .prepare(
+        `SELECT DISTINCT strftime('%Y-%m', created_at, ?) AS month FROM transactions
+         WHERE wallet_key IN (${walletKeys.map(() => '?').join(', ')})
+         ORDER BY month DESC`,
+      )
+      .all(`${offsetMinutes >= 0 ? '+' : ''}${offsetMinutes} minutes`, ...walletKeys) as {
+      month: string;
+    }[];
+    return rows.map((row) => row.month);
   }
 
   /** Catat hasil akhir swap: jumlah diterima dan (kalau bridge) status + hash tujuan. */

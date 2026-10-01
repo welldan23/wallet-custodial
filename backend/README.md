@@ -268,6 +268,28 @@ dulu. `limit` (default 20, maks 50) dan `before` = `nextBefore` dari halaman
 sebelumnya. Status yang tampil = status tersimpan; detail terbaru lewat
 `GET /v1/swap/:id`.
 
+### `GET /v1/history?evm=…&solana=…[&month=YYYY-MM&tzOffset=420&type=…&limit=20&before=…]`
+
+Riwayat semua transaksi (kirim, terima, swap) milik alamat EVM dan/atau
+Solana, terbaru dulu.
+
+- `month` dihitung di **zona waktu pengguna**: `tzOffset` = menit dari UTC
+  (WIB `420`, WITA `480`, WIT `540`; default `0`). Mis. transaksi 1 Okt 01.00
+  WIB masuk Oktober walau di UTC masih 30 Sep.
+- `type` = `send` / `receive` / `swap` (opsional). `limit` maks 50; halaman
+  berikutnya pakai `before` = `nextBefore`.
+- Halaman pertama juga membawa `summary` untuk **seluruh** hasil filter (bukan
+  cuma halaman ini) — `count`, `inUsd` (terima), `outUsd` (kirim; gagal tidak
+  dihitung), `swaps`, `pending`, `failed` — dan `months` (bulan yang punya
+  transaksi, untuk chip filter).
+
+```json
+{ "transactions": [{ "type": "receive", "source": "chain", "amount": "500", "…": "…" }],
+  "nextBefore": null,
+  "summary": { "month": "2026-09", "count": 3, "inUsd": 59.61, "outUsd": 45, "swaps": 0, "pending": 0, "failed": 1 },
+  "months": ["2026-10", "2026-09", "2026-08"] }
+```
+
 ### `GET /v1/balances/summary?evm=0x…&solana=…`
 
 Ringkasan saldo USDC, USDT, dan koin gas (ETH/POL/SOL) di **semua jaringan**:
