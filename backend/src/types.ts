@@ -57,3 +57,26 @@ export type Transaction = {
   createdAt: string;
   updatedAt: string;
 };
+
+export type SwapProvider = 'lifi' | 'jupiter';
+export type BridgeStatus = 'pending' | 'done' | 'failed' | 'refunded';
+
+/** Baris `swap_details` (1:1 dengan transaksi bertipe `swap`). */
+export type SwapDetails = {
+  transactionId: string;
+  provider: SwapProvider;
+  toNetworkId: string;
+  toTokenId: string;
+  /** Perkiraan jumlah diterima (satuan terkecil token tujuan). */
+  quotedAmountRaw: string;
+  /** Batas bawah setelah slippage; di bawah ini swap dibatalkan. */
+  minAmountRaw: string;
+  /** Jumlah yang benar-benar diterima; `null` sampai selesai. */
+  receivedAmountRaw: string | null;
+  slippageBps: number;
+  bridgeStatus: BridgeStatus | null;
+  destinationTxHash: string | null;
+  quoteId: string | null;
+};
+
+export type SwapTransaction = Transaction & { swap: SwapDetails };

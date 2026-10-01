@@ -134,4 +134,32 @@ export const MIGRATIONS: Migration[] = [
       CREATE UNIQUE INDEX contacts_unique ON contacts (user_id, address, COALESCE(network_id, ''));
     `,
   },
+  {
+    id: 6,
+    name: 'swap_details',
+    sql: `
+      -- Detail swap, 1:1 dengan baris transactions bertipe 'swap'. Sisi asal
+      -- (token, jumlah, jaringan, hash) ada di transactions; counterparty_address
+      -- = kontrak router agregator.
+      CREATE TABLE swap_details (
+        transaction_id TEXT PRIMARY KEY REFERENCES transactions (id) ON DELETE CASCADE,
+        provider TEXT NOT NULL CHECK (provider IN ('lifi', 'jupiter')),
+        to_network_id TEXT NOT NULL REFERENCES networks (id),
+        to_token_id TEXT NOT NULL REFERENCES tokens (id),
+        -- Satuan terkecil token tujuan, sebagai teks (angka bulat ≥ 0).
+        quoted_amount_raw TEXT NOT NULL CHECK (quoted_amount_raw GLOB '[0-9]*' AND quoted_amount_raw NOT GLOB '*[^0-9]*'),
+        min_amount_raw TEXT NOT NULL CHECK (min_amount_raw GLOB '[0-9]*' AND min_amount_raw NOT GLOB '*[^0-9]*'),
+        received_amount_raw TEXT CHECK (received_amount_raw IS NULL OR (received_amount_raw GLOB '[0-9]*' AND received_amount_raw NOT GLOB '*[^0-9]*')),
+        slippage_bps INTEGER NOT NULL CHECK (slippage_bps BETWEEN 1 AND 5000),
+        -- Swap beda jaringan: status bridge + hash di jaringan tujuan.
+        bridge_status TEXT CHECK (bridge_status IS NULL OR bridge_status IN ('pending', 'done', 'failed', 'refunded')),
+        destination_tx_hash TEXT,
+        -- min ≤ quoted dicek di kode (BigInt): angka 18 desimal melebihi INTEGER SQLite.
+        quote_id TEXT
+      );
+
+      CREATE INDEX swap_details_bridge_pending ON swap_details (bridge_status)
+        WHERE bridge_status = 'pending';
+    `,
+  },
 ];

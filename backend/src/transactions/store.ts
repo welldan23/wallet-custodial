@@ -1,7 +1,15 @@
 import { randomUUID } from 'node:crypto';
 
 import type { Db } from '../db/database.js';
-import type { Transaction, TransactionStatus, TransactionType } from '../types.js';
+import type {
+  BridgeStatus,
+  SwapDetails,
+  SwapProvider,
+  SwapTransaction,
+  Transaction,
+  TransactionStatus,
+  TransactionType,
+} from '../types.js';
 
 export type NewTransaction = {
   walletKey: string;
@@ -21,6 +29,24 @@ export type SentCounterparty = {
   lastUsedAt: string;
   networkIds: string[];
 };
+
+export type NewSwap = Omit<NewTransaction, 'type'> & {
+  provider: SwapProvider;
+  toNetworkId: string;
+  toTokenId: string;
+  quotedAmountRaw: bigint;
+  minAmountRaw: bigint;
+  slippageBps: number;
+  quoteId?: string | null;
+};
+
+const SWAP_SELECT = `
+  SELECT transaction_id AS transactionId, provider, to_network_id AS toNetworkId,
+         to_token_id AS toTokenId, quoted_amount_raw AS quotedAmountRaw,
+         min_amount_raw AS minAmountRaw, received_amount_raw AS receivedAmountRaw,
+         slippage_bps AS slippageBps, bridge_status AS bridgeStatus,
+         destination_tx_hash AS destinationTxHash, quote_id AS quoteId
+  FROM swap_details`;
 
 const SELECT = `
   SELECT id, wallet_key AS walletKey, network_id AS networkId, token_id AS tokenId, type, status,
@@ -100,6 +126,77 @@ export class TransactionStore {
       networks: string;
     })[];
     return rows.map(({ networks, ...row }) => ({ ...row, networkIds: networks.split(',').sort() }));
+  }
+
+  /**
+   * Catat swap baru (`pending`): satu baris `transactions` bertipe `swap` +
+   * `swap_details`, dalam satu transaksi database. Hash yang sama untuk
+   * wallet + jaringan ini mengembalikan swap yang lama.
+   */
+  insertSwapPending(input: NewSwap): { transaction: SwapTransaction; created: boolean } {
+    if (input.minAmountRaw > input.quotedAmountRaw) throw new Error('min_amount_above_quote');
+    if (input.minAmountRaw < 0n || input.quotedAmountRaw <= 0n)
+      throw new Error('invalid_swap_amount');
+    const crossChain = input.toNetworkId !== input.networkId;
+
+    return this.db.transaction(() => {
+      const { transaction, created } = this.insertPending({ ...input, type: 'swap' });
+      if (created) {
+        this.db
+          .prepare(
+            `INSERT INTO swap_details (transaction_id, provider, to_network_id, to_token_id,
+               quoted_amount_raw, min_amount_raw, slippage_bps, bridge_status, quote_id)
+             VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+          )
+          .run(
+            transaction.id,
+            input.provider,
+            input.toNetworkId,
+            input.toTokenId,
+            input.quotedAmountRaw.toString(),
+            input.minAmountRaw.toString(),
+            input.slippageBps,
+            crossChain ? 'pending' : null,
+            input.quoteId ?? null,
+          );
+      }
+      const swap = this.findSwap(transaction.id);
+      if (!swap) throw new Error('not_a_swap');
+      return { transaction: swap, created };
+    })();
+  }
+
+  /** Transaksi swap + detailnya; `null` kalau tidak ada atau bukan swap. */
+  findSwap(transactionId: string): SwapTransaction | null {
+    const transaction = this.findById(transactionId);
+    const swap = this.db.prepare(`${SWAP_SELECT} WHERE transaction_id = ?`).get(transactionId) as
+      SwapDetails | undefined;
+    return transaction && swap ? { ...transaction, swap } : null;
+  }
+
+  /** Catat hasil akhir swap: jumlah diterima dan (kalau bridge) status + hash tujuan. */
+  setSwapResult(
+    transactionId: string,
+    result: {
+      receivedAmountRaw?: bigint | null;
+      bridgeStatus?: BridgeStatus | null;
+      destinationTxHash?: string | null;
+    },
+  ): void {
+    this.db
+      .prepare(
+        `UPDATE swap_details SET
+           received_amount_raw = COALESCE(?, received_amount_raw),
+           bridge_status = COALESCE(?, bridge_status),
+           destination_tx_hash = COALESCE(?, destination_tx_hash)
+         WHERE transaction_id = ?`,
+      )
+      .run(
+        result.receivedAmountRaw?.toString() ?? null,
+        result.bridgeStatus ?? null,
+        result.destinationTxHash ?? null,
+        transactionId,
+      );
   }
 
   setStatus(id: string, status: TransactionStatus, feeRaw?: bigint | null): void {

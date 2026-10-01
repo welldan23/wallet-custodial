@@ -289,6 +289,23 @@ dengan dua penyesuaian:
 Status: `pending` → `success` / `failed`. Satu `tx_hash` hanya sekali per wallet +
 jaringan.
 
+### Riwayat swap
+
+Swap dicatat sebagai baris `transactions` bertipe `swap` (sisi asal: token,
+jumlah, jaringan, hash; `counterparty_address` = kontrak router agregator) plus
+satu baris `swap_details` (migrasi 6):
+
+| Kolom | Isi |
+| --- | --- |
+| `provider` | `lifi` (EVM & bridge) atau `jupiter` (Solana) |
+| `to_network_id`, `to_token_id` | koin tujuan |
+| `quoted_amount_raw` / `min_amount_raw` | perkiraan & batas bawah setelah slippage (satuan terkecil) |
+| `received_amount_raw` | jumlah yang benar-benar diterima (`NULL` sampai selesai) |
+| `slippage_bps` | slippage dalam basis poin (50 = 0,5%) |
+| `bridge_status`, `destination_tx_hash` | khusus swap beda jaringan |
+
+`min ≤ quoted` dicek di kode (BigInt), karena jumlah 18 desimal melebihi INTEGER SQLite.
+
 ## Harga & kurs
 
 Server memperbarui tabel `prices` secara otomatis:
