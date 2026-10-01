@@ -171,3 +171,40 @@ export function filterByMonth(items: HistoryItem[], month: string | null): Histo
   if (!month) return items;
   return items.filter((item) => localMonth(item.createdAt) === month);
 }
+
+export type HistorySummary = {
+  count: number;
+  /** Nilai USD yang masuk (terima, berhasil). */
+  inUsd: number;
+  /** Nilai USD yang keluar (kirim berhasil/diproses + semua biaya jaringan). */
+  outUsd: number;
+  swaps: number;
+  pending: number;
+  failed: number;
+};
+
+/** Ringkasan sekumpulan transaksi (mis. satu bulan). Transaksi gagal cuma dihitung biayanya. */
+export function summarizeHistory(items: HistoryItem[]): HistorySummary {
+  const summary: HistorySummary = {
+    count: items.length,
+    inUsd: 0,
+    outUsd: 0,
+    swaps: 0,
+    pending: 0,
+    failed: 0,
+  };
+  for (const item of items) {
+    if (item.status === 'pending') summary.pending += 1;
+    if (item.status === 'failed') summary.failed += 1;
+    if (item.type === 'swap') summary.swaps += 1;
+    summary.outUsd += item.feeUsd;
+    if (item.status === 'failed') continue;
+    if (item.type === 'receive') summary.inUsd += item.amountUsd;
+    if (item.type === 'send') summary.outUsd += item.amountUsd;
+  }
+  return summary;
+}
+
+/** Validasi `YYYY-MM` dari URL; selain itu dianggap "Semua". */
+export const parseMonthParam = (value: unknown): string | null =>
+  typeof value === 'string' && /^\d{4}-(0[1-9]|1[0-2])$/.test(value) ? value : null;

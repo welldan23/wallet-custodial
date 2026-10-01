@@ -219,6 +219,15 @@ export const en: Dictionary = {
     all: 'All',
     filterLabel: 'Month filter',
     filterMonth: (month: string) => `Show ${month}`,
+    allTime: 'All time',
+    summaryCount: (count: number) => `${count} transactions`,
+    summaryIn: 'In',
+    summaryOut: 'Out + fees',
+    summarySwaps: (count: number) => `${count} swaps`,
+    summaryPending: (count: number) => `${count} pending`,
+    summaryFailed: (count: number) => `${count} failed`,
+    summaryLabel: (period: string, inValue: string, outValue: string, count: number) =>
+      `${period}: in ${inValue}, out ${outValue}, ${count} transactions`,
     today: 'Today',
     yesterday: 'Yesterday',
     monthsShort: [

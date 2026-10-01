@@ -211,6 +211,15 @@ export const id = {
     all: 'Semua',
     filterLabel: 'Filter bulan',
     filterMonth: (month: string) => `Tampilkan ${month}`,
+    allTime: 'Semua waktu',
+    summaryCount: (count: number) => `${count} transaksi`,
+    summaryIn: 'Masuk',
+    summaryOut: 'Keluar + biaya',
+    summarySwaps: (count: number) => `${count} swap`,
+    summaryPending: (count: number) => `${count} diproses`,
+    summaryFailed: (count: number) => `${count} gagal`,
+    summaryLabel: (period: string, inValue: string, outValue: string, count: number) =>
+      `${period}: masuk ${inValue}, keluar ${outValue}, ${count} transaksi`,
     today: 'Hari ini',
     yesterday: 'Kemarin',
     monthsShort: [

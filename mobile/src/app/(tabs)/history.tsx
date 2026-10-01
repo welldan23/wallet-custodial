@@ -1,16 +1,24 @@
-import { router } from 'expo-router';
-import { useState } from 'react';
+import { router, useLocalSearchParams } from 'expo-router';
 import { Text, View } from 'react-native';
 
 import { HistoryEmpty } from '@/components/history/history-empty';
 import { HistoryRow } from '@/components/history/history-row';
 import { MonthFilter, monthLabel } from '@/components/history/month-filter';
+import { MonthSummary } from '@/components/history/month-summary';
 import { TabScreen } from '@/components/layout/tab-screen';
 import { useBalanceVisibility } from '@/hooks/use-balance-visibility';
 import { useHistory } from '@/hooks/use-history';
 import { useSupportedNetworks } from '@/hooks/use-supported-networks';
 import { useI18n } from '@/i18n';
-import { availableMonths, daysAgo, filterByMonth, groupByDay } from '@/lib/history';
+import { formatFiat } from '@/lib/format';
+import {
+  availableMonths,
+  daysAgo,
+  filterByMonth,
+  groupByDay,
+  parseMonthParam,
+  summarizeHistory,
+} from '@/lib/history';
 import { MOCK_FX_RATES } from '@/mocks/wallet';
 import { cardShadow } from '@/theme/colors';
 import type { FiatCurrency, NetworkId } from '@/types/wallet';
@@ -24,9 +32,14 @@ export default function HistoryScreen() {
   const history = useHistory();
   const networks = useSupportedNetworks();
   const { hidden } = useBalanceVisibility();
-  const [month, setMonth] = useState<string | null>(null);
+  // Bulan terpilih disimpan di URL supaya tetap sama setelah buka detail lalu kembali.
+  const params = useLocalSearchParams<{ month?: string }>();
+  const month = parseMonthParam(params.month);
+  const setMonth = (next: string | null) => router.setParams({ month: next ?? undefined });
   const months = availableMonths(history);
-  const groups = groupByDay(filterByMonth(history, month));
+  const filtered = filterByMonth(history, month);
+  const groups = groupByDay(filtered);
+  const periodLabel = month ? monthLabel(month, t.history.monthsShort) : t.history.allTime;
   const networkName = (id: NetworkId) =>
     networks.find((item) => item.network.id === id)?.network.name ?? id;
 
@@ -44,38 +57,47 @@ export default function HistoryScreen() {
 
       {history.length > 0 && <MonthFilter months={months} selected={month} onSelect={setMonth} />}
 
-      {history.length === 0 ? (
+      {history.length === 0 && (
         <HistoryEmpty variant="all" onReceive={() => router.push('/receive')} />
-      ) : groups.length === 0 && month ? (
+      )}
+
+      {filtered.length > 0 && (
+        <MonthSummary
+          summary={summarizeHistory(filtered)}
+          periodLabel={periodLabel}
+          formatValue={(usd) => formatFiat(usd, DISPLAY_CURRENCY, MOCK_FX_RATES)}
+          hidden={hidden}
+        />
+      )}
+
+      {history.length > 0 && month && filtered.length === 0 && (
         <HistoryEmpty
           variant="month"
           monthLabel={monthLabel(month, t.history.monthsShort)}
           onShowAll={() => setMonth(null)}
         />
-      ) : (
-        groups.map((group) => (
-          <View key={group.day} className="gap-2">
-            <Text
-              className="px-1 text-[13px] font-semibold text-ink-soft"
-              accessibilityRole="header">
-              {dayLabel(group.day)}
-            </Text>
-            <View className="rounded-[20px] bg-surface px-4" style={cardShadow}>
-              {group.items.map((item, index) => (
-                <HistoryRow
-                  key={item.id}
-                  item={item}
-                  networkName={networkName}
-                  currency={DISPLAY_CURRENCY}
-                  fxRates={MOCK_FX_RATES}
-                  hidden={hidden}
-                  isLast={index === group.items.length - 1}
-                />
-              ))}
-            </View>
-          </View>
-        ))
       )}
+
+      {groups.map((group) => (
+        <View key={group.day} className="gap-2">
+          <Text className="px-1 text-[13px] font-semibold text-ink-soft" accessibilityRole="header">
+            {dayLabel(group.day)}
+          </Text>
+          <View className="rounded-[20px] bg-surface px-4" style={cardShadow}>
+            {group.items.map((item, index) => (
+              <HistoryRow
+                key={item.id}
+                item={item}
+                networkName={networkName}
+                currency={DISPLAY_CURRENCY}
+                fxRates={MOCK_FX_RATES}
+                hidden={hidden}
+                isLast={index === group.items.length - 1}
+              />
+            ))}
+          </View>
+        </View>
+      ))}
     </TabScreen>
   );
 }
