@@ -51,6 +51,29 @@ export const en: Dictionary = {
     searchAsset: 'Search asset or network',
     noAssetFound: 'No asset found.',
     noAssets: 'No assets to send yet. Receive some first.',
+    recipientLabel: (network: string) => `To ${network} address`,
+    solanaPlaceholder: 'Solana address',
+    paste: 'Paste',
+    pasteFailed: "Couldn't read the clipboard",
+    clearAddress: 'Clear address',
+    validAddress: (network: string) => `Valid ${network} address format.`,
+    ownAddressWarning: 'This is your own wallet address. Sure you want to send to yourself?',
+    invalidReason: {
+      evm_format: (_network: string) =>
+        'The address must be 0x followed by 40 characters (0-9, a-f).',
+      evm_checksum: (_network: string) =>
+        "The upper/lower case letters don't match. There may be a typo; copy the address again.",
+      solana_on_evm: (network: string) =>
+        `This is a Solana address, but the selected asset is on ${network}. Switch to a Solana asset.`,
+      evm_on_solana: (_network: string) =>
+        'This is an EVM (0x…) address, but the selected asset is on Solana. Switch to an EVM asset.',
+      solana_format: (_network: string) => 'Not a valid Solana address.',
+      tron: (_network: string) =>
+        'This is a Tron (TRC20) address; MyWallet does not support that network yet.',
+      bitcoin: (_network: string) =>
+        'This is a Bitcoin address; MyWallet does not support that network yet.',
+      unknown: (network: string) => `Not a valid ${network} address.`,
+    },
   },
   receive: {
     title: 'Receive',

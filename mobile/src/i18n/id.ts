@@ -49,6 +49,26 @@ export const id = {
     searchAsset: 'Cari aset atau jaringan',
     noAssetFound: 'Aset nggak ketemu.',
     noAssets: 'Belum ada aset yang bisa dikirim. Terima aset dulu, ya.',
+    recipientLabel: (network: string) => `Ke alamat ${network}`,
+    solanaPlaceholder: 'Alamat Solana',
+    paste: 'Tempel',
+    pasteFailed: 'Gagal membaca clipboard',
+    clearAddress: 'Hapus alamat',
+    validAddress: (network: string) => `Format alamat ${network} valid.`,
+    ownAddressWarning: 'Ini alamat wallet kamu sendiri. Yakin mau kirim ke diri sendiri?',
+    invalidReason: {
+      evm_format: (_network: string) => 'Alamat harus 0x diikuti 40 karakter (0-9, a-f).',
+      evm_checksum: (_network: string) =>
+        'Huruf besar-kecilnya nggak cocok. Kemungkinan ada salah ketik, salin ulang alamatnya.',
+      solana_on_evm: (network: string) =>
+        `Ini alamat Solana, sedangkan aset yang dipilih ada di ${network}. Ganti aset ke jaringan Solana.`,
+      evm_on_solana: (_network: string) =>
+        'Ini alamat EVM (0x…), sedangkan aset yang dipilih ada di Solana. Ganti aset ke jaringan EVM.',
+      solana_format: (_network: string) => 'Bukan alamat Solana yang valid.',
+      tron: (_network: string) => 'Ini alamat Tron (TRC20), jaringan ini belum didukung MyWallet.',
+      bitcoin: (_network: string) => 'Ini alamat Bitcoin, jaringan ini belum didukung MyWallet.',
+      unknown: (network: string) => `Bukan alamat ${network} yang valid.`,
+    },
   },
   receive: {
     title: 'Terima',

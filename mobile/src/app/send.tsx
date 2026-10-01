@@ -5,9 +5,12 @@ import { Text } from 'react-native';
 import { StackScreen } from '@/components/layout/stack-screen';
 import { AssetPickerSheet } from '@/components/send/asset-picker-sheet';
 import { AssetSelector } from '@/components/send/asset-selector';
+import { RecipientInput } from '@/components/send/recipient-input';
 import { useBalanceVisibility } from '@/hooks/use-balance-visibility';
 import { useSendableAssets } from '@/hooks/use-sendable-assets';
+import { useWalletAccounts } from '@/hooks/use-wallet-accounts';
 import { useI18n } from '@/i18n';
+import { validateRecipient } from '@/lib/address-validation';
 import type { FiatCurrency } from '@/types/wallet';
 
 /** Mata uang pendamping USD. Nanti diambil dari Pengaturan. */
@@ -22,20 +25,33 @@ export default function SendScreen() {
   const params = useLocalSearchParams<{ token?: string }>();
   const { assets, fxRates } = useSendableAssets();
   const { hidden } = useBalanceVisibility();
+  const { accounts } = useWalletAccounts();
   const [pickerOpen, setPickerOpen] = useState(false);
+  const [recipient, setRecipient] = useState('');
 
   const selected = assets.find((asset) => asset.tokenId === params.token) ?? assets[0] ?? null;
+  const recipientCheck = selected
+    ? validateRecipient(recipient, selected.network, accounts)
+    : ({ status: 'empty' } as const);
 
   return (
     <StackScreen title={t.send.title}>
       {selected ? (
-        <AssetSelector
-          asset={selected}
-          onPress={() => setPickerOpen(true)}
-          currency={DISPLAY_CURRENCY}
-          fxRates={fxRates}
-          hidden={hidden}
-        />
+        <>
+          <AssetSelector
+            asset={selected}
+            onPress={() => setPickerOpen(true)}
+            currency={DISPLAY_CURRENCY}
+            fxRates={fxRates}
+            hidden={hidden}
+          />
+          <RecipientInput
+            value={recipient}
+            onChange={setRecipient}
+            network={selected.network}
+            check={recipientCheck}
+          />
+        </>
       ) : (
         <Text className="py-10 text-center text-sm text-ink-muted">{t.send.noAssets}</Text>
       )}
