@@ -1,4 +1,4 @@
-import { View } from 'react-native';
+import { Pressable, View } from 'react-native';
 import QRCode from 'react-native-qrcode-svg';
 
 import { NetworkIcon } from '@/components/crypto/network-icon';
@@ -11,20 +11,30 @@ type AddressQrProps = {
   networkId: NetworkId;
   size?: number;
   accessibilityLabel: string;
+  /** Kalau diisi, QR bisa diketuk (mis. untuk diperbesar). */
+  onPress?: () => void;
 };
 
 /**
  * QR alamat dengan logo jaringan di tengah. Koreksi error level H supaya
  * QR tetap terbaca walau bagian tengahnya tertutup logo.
  */
-export function AddressQr({ address, networkId, size = 200, accessibilityLabel }: AddressQrProps) {
+export function AddressQr({
+  address,
+  networkId,
+  size = 200,
+  accessibilityLabel,
+  onPress,
+}: AddressQrProps) {
   const logoSize = Math.round(size * 0.2);
 
   return (
-    <View
-      className="items-center justify-center rounded-3xl border border-line bg-surface p-3"
+    <Pressable
+      onPress={onPress}
+      disabled={!onPress}
+      className="items-center justify-center rounded-3xl border border-line bg-surface p-3 active:opacity-80"
       accessible
-      accessibilityRole="image"
+      accessibilityRole={onPress ? 'button' : 'image'}
       accessibilityLabel={accessibilityLabel}>
       <QRCode
         value={address}
@@ -39,6 +49,6 @@ export function AddressQr({ address, networkId, size = 200, accessibilityLabel }
         style={{ width: logoSize + 8, height: logoSize + 8 }}>
         <NetworkIcon networkId={networkId} size={logoSize} />
       </View>
-    </View>
+    </Pressable>
   );
 }

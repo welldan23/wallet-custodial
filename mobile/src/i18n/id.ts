@@ -61,6 +61,15 @@ export const id = {
     copiedMessage: (short: string) => `${short} — cocokkan awal & akhir alamat setelah ditempel.`,
     copyFailedTitle: 'Gagal menyalin',
     copyFailedMessage: 'Tekan lama alamatnya untuk menyalin manual.',
+    enlargeQr: 'Perbesar QR',
+    enlargeQrLabel: (network: string) => `Perbesar QR code alamat ${network}`,
+    networkOnly: (network: string) => `Hanya jaringan ${network}`,
+    share: 'Bagikan',
+    shareTitle: (network: string) => `Alamat ${network} MyWallet`,
+    shareMessage: (network: string, symbols: string, address: string) =>
+      `Alamat wallet saya di jaringan ${network} (${symbols}):\n${address}\n\nKirim HANYA lewat jaringan ${network}, aset yang dikirim lewat jaringan lain bisa hilang.`,
+    shareFallbackTitle: 'Alamat disalin',
+    shareFallbackMessage: 'Menu bagikan tidak tersedia di sini, jadi alamatnya disalin.',
     sharedEvmAddressNote:
       'Alamat ini sama di Ethereum, Arbitrum, Base, dan Polygon, tapi saldonya terpisah per jaringan.',
   },

@@ -64,6 +64,15 @@ export const en: Dictionary = {
       `${short} — check the start and end of the address after pasting.`,
     copyFailedTitle: "Couldn't copy",
     copyFailedMessage: 'Long-press the address to copy it manually.',
+    enlargeQr: 'Enlarge QR',
+    enlargeQrLabel: (network: string) => `Enlarge QR code of the ${network} address`,
+    networkOnly: (network: string) => `${network} network only`,
+    share: 'Share',
+    shareTitle: (network: string) => `MyWallet ${network} address`,
+    shareMessage: (network: string, symbols: string, address: string) =>
+      `My wallet address on the ${network} network (${symbols}):\n${address}\n\nSend ONLY on the ${network} network; assets sent on another network may be lost.`,
+    shareFallbackTitle: 'Address copied',
+    shareFallbackMessage: 'Sharing is not available here, so the address was copied.',
     sharedEvmAddressNote:
       'This address is the same on Ethereum, Arbitrum, Base, and Polygon, but balances are separate per network.',
   },

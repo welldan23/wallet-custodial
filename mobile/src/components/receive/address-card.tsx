@@ -1,13 +1,17 @@
-import { Platform, Text, View } from 'react-native';
+import Ionicons from '@expo/vector-icons/Ionicons';
+import { useState } from 'react';
+import { Platform, Pressable, Text, View } from 'react-native';
 
 import { NetworkIcon } from '@/components/crypto/network-icon';
+import { useShareAddress } from '@/hooks/use-share-address';
 import { useI18n } from '@/i18n';
 import { groupAddress } from '@/lib/address';
-import { cardShadow } from '@/theme/colors';
+import { cardShadow, colors } from '@/theme/colors';
 import type { Network } from '@/types/wallet';
 
 import { AddressQr } from './address-qr';
 import { CopyAddressButton } from './copy-address-button';
+import { QrFullscreen } from './qr-fullscreen';
 
 type AddressCardProps = {
   network: Network;
@@ -25,6 +29,8 @@ const monoFont = Platform.select({ ios: 'Menlo', default: 'monospace' });
 export function AddressCard({ network, address, symbols }: AddressCardProps) {
   const { t } = useI18n();
   const groups = groupAddress(address);
+  const share = useShareAddress();
+  const [qrOpen, setQrOpen] = useState(false);
 
   return (
     <View className="items-center rounded-[20px] bg-surface px-5 pb-5 pt-4" style={cardShadow}>
@@ -40,7 +46,8 @@ export function AddressCard({ network, address, symbols }: AddressCardProps) {
         <AddressQr
           address={address}
           networkId={network.id}
-          accessibilityLabel={t.receive.qrLabel(network.name)}
+          accessibilityLabel={t.receive.enlargeQrLabel(network.name)}
+          onPress={() => setQrOpen(true)}
         />
       </View>
       <Text className="mt-2 text-xs font-semibold text-ink-soft">
@@ -67,9 +74,29 @@ export function AddressCard({ network, address, symbols }: AddressCardProps) {
         </Text>
       </View>
 
-      <View className="mt-4 w-full">
+      <View className="mt-4 w-full gap-2.5">
         <CopyAddressButton address={address} network={network} />
+        <View className="flex-row gap-2.5">
+          <SecondaryButton
+            icon="expand-outline"
+            label={t.receive.enlargeQr}
+            onPress={() => setQrOpen(true)}
+          />
+          <SecondaryButton
+            icon="share-outline"
+            label={t.receive.share}
+            onPress={() => share(network, address, symbols)}
+          />
+        </View>
       </View>
+
+      <QrFullscreen
+        visible={qrOpen}
+        onClose={() => setQrOpen(false)}
+        network={network}
+        address={address}
+        symbols={symbols}
+      />
 
       {network.chainType === 'evm' && (
         <Text className="mt-3 text-center text-xs leading-[18px] text-ink-muted">
@@ -77,5 +104,24 @@ export function AddressCard({ network, address, symbols }: AddressCardProps) {
         </Text>
       )}
     </View>
+  );
+}
+
+type SecondaryButtonProps = {
+  icon: 'expand-outline' | 'share-outline';
+  label: string;
+  onPress: () => void;
+};
+
+function SecondaryButton({ icon, label, onPress }: SecondaryButtonProps) {
+  return (
+    <Pressable
+      onPress={onPress}
+      accessibilityRole="button"
+      accessibilityLabel={label}
+      className="flex-1 flex-row items-center justify-center gap-1.5 rounded-full border border-line bg-surface py-3 active:opacity-70">
+      <Ionicons name={icon} size={17} color={colors.primary[500]} />
+      <Text className="text-sm font-semibold text-primary-500">{label}</Text>
+    </Pressable>
   );
 }
