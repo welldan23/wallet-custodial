@@ -11,3 +11,6 @@ export const sheetGradient = [colors.surface, colors.canvas] as const;
 
 /** Bayangan halus untuk kartu putih. */
 export const cardShadow = { boxShadow: '0px 2px 12px rgba(15, 23, 42, 0.06)' } as const;
+
+/** Latar halaman di atas tab (Kirim, Terima, Swap): biru sangat muda → kanvas. */
+export const stackGradient = [colors.primary[50], colors.canvas] as const;

@@ -27,6 +27,7 @@ export function TopNavPills({ active }: { active: TopNavKey }) {
             key={item.key}
             onPress={() => !isActive && router.navigate(item.href)}
             accessibilityRole="tab"
+            accessibilityLabel={t.tabs[item.key]}
             aria-selected={isActive}
             className={`flex-1 flex-row items-center justify-center gap-1.5 rounded-full py-2.5 active:opacity-80 ${
               isActive ? 'bg-surface' : 'bg-white/25'

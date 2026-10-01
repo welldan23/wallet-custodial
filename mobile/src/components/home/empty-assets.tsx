@@ -43,6 +43,7 @@ export function EmptyAssets({ networks, onReceive }: EmptyAssetsProps) {
         <Pressable
           onPress={onReceive}
           accessibilityRole="button"
+          accessibilityLabel={t.home.emptyCta}
           className="mt-6 w-full flex-row items-center justify-center gap-2 rounded-full bg-primary-500 py-3.5 active:opacity-80">
           <Ionicons name="arrow-down" size={18} color={colors.surface} />
           <Text className="text-[15px] font-semibold text-white">{t.home.emptyCta}</Text>

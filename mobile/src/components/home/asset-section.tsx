@@ -46,6 +46,7 @@ export function AssetSection({
             onPress={onSeeAll}
             hitSlop={8}
             accessibilityRole="link"
+            accessibilityLabel={t.common.seeAll}
             className="flex-row items-center gap-0.5 active:opacity-70">
             <Text className="text-[13px] font-semibold text-primary-500">{t.common.seeAll}</Text>
             <Ionicons name="chevron-forward" size={14} color={colors.primary[500]} />

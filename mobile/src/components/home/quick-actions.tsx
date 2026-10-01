@@ -31,6 +31,7 @@ export function QuickActions({ onPress }: { onPress?: (action: QuickAction) => v
             key={action}
             onPress={() => onPress?.(action)}
             accessibilityRole="button"
+            accessibilityLabel={t.home.actions[action]}
             className={`flex-1 items-center justify-center gap-1.5 rounded-[18px] py-4 active:opacity-70 ${tileClassName}`}>
             <Ionicons name={icon} size={26} color={color} />
             <Text className="text-[13px] font-medium text-ink">{t.home.actions[action]}</Text>

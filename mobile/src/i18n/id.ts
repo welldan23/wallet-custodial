@@ -6,6 +6,7 @@ export const id = {
     profile: 'Profile',
   },
   common: {
+    back: 'Kembali',
     seeAll: 'Lihat Semua',
     comingSoon: 'Segera hadir',
     comingSoonDescription: 'Halaman ini lagi disiapin. Tunggu di update berikutnya, ya!',
@@ -39,6 +40,20 @@ export const id = {
     showBreakdown: 'Lihat rincian per jaringan',
     hideBreakdown: 'Tutup rincian per jaringan',
     holdingShare: (percent: string, symbol: string) => `${percent} dari total ${symbol}`,
+  },
+  send: {
+    title: 'Kirim',
+    preview:
+      'Nanti di sini kamu bisa kirim USDC atau USDT ke alamat lain, lengkap dengan cek alamat mirip dan konfirmasi sidik jari.',
+  },
+  receive: {
+    title: 'Terima',
+    preview: 'Nanti di sini muncul alamat wallet dan QR code per jaringan buat nerima dana.',
+  },
+  swap: {
+    title: 'Swap',
+    preview:
+      'Nanti di sini kamu bisa tukar antar stablecoin, lengkap dengan kurs, slippage, dan biaya yang jelas.',
   },
 };
 

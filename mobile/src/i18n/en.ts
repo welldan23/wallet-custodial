@@ -8,6 +8,7 @@ export const en: Dictionary = {
     profile: 'Profile',
   },
   common: {
+    back: 'Back',
     seeAll: 'See All',
     comingSoon: 'Coming soon',
     comingSoonDescription: 'This page is being prepared. Stay tuned for the next update!',
@@ -41,5 +42,18 @@ export const en: Dictionary = {
     showBreakdown: 'Show per-network breakdown',
     hideBreakdown: 'Hide per-network breakdown',
     holdingShare: (percent: string, symbol: string) => `${percent} of your ${symbol}`,
+  },
+  send: {
+    title: 'Send',
+    preview:
+      'Soon you can send USDC or USDT to another address here, with look-alike address checks and fingerprint confirmation.',
+  },
+  receive: {
+    title: 'Receive',
+    preview: 'Soon your wallet address and QR code for each network will show up here.',
+  },
+  swap: {
+    title: 'Swap',
+    preview: 'Soon you can swap between stablecoins here, with clear rates, slippage, and fees.',
   },
 };

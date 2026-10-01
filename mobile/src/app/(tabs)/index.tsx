@@ -1,10 +1,10 @@
-import { router } from 'expo-router';
+import { router, type Href } from 'expo-router';
 import { useState } from 'react';
 
 import { AssetSection } from '@/components/home/asset-section';
 import { BalanceCard } from '@/components/home/balance-card';
 import { EmptyAssets } from '@/components/home/empty-assets';
-import { QuickActions } from '@/components/home/quick-actions';
+import { QuickActions, type QuickAction } from '@/components/home/quick-actions';
 import { TabScreen } from '@/components/layout/tab-screen';
 import { usePortfolio } from '@/hooks/use-portfolio';
 import { useI18n } from '@/i18n';
@@ -13,7 +13,14 @@ import type { FiatCurrency } from '@/types/wallet';
 /** Mata uang pendamping USD. Nanti diambil dari Pengaturan. */
 const DISPLAY_CURRENCY: FiatCurrency = 'IDR';
 
+const QUICK_ACTION_ROUTES: Record<QuickAction, Href> = {
+  send: '/send',
+  receive: '/receive',
+  swap: '/swap',
+};
+
 const openPortfolio = () => router.navigate('/portfolio');
+const openQuickAction = (action: QuickAction) => router.push(QUICK_ACTION_ROUTES[action]);
 
 export default function HomeScreen() {
   const { t } = useI18n();
@@ -31,10 +38,10 @@ export default function HomeScreen() {
         onToggleHidden={() => setBalanceHidden((hidden) => !hidden)}
         onPressDetail={openPortfolio}
       />
-      <QuickActions />
+      <QuickActions onPress={openQuickAction} />
 
       {portfolio.isEmpty ? (
-        <EmptyAssets networks={networks} />
+        <EmptyAssets networks={networks} onReceive={() => openQuickAction('receive')} />
       ) : (
         <>
           <AssetSection
