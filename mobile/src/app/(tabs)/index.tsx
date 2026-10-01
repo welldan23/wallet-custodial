@@ -1,11 +1,11 @@
 import { router, type Href } from 'expo-router';
-import { useState } from 'react';
 
 import { AssetSection } from '@/components/home/asset-section';
 import { BalanceCard } from '@/components/home/balance-card';
 import { EmptyAssets } from '@/components/home/empty-assets';
 import { QuickActions, type QuickAction } from '@/components/home/quick-actions';
 import { TabScreen } from '@/components/layout/tab-screen';
+import { useBalanceVisibility } from '@/hooks/use-balance-visibility';
 import { usePortfolio } from '@/hooks/use-portfolio';
 import { useI18n } from '@/i18n';
 import type { FiatCurrency } from '@/types/wallet';
@@ -25,7 +25,7 @@ const openQuickAction = (action: QuickAction) => router.push(QUICK_ACTION_ROUTES
 export default function HomeScreen() {
   const { t } = useI18n();
   const { portfolio, networks, fxRates, pricesUpdatedAt } = usePortfolio();
-  const [balanceHidden, setBalanceHidden] = useState(false);
+  const { hidden: balanceHidden, toggleHidden } = useBalanceVisibility();
 
   return (
     <TabScreen active="home">
@@ -35,7 +35,7 @@ export default function HomeScreen() {
         fxRates={fxRates}
         pricesUpdatedAt={pricesUpdatedAt}
         hidden={balanceHidden}
-        onToggleHidden={() => setBalanceHidden((hidden) => !hidden)}
+        onToggleHidden={toggleHidden}
         onPressDetail={openPortfolio}
       />
       <QuickActions onPress={openQuickAction} />
