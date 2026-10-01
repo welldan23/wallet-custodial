@@ -7,6 +7,7 @@ import { cardShadow } from '@/theme/colors';
 import type { Network } from '@/types/wallet';
 
 import { AddressQr } from './address-qr';
+import { CopyAddressButton } from './copy-address-button';
 
 type AddressCardProps = {
   network: Network;
@@ -64,6 +65,10 @@ export function AddressCard({ network, address, symbols }: AddressCardProps) {
             );
           })}
         </Text>
+      </View>
+
+      <View className="mt-4 w-full">
+        <CopyAddressButton address={address} network={network} />
       </View>
 
       {network.chainType === 'evm' && (

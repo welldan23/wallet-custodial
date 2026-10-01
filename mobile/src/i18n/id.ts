@@ -55,6 +55,12 @@ export const id = {
     addressTitle: (network: string) => `Alamat ${network} kamu`,
     qrLabel: (network: string) => `QR code alamat ${network} kamu`,
     qrCaption: (network: string) => `Scan untuk kirim lewat jaringan ${network}`,
+    copyAddress: 'Salin alamat',
+    copied: 'Tersalin',
+    copiedTitle: (network: string) => `Alamat ${network} disalin`,
+    copiedMessage: (short: string) => `${short} — cocokkan awal & akhir alamat setelah ditempel.`,
+    copyFailedTitle: 'Gagal menyalin',
+    copyFailedMessage: 'Tekan lama alamatnya untuk menyalin manual.',
     sharedEvmAddressNote:
       'Alamat ini sama di Ethereum, Arbitrum, Base, dan Polygon, tapi saldonya terpisah per jaringan.',
   },

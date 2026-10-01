@@ -57,6 +57,13 @@ export const en: Dictionary = {
     addressTitle: (network: string) => `Your ${network} address`,
     qrLabel: (network: string) => `QR code of your ${network} address`,
     qrCaption: (network: string) => `Scan to send on the ${network} network`,
+    copyAddress: 'Copy address',
+    copied: 'Copied',
+    copiedTitle: (network: string) => `${network} address copied`,
+    copiedMessage: (short: string) =>
+      `${short} — check the start and end of the address after pasting.`,
+    copyFailedTitle: "Couldn't copy",
+    copyFailedMessage: 'Long-press the address to copy it manually.',
     sharedEvmAddressNote:
       'This address is the same on Ethereum, Arbitrum, Base, and Polygon, but balances are separate per network.',
   },
