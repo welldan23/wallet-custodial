@@ -23,6 +23,8 @@ export type Portfolio = {
   totalUsd: number;
   stablecoins: PortfolioAsset[];
   gasCoins: PortfolioAsset[];
+  /** `true` kalau belum ada aset sama sekali (mis. wallet baru). */
+  isEmpty: boolean;
 };
 
 type PortfolioInput = {
@@ -75,5 +77,6 @@ export function buildPortfolio({ networks, tokens, prices, balances }: Portfolio
     totalUsd: all.reduce((sum, asset) => sum + asset.valueUsd, 0),
     stablecoins: all.filter((asset) => asset.isStablecoin),
     gasCoins: all.filter((asset) => !asset.isStablecoin),
+    isEmpty: all.length === 0,
   };
 }

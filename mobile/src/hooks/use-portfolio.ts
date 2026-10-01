@@ -2,12 +2,14 @@ import { useMemo } from 'react';
 
 import { buildPortfolio } from '@/lib/portfolio';
 import {
-  MOCK_BALANCES,
+  getMockBalances,
   MOCK_FX_RATES,
   MOCK_NETWORKS,
   MOCK_PRICES,
   MOCK_TOKENS,
 } from '@/mocks/wallet';
+
+const ACTIVE_NETWORKS = MOCK_NETWORKS.filter((network) => network.isActive);
 
 /**
  * Data saldo untuk Home. Sementara masih dari data tiruan; nanti diganti
@@ -20,7 +22,7 @@ export function usePortfolio() {
         networks: MOCK_NETWORKS,
         tokens: MOCK_TOKENS,
         prices: MOCK_PRICES,
-        balances: MOCK_BALANCES,
+        balances: getMockBalances(),
       }),
     [],
   );
@@ -31,5 +33,11 @@ export function usePortfolio() {
     '',
   );
 
-  return { portfolio, fxRates: MOCK_FX_RATES, pricesUpdatedAt, isLoading: false };
+  return {
+    portfolio,
+    networks: ACTIVE_NETWORKS,
+    fxRates: MOCK_FX_RATES,
+    pricesUpdatedAt,
+    isLoading: false,
+  };
 }

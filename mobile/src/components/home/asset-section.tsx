@@ -15,6 +15,8 @@ type AssetSectionProps = {
   currency: FiatCurrency;
   fxRates: FxRates;
   hidden: boolean;
+  /** Pesan saat bagian ini belum punya aset. */
+  emptyText: string;
   /** Kalau diisi, muncul tautan "Lihat Semua" di kanan judul. */
   onSeeAll?: () => void;
 };
@@ -27,6 +29,7 @@ export function AssetSection({
   currency,
   fxRates,
   hidden,
+  emptyText,
   onSeeAll,
 }: AssetSectionProps) {
   const { t } = useI18n();
@@ -51,7 +54,7 @@ export function AssetSection({
       </View>
 
       {assets.length === 0 ? (
-        <Text className="py-6 text-center text-sm text-ink-muted">{t.home.emptyAssets}</Text>
+        <Text className="pb-5 pt-3 text-sm leading-5 text-ink-muted">{emptyText}</Text>
       ) : (
         assets.map((asset, index) => (
           <AssetRow

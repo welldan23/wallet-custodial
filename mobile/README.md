@@ -29,6 +29,23 @@ Wallet stablecoin non-custodial untuk iOS & Android, dibangun dengan
    HP dan laptop harus di Wi-Fi yang sama. Kalau beda jaringan, pakai
    `npx expo start --tunnel`.
 
+## Ganti skenario data tiruan
+
+Buat ngetes tampilan saat wallet kosong, pakai env `EXPO_PUBLIC_MOCK_WALLET`:
+
+| Nilai | Isi wallet |
+| --- | --- |
+| `funded` (default) | Ada stablecoin & koin gas |
+| `empty` | Wallet baru, belum ada aset sama sekali |
+| `no-gas` | Cuma punya stablecoin, belum punya koin gas |
+
+```bash
+EXPO_PUBLIC_MOCK_WALLET=empty npx expo start --clear
+```
+
+Tambahkan `--clear` tiap ganti nilai, soalnya nilainya ditanam ke kode pas
+build dan bisa nyangkut di cache.
+
 ## Lihat di browser
 
 ```bash

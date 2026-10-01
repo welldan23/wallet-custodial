@@ -3,6 +3,7 @@ import { useState } from 'react';
 
 import { AssetSection } from '@/components/home/asset-section';
 import { BalanceCard } from '@/components/home/balance-card';
+import { EmptyAssets } from '@/components/home/empty-assets';
 import { QuickActions } from '@/components/home/quick-actions';
 import { TabScreen } from '@/components/layout/tab-screen';
 import { usePortfolio } from '@/hooks/use-portfolio';
@@ -16,7 +17,7 @@ const openPortfolio = () => router.navigate('/portfolio');
 
 export default function HomeScreen() {
   const { t } = useI18n();
-  const { portfolio, fxRates, pricesUpdatedAt } = usePortfolio();
+  const { portfolio, networks, fxRates, pricesUpdatedAt } = usePortfolio();
   const [balanceHidden, setBalanceHidden] = useState(false);
 
   return (
@@ -31,22 +32,31 @@ export default function HomeScreen() {
         onPressDetail={openPortfolio}
       />
       <QuickActions />
-      <AssetSection
-        title={t.home.stablecoinAssets}
-        assets={portfolio.stablecoins}
-        currency={DISPLAY_CURRENCY}
-        fxRates={fxRates}
-        hidden={balanceHidden}
-        onSeeAll={openPortfolio}
-      />
-      <AssetSection
-        title={t.home.gasCoins}
-        subtitle={t.home.gasCoinsHint}
-        assets={portfolio.gasCoins}
-        currency={DISPLAY_CURRENCY}
-        fxRates={fxRates}
-        hidden={balanceHidden}
-      />
+
+      {portfolio.isEmpty ? (
+        <EmptyAssets networks={networks} />
+      ) : (
+        <>
+          <AssetSection
+            title={t.home.stablecoinAssets}
+            assets={portfolio.stablecoins}
+            currency={DISPLAY_CURRENCY}
+            fxRates={fxRates}
+            hidden={balanceHidden}
+            emptyText={t.home.emptyStablecoins}
+            onSeeAll={openPortfolio}
+          />
+          <AssetSection
+            title={t.home.gasCoins}
+            subtitle={t.home.gasCoinsHint}
+            assets={portfolio.gasCoins}
+            currency={DISPLAY_CURRENCY}
+            fxRates={fxRates}
+            hidden={balanceHidden}
+            emptyText={t.home.emptyGasCoins}
+          />
+        </>
+      )}
     </TabScreen>
   );
 }

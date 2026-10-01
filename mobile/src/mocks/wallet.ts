@@ -227,3 +227,27 @@ export const MOCK_BALANCES: TokenBalance[] = [
   { tokenId: 'sol-solana', amount: 0.215 },
   { tokenId: 'dai-ethereum', amount: 25 },
 ];
+
+/**
+ * Skenario saldo tiruan untuk ngetes tampilan, dipilih lewat env
+ * `EXPO_PUBLIC_MOCK_WALLET`, mis. `EXPO_PUBLIC_MOCK_WALLET=empty npx expo start`.
+ * - `funded` (default): ada stablecoin & koin gas
+ * - `empty`: wallet baru, belum ada aset sama sekali
+ * - `no-gas`: cuma punya stablecoin, belum punya koin gas
+ */
+export type MockWalletScenario = 'funded' | 'empty' | 'no-gas';
+
+const isStablecoinBalance = (balance: TokenBalance) =>
+  MOCK_TOKENS.find((token) => token.id === balance.tokenId)?.isStablecoin ?? false;
+
+const MOCK_SCENARIO_BALANCES: Record<MockWalletScenario, TokenBalance[]> = {
+  funded: MOCK_BALANCES,
+  empty: [],
+  'no-gas': MOCK_BALANCES.filter(isStablecoinBalance),
+};
+
+export function getMockBalances(
+  scenario: string | undefined = process.env.EXPO_PUBLIC_MOCK_WALLET,
+): TokenBalance[] {
+  return MOCK_SCENARIO_BALANCES[scenario as MockWalletScenario] ?? MOCK_BALANCES;
+}
