@@ -8,6 +8,7 @@ import { feesRoutes, type FeesRouteDeps } from './routes/fees.js';
 import { networksRoutes } from './routes/networks.js';
 import { transactionsRoutes, type TransactionsRouteDeps } from './routes/transactions.js';
 import { pricesRoutes, type PricesRouteDeps } from './routes/prices.js';
+import { swapRoutes } from './routes/swap.js';
 import type { BalanceSummaryDeps } from './services/balance-summary.js';
 
 export type AppDeps = BalanceSummaryDeps &
@@ -57,6 +58,7 @@ export function createApp(deps: AppDeps): Hono {
     app.route('/v1/address-check', addressCheckRoutes({ ...deps, ...deps.transactions }));
   }
   app.route('/v1/prices', pricesRoutes(deps));
+  app.route('/v1/swap', swapRoutes(deps));
 
   app.notFound((c) => c.json({ error: 'not_found' }, 404));
   app.onError((error, c) => {

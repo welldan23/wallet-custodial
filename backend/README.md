@@ -178,6 +178,26 @@ karena alamat itu publik.
 - Perangkat yang belum pernah menyimpan kontak mendapat daftar kosong.
 - `401` tanpa/salah token, `no-store`.
 
+### `GET /v1/swap/tokens`
+
+Stablecoin yang bisa ditukar, per jaringan aktif. Data publik, cache 5 menit.
+
+```json
+{
+  "networks": [
+    { "id": "arbitrum", "name": "Arbitrum", "chainType": "evm", "sameChainProvider": "lifi",
+      "tokens": [{ "tokenId": "usdc-arbitrum", "symbol": "USDC", "name": "USD Coin",
+                   "decimals": 6, "contractAddress": "0xaf88…5831" }] },
+    { "id": "solana", "name": "Solana", "chainType": "solana", "sameChainProvider": "jupiter",
+      "tokens": [] }
+  ],
+  "bridgeProvider": "lifi"
+}
+```
+
+Swap satu jaringan: LI.FI (EVM) atau Jupiter (Solana). Beda jaringan: bridge
+LI.FI. Koin gas tidak ikut (Swap khusus antar stablecoin).
+
 ### `GET /v1/balances/summary?evm=0x…&solana=…`
 
 Ringkasan saldo USDC, USDT, dan koin gas (ETH/POL/SOL) di **semua jaringan**:
