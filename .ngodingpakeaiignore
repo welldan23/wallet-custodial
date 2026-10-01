@@ -6,3 +6,11 @@
 # docs/internal/
 # *.snap
 # fixtures/
+
+# Cache & file hasil generate — bukan kode proyek
+.expo/
+package-lock.json
+
+# Aturan/skill bawaan CLI NgodingPakeAI
+.claude/
+/AGENTS.md
