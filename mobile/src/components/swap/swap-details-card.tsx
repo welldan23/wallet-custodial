@@ -1,10 +1,11 @@
 import Ionicons from '@expo/vector-icons/Ionicons';
-import { ActivityIndicator, Text, View } from 'react-native';
+import { ActivityIndicator, Pressable, Text, View } from 'react-native';
 
 import { ConfirmRow } from '@/components/send/confirm-row';
 import type { SwapAsset } from '@/hooks/use-swap-assets';
 import { useI18n } from '@/i18n';
 import { formatNumber, formatTokenAmount } from '@/lib/format';
+import { minReceived } from '@/lib/slippage';
 import type { SwapQuote } from '@/mocks/swap';
 import { cardShadow, colors } from '@/theme/colors';
 
@@ -17,6 +18,9 @@ type SwapDetailsCardProps = {
   networkFeeNative: number;
   nativeSymbol: string;
   fiat: (usd: number) => string;
+  /** Slippage dalam persen. */
+  slippage: number;
+  onEditSlippage: () => void;
 };
 
 const tabularNums = { fontVariant: ['tabular-nums' as const] };
@@ -30,6 +34,8 @@ export function SwapDetailsCard({
   networkFeeNative,
   nativeSymbol,
   fiat,
+  slippage,
+  onEditSlippage,
 }: SwapDetailsCardProps) {
   const { t } = useI18n();
 
@@ -83,6 +89,22 @@ export function SwapDetailsCard({
           <Text className="text-sm font-semibold text-ink">≈ {fiat(quote.bridgeFeeUsd)}</Text>
         </ConfirmRow>
       )}
+      <ConfirmRow label={t.swap.rowSlippage}>
+        <Pressable
+          onPress={onEditSlippage}
+          hitSlop={6}
+          accessibilityRole="button"
+          accessibilityLabel={t.swap.editSlippage(slippage)}
+          className="flex-row items-center gap-1 rounded-full bg-primary-50 px-2.5 py-1 active:opacity-70">
+          <Text className="text-[13px] font-bold text-primary-500">{slippage}%</Text>
+          <Ionicons name="create-outline" size={14} color={colors.primary[500]} />
+        </Pressable>
+      </ConfirmRow>
+      <ConfirmRow label={t.swap.rowMinReceived} hint={t.swap.minReceivedHint}>
+        <Text className="text-sm font-semibold text-ink" style={tabularNums}>
+          {formatTokenAmount(minReceived(quote.toAmount, slippage), true)} {to.symbol}
+        </Text>
+      </ConfirmRow>
       <ConfirmRow label={t.swap.rowFinal} isLast>
         <View className="flex-row items-center gap-1">
           <Ionicons name="arrow-down-circle" size={16} color={colors.success[500]} />

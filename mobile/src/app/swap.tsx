@@ -6,6 +6,7 @@ import { Pressable, Text, View } from 'react-native';
 import { StackScreen } from '@/components/layout/stack-screen';
 import { SwapAssetCard } from '@/components/swap/swap-asset-card';
 import { SwapAssetPickerSheet, type SwapSide } from '@/components/swap/swap-asset-picker-sheet';
+import { SlippageSheet } from '@/components/swap/slippage-sheet';
 import { SwapDetailsCard } from '@/components/swap/swap-details-card';
 import { DemoBanner } from '@/components/ui/demo-banner';
 import { useToast } from '@/components/ui/toast';
@@ -17,6 +18,7 @@ import { useWalletAccounts } from '@/hooks/use-wallet-accounts';
 import { useI18n } from '@/i18n';
 import { checkAmount, formatAmountForInput } from '@/lib/amount';
 import { formatFiat, formatTokenAmount } from '@/lib/format';
+import { DEFAULT_SLIPPAGE } from '@/lib/slippage';
 import { MOCK_FX_RATES } from '@/mocks/wallet';
 import { cardShadow, colors } from '@/theme/colors';
 import type { FiatCurrency } from '@/types/wallet';
@@ -87,6 +89,8 @@ function SwapForm({
   const { isDemo } = useWalletAccounts();
   const { hidden } = useBalanceVisibility();
   const [picking, setPicking] = useState<SwapSide | null>(null);
+  const [slippage, setSlippage] = useState(DEFAULT_SLIPPAGE);
+  const [slippageOpen, setSlippageOpen] = useState(false);
   const fee = useNetworkFee(from.network);
 
   const fiat = (usd: number) => formatFiat(usd, DISPLAY_CURRENCY, MOCK_FX_RATES);
@@ -176,6 +180,8 @@ function SwapForm({
           networkFeeNative={networkFeeNative}
           nativeSymbol={nativeSymbol}
           fiat={fiat}
+          slippage={slippage}
+          onEditSlippage={() => setSlippageOpen(true)}
         />
       )}
 
@@ -226,6 +232,14 @@ function SwapForm({
         otherTokenId={picking === 'to' ? from.tokenId : to.tokenId}
         hidden={hidden}
         onSelect={(tokenId) => picking && selectAsset(picking, tokenId)}
+      />
+
+      <SlippageSheet
+        key={slippageOpen ? 'open' : 'closed'}
+        visible={slippageOpen}
+        onClose={() => setSlippageOpen(false)}
+        value={slippage}
+        onSave={setSlippage}
       />
     </StackScreen>
   );
