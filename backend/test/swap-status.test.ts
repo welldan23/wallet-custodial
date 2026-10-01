@@ -270,6 +270,8 @@ describe('GET /v1/swap/history', () => {
       app.clock.now = new Date(TEST_NOW.getTime() + i * 60_000);
       app.store.insertSwapPending(swapInput({ txHash: `0xevm${i}` }));
     }
+    // Waktu berbeda supaya urutan pasti (waktu sama diurutkan pakai id acak).
+    app.clock.now = new Date(TEST_NOW.getTime() + 3 * 60_000);
     app.store.insertSwapPending(
       swapInput({
         walletKey: walletKey(SOLANA_OWNER),
