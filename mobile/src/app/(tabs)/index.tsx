@@ -1,14 +1,17 @@
 import { router, type Href } from 'expo-router';
+import { useState } from 'react';
 
 import { AssetSection } from '@/components/home/asset-section';
 import { BalanceCard } from '@/components/home/balance-card';
 import { EmptyAssets } from '@/components/home/empty-assets';
 import { GasBalanceCard } from '@/components/home/gas-balance-card';
 import { QuickActions, type QuickAction } from '@/components/home/quick-actions';
+import { RecentTransferCard } from '@/components/home/recent-transfer-card';
 import { TabScreen } from '@/components/layout/tab-screen';
 import { useBalanceVisibility } from '@/hooks/use-balance-visibility';
 import { useGasSummary } from '@/hooks/use-gas-summary';
 import { usePortfolio } from '@/hooks/use-portfolio';
+import { useSentTransfers } from '@/hooks/use-sent-transfers';
 import { useI18n } from '@/i18n';
 import type { FiatCurrency, NetworkId } from '@/types/wallet';
 
@@ -35,6 +38,13 @@ export default function HomeScreen() {
   const { portfolio, networks, fxRates, pricesUpdatedAt } = usePortfolio();
   const gas = useGasSummary();
   const { hidden: balanceHidden, toggleHidden } = useBalanceVisibility();
+  const { transfers } = useSentTransfers();
+  const [dismissedId, setDismissedId] = useState<string | null>(null);
+
+  // Kiriman terakhir tampil sampai ditutup; yang masih diproses tidak bisa ditutup.
+  const latest = transfers[0];
+  const latestNetwork = networks.find((network) => network.id === latest?.networkId);
+  const showLatest = latest && latestNetwork && latest.id !== dismissedId;
 
   return (
     <TabScreen active="home">
@@ -48,6 +58,16 @@ export default function HomeScreen() {
         onPressDetail={openPortfolio}
       />
       <QuickActions onPress={openQuickAction} />
+
+      {showLatest && (
+        <RecentTransferCard
+          transfer={latest}
+          networkName={latestNetwork.name}
+          hidden={balanceHidden}
+          onOpen={() => router.push({ pathname: '/send/status', params: { id: latest.id } })}
+          onDismiss={() => setDismissedId(latest.id)}
+        />
+      )}
 
       {portfolio.isEmpty ? (
         <EmptyAssets networks={networks} onReceive={() => openQuickAction('receive')} />

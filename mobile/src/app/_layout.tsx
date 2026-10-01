@@ -5,16 +5,19 @@ import { StatusBar } from 'expo-status-bar';
 
 import { ToastProvider } from '@/components/ui/toast';
 import { BalanceVisibilityProvider } from '@/hooks/use-balance-visibility';
+import { SentTransfersProvider } from '@/hooks/use-sent-transfers';
 import { I18nProvider } from '@/i18n';
 
 export default function RootLayout() {
   return (
     <I18nProvider>
       <BalanceVisibilityProvider>
-        <ToastProvider>
-          <StatusBar style="dark" />
-          <Stack screenOptions={{ headerShown: false }} />
-        </ToastProvider>
+        <SentTransfersProvider>
+          <ToastProvider>
+            <StatusBar style="dark" />
+            <Stack screenOptions={{ headerShown: false }} />
+          </ToastProvider>
+        </SentTransfersProvider>
       </BalanceVisibilityProvider>
     </I18nProvider>
   );

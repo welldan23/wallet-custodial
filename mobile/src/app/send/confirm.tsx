@@ -12,6 +12,7 @@ import { LookalikeWarning } from '@/components/send/lookalike-warning';
 import { useToast } from '@/components/ui/toast';
 import { useKnownAddresses } from '@/hooks/use-known-addresses';
 import { useNetworkFee } from '@/hooks/use-network-fee';
+import { useSentTransfers } from '@/hooks/use-sent-transfers';
 import { useSendableAssets } from '@/hooks/use-sendable-assets';
 import { useWalletAccounts } from '@/hooks/use-wallet-accounts';
 import { useI18n } from '@/i18n';
@@ -48,6 +49,7 @@ export default function ConfirmSendScreen() {
   const [demoAuthOpen, setDemoAuthOpen] = useState(false);
   const [lookalikeAcknowledged, setLookalikeAcknowledged] = useState(false);
   const knownAddresses = useKnownAddresses();
+  const { recordTransfer } = useSentTransfers();
 
   const asset = assets.find((item) => item.tokenId === params.token) ?? null;
   const fee = useNetworkFee(asset?.network ?? null);
@@ -87,9 +89,29 @@ export default function ConfirmSendScreen() {
   const needsAcknowledge = recognition.kind === 'lookalike' && !lookalikeAcknowledged;
   const canSign = quote.hasEnoughGas && !authorizing && !needsAcknowledge;
 
-  /** Setelah lolos verifikasi: tanda tangan & kirim (belum aktif di mode demo). */
+  /**
+   * Setelah lolos verifikasi: catat kiriman lalu ganti layar ini dengan
+   * status, supaya tombol kembali tidak membuka konfirmasi lagi.
+   * Mode demo belum menandatangani apa pun — kirimannya tiruan.
+   */
   const onAuthorized = () => {
-    toast({ title: t.send.authSuccess, message: t.send.signingPending });
+    setDemoAuthOpen(false);
+    const transfer = recordTransfer(
+      {
+        tokenId: asset.tokenId,
+        symbol: asset.symbol,
+        isStablecoin: asset.isStablecoin,
+        networkId: asset.network.id,
+        amount: amount.amount,
+        feeNative: quote.feeNative,
+        feeUsd: quote.feeUsd,
+        amountUsd: quote.amountUsd,
+        to: recipient.address,
+        contact: params.contact,
+      },
+      asset.network.chainType,
+    );
+    router.replace({ pathname: '/send/status', params: { id: transfer.id } });
   };
 
   const confirm = async () => {

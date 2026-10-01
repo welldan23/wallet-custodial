@@ -11,12 +11,14 @@ import { colors, stackGradient } from '@/theme/colors';
 type StackScreenProps = {
   title: string;
   children: ReactNode;
+  /** Ganti aksi tombol kembali (bawaan: halaman sebelumnya). */
+  onBack?: () => void;
 };
 
 const goBack = () => (router.canGoBack() ? router.back() : router.replace('/'));
 
 /** Kerangka halaman di atas tab (Kirim, Terima, Swap): tombol kembali + judul di tengah. */
-export function StackScreen({ title, children }: StackScreenProps) {
+export function StackScreen({ title, children, onBack = goBack }: StackScreenProps) {
   const { t } = useI18n();
   const insets = useSafeAreaInsets();
 
@@ -32,7 +34,7 @@ export function StackScreen({ title, children }: StackScreenProps) {
         className="w-full max-w-[520px] flex-row items-center self-center px-2 pb-2"
         style={{ paddingTop: insets.top + 6 }}>
         <Pressable
-          onPress={goBack}
+          onPress={onBack}
           hitSlop={6}
           accessibilityRole="button"
           accessibilityLabel={t.common.back}

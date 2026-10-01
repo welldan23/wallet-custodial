@@ -1,13 +1,9 @@
 import { useMemo } from 'react';
 
 import { buildPortfolio } from '@/lib/portfolio';
-import {
-  getMockBalances,
-  MOCK_FX_RATES,
-  MOCK_NETWORKS,
-  MOCK_PRICES,
-  MOCK_TOKENS,
-} from '@/mocks/wallet';
+import { MOCK_FX_RATES, MOCK_NETWORKS, MOCK_PRICES, MOCK_TOKENS } from '@/mocks/wallet';
+
+import { useWalletBalances } from './use-wallet-balances';
 
 const ACTIVE_NETWORKS = MOCK_NETWORKS.filter((network) => network.isActive);
 
@@ -16,15 +12,16 @@ const ACTIVE_NETWORKS = MOCK_NETWORKS.filter((network) => network.isActive);
  * ke API backend (token, harga, kurs) + RPC (saldo) tanpa mengubah UI.
  */
 export function usePortfolio() {
+  const balances = useWalletBalances();
   const portfolio = useMemo(
     () =>
       buildPortfolio({
         networks: MOCK_NETWORKS,
         tokens: MOCK_TOKENS,
         prices: MOCK_PRICES,
-        balances: getMockBalances(),
+        balances,
       }),
-    [],
+    [balances],
   );
 
   // String ISO dengan format sama bisa dibandingkan langsung.
