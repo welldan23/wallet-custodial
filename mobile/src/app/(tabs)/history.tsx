@@ -1,7 +1,7 @@
-import Ionicons from '@expo/vector-icons/Ionicons';
 import { router } from 'expo-router';
-import { Pressable, Text, View } from 'react-native';
+import { Text, View } from 'react-native';
 
+import { HistoryEmpty } from '@/components/history/history-empty';
 import { HistoryRow } from '@/components/history/history-row';
 import { TabScreen } from '@/components/layout/tab-screen';
 import { useBalanceVisibility } from '@/hooks/use-balance-visibility';
@@ -10,7 +10,7 @@ import { useSupportedNetworks } from '@/hooks/use-supported-networks';
 import { useI18n } from '@/i18n';
 import { daysAgo, groupByDay } from '@/lib/history';
 import { MOCK_FX_RATES } from '@/mocks/wallet';
-import { cardShadow, colors } from '@/theme/colors';
+import { cardShadow } from '@/theme/colors';
 import type { FiatCurrency, NetworkId } from '@/types/wallet';
 
 /** Mata uang pendamping USD. Nanti diambil dari Pengaturan. */
@@ -39,23 +39,7 @@ export default function HistoryScreen() {
       <Text className="-mt-2 text-[13px] text-ink-muted">{t.history.subtitle}</Text>
 
       {groups.length === 0 ? (
-        <View
-          className="items-center gap-3 rounded-[20px] bg-surface px-6 py-10"
-          style={cardShadow}>
-          <View className="h-14 w-14 items-center justify-center rounded-full bg-primary-50">
-            <Ionicons name="receipt-outline" size={26} color={colors.primary[500]} />
-          </View>
-          <Text className="text-base font-bold text-ink">{t.history.emptyTitle}</Text>
-          <Text className="text-center text-sm leading-5 text-ink-muted">
-            {t.history.emptyBody}
-          </Text>
-          <Pressable
-            onPress={() => router.push('/receive')}
-            accessibilityRole="button"
-            className="mt-1 rounded-full bg-primary-500 px-6 py-3 active:opacity-80">
-            <Text className="font-semibold text-white">{t.home.emptyCta}</Text>
-          </Pressable>
-        </View>
+        <HistoryEmpty variant="all" onReceive={() => router.push('/receive')} />
       ) : (
         groups.map((group) => (
           <View key={group.day} className="gap-2">

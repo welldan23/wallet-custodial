@@ -258,6 +258,11 @@ export const en: Dictionary = {
     status: { pending: 'Pending', failed: 'Failed' },
     emptyTitle: 'No transactions yet',
     emptyBody: 'Once you receive, send, or swap assets, all the activity shows up here.',
+    emptyStep1: 'Tap Receive and copy the address for the right network.',
+    emptyStep2: 'Send USDC/USDT to that address from an exchange or a friend.',
+    emptyMonthTitle: (month: string) => `No transactions in ${month}`,
+    emptyMonthBody: 'Try another month, or view your whole history.',
+    showAllMonths: 'View all months',
   },
   swap: {
     title: 'Swap',

@@ -250,6 +250,11 @@ export const id = {
     status: { pending: 'Diproses', failed: 'Gagal' },
     emptyTitle: 'Belum ada transaksi',
     emptyBody: 'Setelah kamu terima, kirim, atau swap aset, semua aktivitasnya muncul di sini.',
+    emptyStep1: 'Ketuk Terima, salin alamat jaringan yang sesuai.',
+    emptyStep2: 'Kirim USDC/USDT ke alamat itu dari exchange atau teman.',
+    emptyMonthTitle: (month: string) => `Nggak ada transaksi di ${month}`,
+    emptyMonthBody: 'Coba pilih bulan lain, atau lihat semua riwayat.',
+    showAllMonths: 'Lihat semua bulan',
   },
   swap: {
     title: 'Swap',
