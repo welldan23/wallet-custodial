@@ -249,6 +249,25 @@ Error `execute`: `400` isi tidak cocok (`unsupported_transaction`), penanda
 tangan lain (`unsigned`), `approval_required`; `410 intent_expired`; `422`
 jaringan menolak (mis. `insufficient_funds`); `502` RPC tidak bisa dihubungi.
 
+### `GET /v1/swap/:id` dan `GET /v1/swap/history?evm=…&solana=…`
+
+**Status satu swap** (bentuk jawaban sama dengan `GET /v1/transactions/:id`).
+Selama `pending`, backend cek (maks tiap 5 detik):
+
+1. transaksi asal di jaringannya (receipt EVM / signature Solana);
+2. kalau asal sudah sukses:
+   - **swap satu jaringan** → `success`; jumlah diterima dari status LI.FI
+     atau, untuk Jupiter, dari selisih saldo token di transaksi Solana-nya;
+   - **bridge** → status LI.FI `/v1/status`: `DONE` → `success` (+ hash &
+     jumlah di jaringan tujuan), `FAILED` → `failed`, `DONE`+`REFUNDED` →
+     `failed` dengan `bridgeStatus: "refunded"` (koin dikembalikan), lainnya
+     tetap `pending`.
+
+**Riwayat swap**: semua swap milik alamat EVM dan/atau Solana itu, terbaru
+dulu. `limit` (default 20, maks 50) dan `before` = `nextBefore` dari halaman
+sebelumnya. Status yang tampil = status tersimpan; detail terbaru lewat
+`GET /v1/swap/:id`.
+
 ### `GET /v1/balances/summary?evm=0x…&solana=…`
 
 Ringkasan saldo USDC, USDT, dan koin gas (ETH/POL/SOL) di **semua jaringan**:

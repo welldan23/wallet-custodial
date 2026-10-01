@@ -9,6 +9,8 @@ import {
   decodeSolanaTransfer,
   type TokenAccountOwnerResolver,
 } from '../transactions/decode-solana.js';
+import type { SwapProgressChecker } from '../swap/progress.js';
+import { StatusRefresher } from '../transactions/refresh.js';
 import type { TransactionStatusChecker } from '../transactions/status.js';
 import type { TransactionStore } from '../transactions/store.js';
 import {
@@ -30,18 +32,14 @@ export type TransactionsRouteDeps = {
   resolveTokenAccountOwner?: TokenAccountOwnerResolver;
   /** Pengecek status di blockchain per jaringan (untuk GET /:id). */
   statusCheckers?: Map<string, TransactionStatusChecker>;
+  /** Pemantau hasil swap (jumlah diterima, status bridge). */
+  swapProgress?: SwapProgressChecker;
+  /** Dipakai bersama route swap; dibuat sendiri kalau tidak diberikan. */
+  statusRefresher?: StatusRefresher;
   now?: () => Date;
 };
 
-/** Paling sering cek ke RPC per transaksi pending. */
-const STATUS_RECHECK_MS = 5_000;
-/**
- * Solana: transaksi tak terlihat setelah ini dianggap kedaluwarsa (blockhash
- * berlaku ±150 blok ≈ 1–2 menit, diberi cadangan).
- */
-export const SOLANA_EXPIRY_MS = 3 * 60_000;
-/** EVM: pending lebih lama dari ini ditandai "tertahan" (mungkin fee terlalu rendah). */
-export const STUCK_AFTER_MS = 30 * 60_000;
+export { SOLANA_EXPIRY_MS, STUCK_AFTER_MS } from '../transactions/refresh.js';
 
 const UUID_PATTERN = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
@@ -115,8 +113,7 @@ const MESSAGES: Record<string, string> = {
  */
 export function transactionsRoutes(deps: TransactionsRouteDeps): Hono {
   const app = new Hono();
-  const now = () => deps.now?.() ?? new Date();
-  const lastChecked = new Map<string, number>();
+  const refresher = deps.statusRefresher ?? new StatusRefresher(deps);
   const resolveOwner: TokenAccountOwnerResolver =
     deps.resolveTokenAccountOwner ?? (async () => null);
 
@@ -215,57 +212,35 @@ export function transactionsRoutes(deps: TransactionsRouteDeps): Hono {
   app.get('/:id', async (c) => {
     c.header('Cache-Control', 'no-store');
     const id = c.req.param('id');
-    let transaction = UUID_PATTERN.test(id) ? deps.transactionStore.findById(id) : null;
+    const transaction = UUID_PATTERN.test(id) ? deps.transactionStore.findById(id) : null;
     if (!transaction) {
       return c.json({ error: 'not_found', message: 'Transaction not found.' }, 404);
     }
-
-    const catalog = deps.loadCatalog();
-    const network = catalog.networks.find((item) => item.id === transaction!.networkId);
-    const checker = deps.statusCheckers?.get(transaction.networkId);
-    const at = now().getTime();
-    const age = at - new Date(transaction.createdAt).getTime();
-    let checkFailed = false;
-
-    if (
-      transaction.status === 'pending' &&
-      checker &&
-      at - (lastChecked.get(transaction.id) ?? 0) >= STATUS_RECHECK_MS
-    ) {
-      lastChecked.set(transaction.id, at);
-      try {
-        const result = await withTimeout(checker.check(transaction.txHash), deps.rpcTimeoutMs);
-        if (result && result.state !== 'pending') {
-          deps.transactionStore.setStatus(transaction.id, result.state, result.feeRaw);
-        } else if (!result && network?.chainType === 'solana' && age > SOLANA_EXPIRY_MS) {
-          deps.transactionStore.setStatus(transaction.id, 'failed');
-        }
-        transaction = deps.transactionStore.findById(transaction.id)!;
-      } catch (error) {
-        checkFailed = true;
-        console.warn(
-          `[status] ${transaction.networkId} gagal: ${error instanceof Error ? error.name : 'unknown'}`,
-        );
-      }
-    }
-    if (transaction.status !== 'pending') lastChecked.delete(transaction.id);
-
-    const full =
-      transaction.type === 'swap'
-        ? (deps.transactionStore.findSwap(transaction.id) ?? transaction)
-        : transaction;
-    return c.json({
-      transaction: publicTransaction(full, catalog),
-      isFinal: transaction.status !== 'pending',
-      isStuck:
-        transaction.status === 'pending' && network?.chainType === 'evm' && age > STUCK_AFTER_MS,
-      /** `true` = status di atas belum sempat dicek ulang (RPC gagal). */
-      checkFailed,
-    });
+    return c.json(statusBody(await refresher.refresh(transaction), deps));
   });
 
   return app;
 }
+
+/** Bentuk jawaban status (dipakai juga route swap). */
+export function statusBody(
+  result: { transaction: Transaction; isStuck: boolean; checkFailed: boolean },
+  deps: Pick<TransactionsRouteDeps, 'loadCatalog' | 'transactionStore'>,
+) {
+  const { transaction } = result;
+  const full =
+    transaction.type === 'swap'
+      ? (deps.transactionStore.findSwap(transaction.id) ?? transaction)
+      : transaction;
+  return {
+    transaction: publicTransaction(full, deps.loadCatalog()),
+    isFinal: transaction.status !== 'pending',
+    isStuck: result.isStuck,
+    checkFailed: result.checkFailed,
+  };
+}
+
+export const isTransactionId = (value: string) => UUID_PATTERN.test(value);
 
 function decode(
   network: Network,

@@ -26,7 +26,9 @@ import {
 } from '../transactions/types.js';
 import type { ChainType, SwapProvider } from '../types.js';
 
-import { publicTransaction } from './transactions.js';
+import type { StatusRefresher } from '../transactions/refresh.js';
+
+import { isTransactionId, publicTransaction, statusBody } from './transactions.js';
 
 export type SwapRouteDeps = {
   loadCatalog: () => Catalog;
@@ -42,9 +44,18 @@ export type SwapRouteDeps = {
     transactionStore: TransactionStore;
     walletKey: (address: string) => string;
   };
+  /** Untuk GET /history dan /:id. */
+  history?: {
+    transactionStore: TransactionStore;
+    walletKey: (address: string) => string;
+    refresher: StatusRefresher;
+  };
   rpcTimeoutMs?: number;
   now?: () => Date;
 };
+
+const HISTORY_DEFAULT_LIMIT = 20;
+const HISTORY_MAX_LIMIT = 50;
 
 export type SwapToken = {
   tokenId: string;
@@ -513,6 +524,70 @@ export function swapRoutes(deps: SwapRouteDeps): Hono {
       quoteId: intent.quote.quoteId,
     });
     return c.json({ transaction: publicTransaction(transaction, catalog) }, created ? 201 : 200);
+  });
+
+  /**
+   * GET /v1/swap/history?evm=0x…&solana=…[&limit=20&before=<kursor>]
+   * Riwayat swap milik alamat-alamat ini, terbaru dulu (status disimpan;
+   * cek terbaru per swap lewat GET /v1/swap/:id).
+   */
+  app.get('/history', (c) => {
+    c.header('Cache-Control', 'no-store');
+    const history = deps.history;
+    if (!history) return c.json({ error: 'history_unavailable', message: 'Not configured.' }, 503);
+    const evm = c.req.query('evm')?.trim() || null;
+    const solana = c.req.query('solana')?.trim() || null;
+    if (!evm && !solana) {
+      return c.json({ error: 'missing_address', message: 'Provide evm and/or solana.' }, 400);
+    }
+    if (evm && !isEvmAddress(evm, { strict: false })) {
+      return c.json({ error: 'invalid_evm_address', message: 'evm is not a valid address.' }, 400);
+    }
+    if (solana && !isSolanaAddress(solana)) {
+      return c.json(
+        { error: 'invalid_solana_address', message: 'solana is not a valid address.' },
+        400,
+      );
+    }
+    const limitInput = Number(c.req.query('limit') ?? HISTORY_DEFAULT_LIMIT);
+    const limit = Number.isInteger(limitInput)
+      ? Math.min(Math.max(limitInput, 1), HISTORY_MAX_LIMIT)
+      : HISTORY_DEFAULT_LIMIT;
+    const before = c.req.query('before')?.trim() || undefined;
+    if (before && !/^[^|]+\|[0-9a-f-]{36}$/i.test(before)) {
+      return c.json({ error: 'invalid_cursor', message: 'before is not a valid cursor.' }, 400);
+    }
+
+    const keys = [
+      evm && history.walletKey(getAddress(evm)),
+      solana && history.walletKey(solana),
+    ].filter((key): key is string => Boolean(key));
+    const swaps = history.transactionStore.listSwaps(keys, { limit, before });
+    const catalog = deps.loadCatalog();
+    const last = swaps.at(-1);
+    return c.json({
+      swaps: swaps.map((swap) => publicTransaction(swap, catalog)),
+      nextBefore: swaps.length === limit && last ? `${last.createdAt}|${last.id}` : null,
+    });
+  });
+
+  /** GET /v1/swap/:id — status satu swap (cek blockchain/bridge kalau masih berjalan). */
+  app.get('/:id', async (c) => {
+    c.header('Cache-Control', 'no-store');
+    const history = deps.history;
+    if (!history) return c.json({ error: 'history_unavailable', message: 'Not configured.' }, 503);
+    const id = c.req.param('id');
+    const transaction = isTransactionId(id) ? history.transactionStore.findById(id) : null;
+    if (!transaction || transaction.type !== 'swap') {
+      return c.json({ error: 'not_found', message: 'Swap not found.' }, 404);
+    }
+    const result = await history.refresher.refresh(transaction);
+    return c.json(
+      statusBody(result, {
+        loadCatalog: deps.loadCatalog,
+        transactionStore: history.transactionStore,
+      }),
+    );
   });
 
   return app;

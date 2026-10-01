@@ -19,6 +19,11 @@ import { PriceService } from './prices/price-service.js';
 import { createAllowanceReader } from './swap/allowance.js';
 import { createSwapQuoteService } from './swap/create.js';
 import { SwapIntentStore } from './swap/intents.js';
+import {
+  createSwapProgressChecker,
+  jupiterProgressChecker,
+  lifiProgressChecker,
+} from './swap/progress.js';
 import { buildJupiterSwap } from './swap/jupiter.js';
 import {
   coinGeckoSource,
@@ -101,6 +106,13 @@ const app = createApp({
     }),
     transactionStore: new TransactionStore(db),
     statusCheckers: createStatusCheckers(loadCatalog(db).networks, config.rpcUrls),
+    swapProgress: createSwapProgressChecker({
+      lifi: lifiProgressChecker({
+        apiKey: config.lifiApiKey ?? undefined,
+        timeoutMs: config.swapQuoteTimeoutMs,
+      }),
+      jupiter: config.rpcUrls.solana ? jupiterProgressChecker(config.rpcUrls.solana) : undefined,
+    }),
     walletKey: createWalletKey(ownerKeySecret),
     resolveTokenAccountOwner: config.rpcUrls.solana
       ? createTokenAccountOwnerResolver(config.rpcUrls.solana)

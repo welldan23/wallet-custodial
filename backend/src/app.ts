@@ -6,10 +6,11 @@ import { balancesRoutes } from './routes/balances.js';
 import { contactsRoutes, type ContactsRouteDeps } from './routes/contacts.js';
 import { feesRoutes, type FeesRouteDeps } from './routes/fees.js';
 import { networksRoutes } from './routes/networks.js';
-import { transactionsRoutes, type TransactionsRouteDeps } from './routes/transactions.js';
 import { pricesRoutes, type PricesRouteDeps } from './routes/prices.js';
 import { swapRoutes, type SwapRouteDeps } from './routes/swap.js';
+import { transactionsRoutes, type TransactionsRouteDeps } from './routes/transactions.js';
 import type { BalanceSummaryDeps } from './services/balance-summary.js';
+import { StatusRefresher } from './transactions/refresh.js';
 
 export type AppDeps = BalanceSummaryDeps &
   PricesRouteDeps &
@@ -41,6 +42,10 @@ const requestLogger: MiddlewareHandler = async (c, next) => {
 
 export function createApp(deps: AppDeps): Hono {
   const app = new Hono();
+  // Satu pemeriksa status untuk /v1/transactions/:id dan /v1/swap/:id (batas cek bersama).
+  const statusRefresher = deps.transactions
+    ? new StatusRefresher({ ...deps, ...deps.transactions })
+    : undefined;
 
   if (deps.logRequests !== false) app.use('*', requestLogger);
   // Endpoint transaksi menerima POST; sisanya data baca-saja (GET).
@@ -62,7 +67,10 @@ export function createApp(deps: AppDeps): Hono {
     app.route('/v1/contacts', contactsRoutes({ ...deps, contactStore: deps.contactStore }));
   }
   if (deps.transactions) {
-    app.route('/v1/transactions', transactionsRoutes({ ...deps, ...deps.transactions }));
+    app.route(
+      '/v1/transactions',
+      transactionsRoutes({ ...deps, ...deps.transactions, statusRefresher }),
+    );
     app.route('/v1/address-check', addressCheckRoutes({ ...deps, ...deps.transactions }));
   }
   app.route('/v1/prices', pricesRoutes(deps));
@@ -74,6 +82,10 @@ export function createApp(deps: AppDeps): Hono {
       swapExecution:
         deps.swapExecution && deps.transactions
           ? { ...deps.swapExecution, ...deps.transactions }
+          : undefined,
+      history:
+        deps.transactions && statusRefresher
+          ? { ...deps.transactions, refresher: statusRefresher }
           : undefined,
     }),
   );

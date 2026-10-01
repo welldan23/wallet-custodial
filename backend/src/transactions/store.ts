@@ -174,6 +174,29 @@ export class TransactionStore {
     return transaction && swap ? { ...transaction, swap } : null;
   }
 
+  /**
+   * Riwayat swap beberapa wallet (mis. alamat EVM + Solana milik pengguna yang
+   * sama), terbaru dulu. `before` = kursor `createdAt|id` dari halaman sebelumnya.
+   */
+  listSwaps(walletKeys: string[], options: { limit: number; before?: string }): SwapTransaction[] {
+    if (walletKeys.length === 0) return [];
+    const [beforeAt, beforeId] = options.before?.split('|') ?? [];
+    const cursor = beforeAt && beforeId ? 'AND (created_at, id) < (?, ?)' : '';
+    const ids = this.db
+      .prepare(
+        `SELECT id FROM transactions
+         WHERE type = 'swap' AND wallet_key IN (${walletKeys.map(() => '?').join(', ')}) ${cursor}
+         ORDER BY created_at DESC, id DESC
+         LIMIT ?`,
+      )
+      .all(...walletKeys, ...(cursor ? [beforeAt, beforeId] : []), options.limit) as {
+      id: string;
+    }[];
+    return ids
+      .map(({ id }) => this.findSwap(id))
+      .filter((swap): swap is SwapTransaction => swap !== null);
+  }
+
   /** Catat hasil akhir swap: jumlah diterima dan (kalau bridge) status + hash tujuan. */
   setSwapResult(
     transactionId: string,
