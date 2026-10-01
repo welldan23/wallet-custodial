@@ -53,6 +53,8 @@ export const id = {
     networkLabel: 'Jaringan',
     supportedAssets: (symbols: string) => `Bisa terima ${symbols}`,
     addressTitle: (network: string) => `Alamat ${network} kamu`,
+    qrLabel: (network: string) => `QR code alamat ${network} kamu`,
+    qrCaption: (network: string) => `Scan untuk kirim lewat jaringan ${network}`,
     sharedEvmAddressNote:
       'Alamat ini sama di Ethereum, Arbitrum, Base, dan Polygon, tapi saldonya terpisah per jaringan.',
   },

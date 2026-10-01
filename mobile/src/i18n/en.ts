@@ -55,6 +55,8 @@ export const en: Dictionary = {
     networkLabel: 'Network',
     supportedAssets: (symbols: string) => `Accepts ${symbols}`,
     addressTitle: (network: string) => `Your ${network} address`,
+    qrLabel: (network: string) => `QR code of your ${network} address`,
+    qrCaption: (network: string) => `Scan to send on the ${network} network`,
     sharedEvmAddressNote:
       'This address is the same on Ethereum, Arbitrum, Base, and Polygon, but balances are separate per network.',
   },

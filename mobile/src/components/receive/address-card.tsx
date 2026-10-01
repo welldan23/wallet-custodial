@@ -6,6 +6,8 @@ import { groupAddress } from '@/lib/address';
 import { cardShadow } from '@/theme/colors';
 import type { Network } from '@/types/wallet';
 
+import { AddressQr } from './address-qr';
+
 type AddressCardProps = {
   network: Network;
   address: string;
@@ -31,6 +33,17 @@ export function AddressCard({ network, address, symbols }: AddressCardProps) {
       </View>
       <Text className="mt-1 text-xs text-ink-muted">
         {t.receive.supportedAssets(symbols.join(' · '))}
+      </Text>
+
+      <View className="mt-4">
+        <AddressQr
+          address={address}
+          networkId={network.id}
+          accessibilityLabel={t.receive.qrLabel(network.name)}
+        />
+      </View>
+      <Text className="mt-2 text-xs font-semibold text-ink-soft">
+        {t.receive.qrCaption(network.name)}
       </Text>
 
       <View className="mt-4 w-full rounded-2xl bg-subtle px-4 py-3.5">
