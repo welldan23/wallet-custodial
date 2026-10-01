@@ -8,7 +8,7 @@ import { feesRoutes, type FeesRouteDeps } from './routes/fees.js';
 import { networksRoutes } from './routes/networks.js';
 import { transactionsRoutes, type TransactionsRouteDeps } from './routes/transactions.js';
 import { pricesRoutes, type PricesRouteDeps } from './routes/prices.js';
-import { swapRoutes } from './routes/swap.js';
+import { swapRoutes, type SwapRouteDeps } from './routes/swap.js';
 import type { BalanceSummaryDeps } from './services/balance-summary.js';
 
 export type AppDeps = BalanceSummaryDeps &
@@ -16,6 +16,8 @@ export type AppDeps = BalanceSummaryDeps &
   Omit<FeesRouteDeps, 'feeEstimators'> & {
     /** Penghitung biaya per jaringan; kosong = endpoint biaya menjawab 503. */
     feeEstimators?: FeesRouteDeps['feeEstimators'];
+    /** Penyedia quote swap (LI.FI/Jupiter); tanpa ini /v1/swap/quote menjawab 503. */
+    swapQuotes?: SwapRouteDeps['swapQuotes'];
     /** Tanpa ini, /v1/contacts tidak dipasang. */
     contactStore?: ContactsRouteDeps['contactStore'];
     /** Tanpa ini, POST /v1/transactions dan /v1/address-check tidak dipasang. */

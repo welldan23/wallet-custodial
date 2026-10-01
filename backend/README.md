@@ -198,6 +198,33 @@ Stablecoin yang bisa ditukar, per jaringan aktif. Data publik, cache 5 menit.
 Swap satu jaringan: LI.FI (EVM) atau Jupiter (Solana). Beda jaringan: bridge
 LI.FI. Koin gas tidak ikut (Swap khusus antar stablecoin).
 
+### `GET /v1/swap/quote?from=…&to=…&amount=…[&slippage=0.5&fromAddress=…&toAddress=…]`
+
+Estimasi swap antar stablecoin (token id, mis. `usdc-arbitrum` → `usdt-arbitrum`).
+`amount` dalam satuan token, `slippage` dalam persen (default `0.5`).
+
+```json
+{
+  "provider": "lifi", "tool": "kyberswap", "crossChain": false,
+  "from": { "tokenId": "usdc-arbitrum", "symbol": "USDC", "amount": "100", "amountRaw": "100000000" },
+  "to": { "tokenId": "usdt-arbitrum", "symbol": "USDT", "amount": "99.789709", "minAmount": "99.29076", "…": "…" },
+  "rate": 0.99789709, "slippageBps": 50, "slippagePercent": 0.5, "priceImpactPct": null,
+  "fees": [{ "kind": "provider", "label": "LIFI Fixed Fee", "symbol": "USDC", "amount": "0.25", "usd": 0.25, "included": true }],
+  "includedFeesUsd": 0.249983, "networkFeesUsd": 0.019266,
+  "etaSeconds": 0, "quoteId": "…", "approvalAddress": "0x1231…4EaE",
+  "warnings": [], "quotedAt": "…", "expiresAt": "… (+30 detik)"
+}
+```
+
+- **Slippage** (aturan sama dengan aplikasi): > 0 dan ≤ 50%, maks 2 desimal →
+  `400 invalid_slippage` (`reason`: `format` / `zero` / `too_high`).
+- **`warnings`**: `slippage_low` (< 0,05%), `slippage_high` (> 1%), `poor_rate`
+  (kurs < 0,98 — wajar untuk dicek ulang, mis. bridge mahal), `high_price_impact` (> 1%).
+- Quote berlaku 30 detik (`expiresAt`). Tanpa alamat, quote yang sama disimpan
+  10 detik di memori supaya batas request agregator aman.
+- Error: `400` parameter salah, `422` `no_route` / `amount_too_small` /
+  `unsupported_pair`, `502` agregator gagal, `503` layanan quote tidak dikonfigurasi.
+
 ### `GET /v1/balances/summary?evm=0x…&solana=…`
 
 Ringkasan saldo USDC, USDT, dan koin gas (ETH/POL/SOL) di **semua jaringan**:

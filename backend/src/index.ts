@@ -16,6 +16,7 @@ import { createFeeEstimators } from './fees/estimators.js';
 import { createWalletKey } from './lib/wallet-key.js';
 import { seedCatalog } from './db/seed.js';
 import { PriceService } from './prices/price-service.js';
+import { createSwapQuoteService } from './swap/create.js';
 import {
   coinGeckoSource,
   defiLlamaSource,
@@ -74,6 +75,7 @@ const app = createApp({
   readers: createBalanceReaders(loadCatalog(db).networks, config.rpcUrls),
   feeEstimators: createFeeEstimators(loadCatalog(db).networks, config.rpcUrls),
   contactStore: new ContactStore(db),
+  swapQuotes: createSwapQuoteService(config),
   transactions: {
     broadcasters: createBroadcasters(loadCatalog(db).networks, config.rpcUrls, {
       evm: (serialized) => keccak256(serialized as `0x${string}`),
