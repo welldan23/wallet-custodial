@@ -151,6 +151,20 @@ tetap ada walau server restart:
 
 Harga dan kurs juga tersimpan di SQLite (tabel `prices`), lihat bagian berikut.
 
+## Tabel transaksi
+
+Migrasi 4 membuat tabel `transactions` (riwayat kirim/terima/swap) mengikuti PRD,
+dengan dua penyesuaian:
+
+- **`wallet_key`** = HMAC alamat pemilik (seperti `balance_cache`), menggantikan
+  `user_id`/`wallet_id` sampai tabel `users`/`wallets` dibuat. Alamat wallet asli
+  tidak disimpan.
+- **`amount_raw` / `fee_raw`** = satuan terkecil (wei/lamport) sebagai teks, bukan
+  REAL, supaya jumlah tidak meleset karena pembulatan.
+
+Status: `pending` → `success` / `failed`. Satu `tx_hash` hanya sekali per wallet +
+jaringan.
+
 ## Harga & kurs
 
 Server memperbarui tabel `prices` secara otomatis:

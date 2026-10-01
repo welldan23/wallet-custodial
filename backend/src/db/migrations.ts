@@ -73,4 +73,35 @@ export const MIGRATIONS: Migration[] = [
       CREATE INDEX networks_sort_order ON networks (sort_order);
     `,
   },
+  {
+    id: 4,
+    name: 'transactions',
+    sql: `
+      -- Riwayat transaksi (tabel transactions di PRD), dimulai dari kiriman.
+      -- Beda dengan PRD:
+      -- * wallet_key = HMAC alamat pengirim/pemilik, menggantikan user_id/wallet_id
+      --   sampai tabel users/wallets ada (alamat wallet asli tidak disimpan).
+      -- * amount_raw/fee_raw = satuan terkecil (wei/lamport) sebagai teks supaya
+      --   tidak ada pembulatan REAL; tampilan dihitung dari tokens.decimals.
+      CREATE TABLE transactions (
+        id TEXT PRIMARY KEY,
+        wallet_key TEXT NOT NULL,
+        network_id TEXT NOT NULL REFERENCES networks (id),
+        token_id TEXT NOT NULL REFERENCES tokens (id),
+        type TEXT NOT NULL CHECK (type IN ('send', 'receive', 'swap')),
+        status TEXT NOT NULL DEFAULT 'pending' CHECK (status IN ('pending', 'success', 'failed')),
+        amount_raw TEXT NOT NULL CHECK (amount_raw GLOB '[0-9]*' AND amount_raw NOT GLOB '*[^0-9]*'),
+        amount_usd REAL, -- nilai USD saat transaksi dibuat (snapshot)
+        fee_raw TEXT CHECK (fee_raw IS NULL OR (fee_raw GLOB '[0-9]*' AND fee_raw NOT GLOB '*[^0-9]*')),
+        counterparty_address TEXT NOT NULL,
+        tx_hash TEXT NOT NULL,
+        created_at TEXT NOT NULL,
+        updated_at TEXT NOT NULL,
+        UNIQUE (wallet_key, network_id, tx_hash)
+      );
+
+      CREATE INDEX transactions_wallet_created ON transactions (wallet_key, created_at DESC);
+      CREATE INDEX transactions_pending ON transactions (status) WHERE status = 'pending';
+    `,
+  },
 ];

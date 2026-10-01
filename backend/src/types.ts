@@ -34,3 +34,26 @@ export type Price = {
   idrRate: number;
   updatedAt: string;
 };
+
+export type TransactionType = 'send' | 'receive' | 'swap';
+export type TransactionStatus = 'pending' | 'success' | 'failed';
+
+/** Satu baris tabel `transactions` (lihat migrasi 4 untuk beda dengan PRD). */
+export type Transaction = {
+  id: string;
+  /** HMAC alamat pemilik — alamat wallet asli tidak disimpan. */
+  walletKey: string;
+  networkId: string;
+  tokenId: string;
+  type: TransactionType;
+  status: TransactionStatus;
+  /** Jumlah dalam satuan terkecil token, sebagai string. */
+  amountRaw: string;
+  amountUsd: number | null;
+  /** Biaya jaringan dalam satuan terkecil koin gas; `null` kalau belum diketahui. */
+  feeRaw: string | null;
+  counterpartyAddress: string;
+  txHash: string;
+  createdAt: string;
+  updatedAt: string;
+};
