@@ -1,0 +1,38 @@
+import { Text, View } from 'react-native';
+
+import type { Network } from '@/types/wallet';
+
+import { NetworkIcon } from './network-icon';
+
+type NetworkBadgesProps = {
+  networks: Network[];
+  /** Jumlah logo yang ditampilkan sebelum diringkas jadi "+N". */
+  max?: number;
+  size?: number;
+};
+
+/** Deretan logo jaringan kecil yang saling menumpuk, mis. [ETH][ARB][BASE] +2. */
+export function NetworkBadges({ networks, max = 3, size = 16 }: NetworkBadgesProps) {
+  const visible = networks.slice(0, max);
+  const hiddenCount = networks.length - visible.length;
+
+  return (
+    <View
+      className="flex-row items-center"
+      accessibilityLabel={networks.map((network) => network.name).join(', ')}>
+      {visible.map((network, index) => (
+        <View
+          key={network.id}
+          className="rounded-full border-[1.5px] border-surface bg-surface"
+          style={{ marginLeft: index === 0 ? 0 : -4, zIndex: visible.length - index }}>
+          <NetworkIcon networkId={network.id} size={size} />
+        </View>
+      ))}
+      {hiddenCount > 0 && (
+        <View className="ml-1 rounded-full bg-mint-100 px-1.5 py-px">
+          <Text className="text-[10px] font-semibold text-ink-muted">+{hiddenCount}</Text>
+        </View>
+      )}
+    </View>
+  );
+}
