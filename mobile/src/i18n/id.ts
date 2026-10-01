@@ -8,6 +8,7 @@ export const id = {
   common: {
     back: 'Kembali',
     close: 'Tutup',
+    cancel: 'Batal',
     seeAll: 'Lihat Semua',
     comingSoon: 'Segera hadir',
     comingSoonDescription: 'Halaman ini lagi disiapin. Tunggu di update berikutnya, ya!',
@@ -82,6 +83,29 @@ export const id = {
     topUpGas: 'Isi gas',
     confirmSend: 'Konfirmasi & kirim',
     signingPending: 'Mode demo: tanda tangan & pengiriman belum aktif.',
+    biometricPrompt: (amount: string, symbol: string) => `Setujui kirim ${amount} ${symbol}`,
+    authorizing: 'Menunggu verifikasi…',
+    authSuccess: 'Terverifikasi',
+    authError: {
+      cancelled: { title: 'Dibatalkan', body: 'Transaksi belum dikirim.' },
+      no_lock: {
+        title: 'Kunci layar belum aktif',
+        body: 'Aktifkan sidik jari, Face ID, atau PIN layar di pengaturan HP dulu. Tanpa itu, MyWallet nggak bisa mengirim aset.',
+      },
+      lockout: {
+        title: 'Terlalu banyak percobaan',
+        body: 'Biometrik dikunci sementara. Buka kunci HP pakai PIN, lalu coba lagi.',
+      },
+      failed: { title: 'Verifikasi gagal', body: 'Transaksi belum dikirim. Coba lagi.' },
+      unsupported: {
+        title: 'Biometrik tidak tersedia',
+        body: 'Kirim aset hanya bisa disetujui dari HP dengan sidik jari, Face ID, atau PIN.',
+      },
+    },
+    demoAuthTitle: 'Simulasi verifikasi',
+    demoAuthBody:
+      'Preview web nggak punya sensor sidik jari. Di HP, langkah ini memakai sidik jari atau Face ID asli. Tombol di bawah cuma mensimulasikan hasilnya.',
+    demoAuthApprove: 'Simulasikan verifikasi berhasil',
     invalidDraft: 'Data kiriman nggak lengkap atau sudah berubah. Kembali dan isi ulang, ya.',
     backToForm: 'Kembali ke form',
     scanQr: 'Scan QR',

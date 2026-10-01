@@ -1,11 +1,13 @@
 import Ionicons from '@expo/vector-icons/Ionicons';
 import { router, useLocalSearchParams } from 'expo-router';
+import { useState } from 'react';
 import { Platform, Pressable, Text, View } from 'react-native';
 
 import { NetworkIcon } from '@/components/crypto/network-icon';
 import { TokenNetworkIcon } from '@/components/crypto/token-network-icon';
 import { StackScreen } from '@/components/layout/stack-screen';
 import { ConfirmRow } from '@/components/send/confirm-row';
+import { DemoAuthSheet } from '@/components/send/demo-auth-sheet';
 import { useToast } from '@/components/ui/toast';
 import { useNetworkFee } from '@/hooks/use-network-fee';
 import { useSendableAssets } from '@/hooks/use-sendable-assets';
@@ -14,6 +16,7 @@ import { useI18n } from '@/i18n';
 import { groupAddress } from '@/lib/address';
 import { validateRecipient } from '@/lib/address-validation';
 import { checkAmount } from '@/lib/amount';
+import { authorizeSigning } from '@/lib/biometric';
 import { formatFiat, formatTokenAmount } from '@/lib/format';
 import { buildSendQuote } from '@/lib/send-quote';
 import { cardShadow, colors } from '@/theme/colors';
@@ -37,7 +40,9 @@ export default function ConfirmSendScreen() {
     contact?: string;
   }>();
   const { assets, fxRates } = useSendableAssets();
-  const { accounts } = useWalletAccounts();
+  const { accounts, isDemo } = useWalletAccounts();
+  const [authorizing, setAuthorizing] = useState(false);
+  const [demoAuthOpen, setDemoAuthOpen] = useState(false);
 
   const asset = assets.find((item) => item.tokenId === params.token) ?? null;
   const fee = useNetworkFee(asset?.network ?? null);
@@ -73,6 +78,28 @@ export default function ConfirmSendScreen() {
     nativeBalance: fee.nativeBalance,
   });
   const groups = groupAddress(recipient.address);
+  const canSign = quote.hasEnoughGas && !authorizing;
+
+  /** Setelah lolos verifikasi: tanda tangan & kirim (belum aktif di mode demo). */
+  const onAuthorized = () => {
+    toast({ title: t.send.authSuccess, message: t.send.signingPending });
+  };
+
+  const confirm = async () => {
+    setAuthorizing(true);
+    const result = await authorizeSigning(
+      t.send.biometricPrompt(formatTokenAmount(amount.amount, asset.isStablecoin), asset.symbol),
+      t.common.cancel,
+    );
+    setAuthorizing(false);
+    if (result === 'success') return onAuthorized();
+    if (result === 'unsupported' && isDemo) return setDemoAuthOpen(true);
+    toast({
+      variant: 'error',
+      title: t.send.authError[result].title,
+      message: t.send.authError[result].body,
+    });
+  };
   const fiat = (usd: number) => formatFiat(usd, DISPLAY_CURRENCY, fxRates);
 
   return (
@@ -156,18 +183,28 @@ export default function ConfirmSendScreen() {
       </View>
 
       <Pressable
-        onPress={() => toast({ title: t.send.confirmSend, message: t.send.signingPending })}
-        disabled={!quote.hasEnoughGas}
+        onPress={confirm}
+        disabled={!canSign}
         accessibilityRole="button"
-        accessibilityState={{ disabled: !quote.hasEnoughGas }}
-        className={`items-center rounded-full py-4 ${
-          quote.hasEnoughGas ? 'bg-primary-500 active:opacity-80' : 'bg-line'
+        accessibilityState={{ disabled: !canSign, busy: authorizing }}
+        className={`flex-row items-center justify-center gap-2 rounded-full py-4 ${
+          canSign ? 'bg-primary-500 active:opacity-80' : 'bg-line'
         }`}>
-        <Text
-          className={`text-base font-semibold ${quote.hasEnoughGas ? 'text-white' : 'text-ink-faint'}`}>
-          {t.send.confirmSend}
+        <Ionicons
+          name="finger-print"
+          size={20}
+          color={canSign ? colors.surface : colors.ink.faint}
+        />
+        <Text className={`text-base font-semibold ${canSign ? 'text-white' : 'text-ink-faint'}`}>
+          {authorizing ? t.send.authorizing : t.send.confirmSend}
         </Text>
       </Pressable>
+
+      <DemoAuthSheet
+        visible={demoAuthOpen}
+        onClose={() => setDemoAuthOpen(false)}
+        onApprove={onAuthorized}
+      />
     </StackScreen>
   );
 }

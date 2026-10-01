@@ -41,6 +41,12 @@
           "microphonePermission": false,
           "recordAudioAndroid": false
         }
+      ],
+      [
+        "expo-local-authentication",
+        {
+          "faceIDPermission": "MyWallet memakai Face ID untuk menyetujui transaksi dan membuka wallet."
+        }
       ]
     ],
     "experiments": {

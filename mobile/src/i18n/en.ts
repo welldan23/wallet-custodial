@@ -10,6 +10,7 @@ export const en: Dictionary = {
   common: {
     back: 'Back',
     close: 'Close',
+    cancel: 'Cancel',
     seeAll: 'See All',
     comingSoon: 'Coming soon',
     comingSoonDescription: 'This page is being prepared. Stay tuned for the next update!',
@@ -84,6 +85,29 @@ export const en: Dictionary = {
     topUpGas: 'Top up gas',
     confirmSend: 'Confirm & send',
     signingPending: 'Demo mode: signing and sending are not active yet.',
+    biometricPrompt: (amount: string, symbol: string) => `Approve sending ${amount} ${symbol}`,
+    authorizing: 'Waiting for verification…',
+    authSuccess: 'Verified',
+    authError: {
+      cancelled: { title: 'Cancelled', body: 'The transaction was not sent.' },
+      no_lock: {
+        title: 'Screen lock is off',
+        body: 'Turn on fingerprint, Face ID, or a screen PIN in your phone settings first. Without it, MyWallet cannot send assets.',
+      },
+      lockout: {
+        title: 'Too many attempts',
+        body: 'Biometrics are temporarily locked. Unlock your phone with your PIN, then try again.',
+      },
+      failed: { title: 'Verification failed', body: 'The transaction was not sent. Try again.' },
+      unsupported: {
+        title: 'Biometrics unavailable',
+        body: 'Sending can only be approved on a phone with fingerprint, Face ID, or a PIN.',
+      },
+    },
+    demoAuthTitle: 'Simulated verification',
+    demoAuthBody:
+      'The web preview has no fingerprint sensor. On a phone this step uses real fingerprint or Face ID. The button below only simulates the result.',
+    demoAuthApprove: 'Simulate successful verification',
     invalidDraft: 'The transfer details are incomplete or changed. Go back and fill them in again.',
     backToForm: 'Back to form',
     scanQr: 'Scan QR',
