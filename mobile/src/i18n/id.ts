@@ -7,6 +7,7 @@ export const id = {
   },
   common: {
     back: 'Kembali',
+    close: 'Tutup',
     seeAll: 'Lihat Semua',
     comingSoon: 'Segera hadir',
     comingSoonDescription: 'Halaman ini lagi disiapin. Tunggu di update berikutnya, ya!',
@@ -78,6 +79,10 @@ export const id = {
     warningCount: (count: number) =>
       `${count} jaringan perlu diisi gas biar transaksi nggak gagal.`,
     estimateNote: 'Perkiraan dihitung dari biaya 1 kali kirim stablecoin.',
+  },
+  networkPicker: {
+    title: 'Pilih Jaringan',
+    moreLabel: (count: number) => `Lihat ${count} jaringan lainnya`,
   },
 };
 

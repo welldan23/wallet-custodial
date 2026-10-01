@@ -9,6 +9,7 @@ export const en: Dictionary = {
   },
   common: {
     back: 'Back',
+    close: 'Close',
     seeAll: 'See All',
     comingSoon: 'Coming soon',
     comingSoonDescription: 'This page is being prepared. Stay tuned for the next update!',
@@ -78,5 +79,9 @@ export const en: Dictionary = {
       `Top up gas on ${networks} so transactions there don't fail.`,
     warningCount: (count: number) => `${count} networks need gas so transactions don't fail.`,
     estimateNote: 'Estimate based on the fee for one stablecoin transfer.',
+  },
+  networkPicker: {
+    title: 'Choose Network',
+    moreLabel: (count: number) => `See ${count} more networks`,
   },
 };
