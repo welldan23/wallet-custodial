@@ -9,6 +9,7 @@ import {
   decodeSolanaTransfer,
   type TokenAccountOwnerResolver,
 } from '../transactions/decode-solana.js';
+import type { TransactionStatusChecker } from '../transactions/status.js';
 import type { TransactionStore } from '../transactions/store.js';
 import {
   BroadcastRejectedError,
@@ -27,7 +28,22 @@ export type TransactionsRouteDeps = {
   rpcTimeoutMs: number;
   /** Solana: cari pemilik akun token penerima (untuk riwayat). */
   resolveTokenAccountOwner?: TokenAccountOwnerResolver;
+  /** Pengecek status di blockchain per jaringan (untuk GET /:id). */
+  statusCheckers?: Map<string, TransactionStatusChecker>;
+  now?: () => Date;
 };
+
+/** Paling sering cek ke RPC per transaksi pending. */
+const STATUS_RECHECK_MS = 5_000;
+/**
+ * Solana: transaksi tak terlihat setelah ini dianggap kedaluwarsa (blockhash
+ * berlaku ±150 blok ≈ 1–2 menit, diberi cadangan).
+ */
+export const SOLANA_EXPIRY_MS = 3 * 60_000;
+/** EVM: pending lebih lama dari ini ditandai "tertahan" (mungkin fee terlalu rendah). */
+export const STUCK_AFTER_MS = 30 * 60_000;
+
+const UUID_PATTERN = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
 /** Bentuk transaksi untuk aplikasi (tanpa `walletKey`). */
 export function publicTransaction(tx: Transaction, catalog: Catalog) {
@@ -76,6 +92,8 @@ const MESSAGES: Record<string, string> = {
  */
 export function transactionsRoutes(deps: TransactionsRouteDeps): Hono {
   const app = new Hono();
+  const now = () => deps.now?.() ?? new Date();
+  const lastChecked = new Map<string, number>();
   const resolveOwner: TokenAccountOwnerResolver =
     deps.resolveTokenAccountOwner ?? (async () => null);
 
@@ -165,6 +183,59 @@ export function transactionsRoutes(deps: TransactionsRouteDeps): Hono {
       return c.json({ transaction: publicTransaction(transaction, catalog) }, created ? 201 : 200);
     },
   );
+
+  /**
+   * GET /v1/transactions/:id — status kiriman. Kalau masih `pending`, cek ke
+   * blockchain (paling sering tiap 5 detik) lalu simpan hasilnya beserta
+   * biaya yang benar-benar terpakai. Id = UUID dari POST (tidak bisa ditebak).
+   */
+  app.get('/:id', async (c) => {
+    c.header('Cache-Control', 'no-store');
+    const id = c.req.param('id');
+    let transaction = UUID_PATTERN.test(id) ? deps.transactionStore.findById(id) : null;
+    if (!transaction) {
+      return c.json({ error: 'not_found', message: 'Transaction not found.' }, 404);
+    }
+
+    const catalog = deps.loadCatalog();
+    const network = catalog.networks.find((item) => item.id === transaction!.networkId);
+    const checker = deps.statusCheckers?.get(transaction.networkId);
+    const at = now().getTime();
+    const age = at - new Date(transaction.createdAt).getTime();
+    let checkFailed = false;
+
+    if (
+      transaction.status === 'pending' &&
+      checker &&
+      at - (lastChecked.get(transaction.id) ?? 0) >= STATUS_RECHECK_MS
+    ) {
+      lastChecked.set(transaction.id, at);
+      try {
+        const result = await withTimeout(checker.check(transaction.txHash), deps.rpcTimeoutMs);
+        if (result && result.state !== 'pending') {
+          deps.transactionStore.setStatus(transaction.id, result.state, result.feeRaw);
+        } else if (!result && network?.chainType === 'solana' && age > SOLANA_EXPIRY_MS) {
+          deps.transactionStore.setStatus(transaction.id, 'failed');
+        }
+        transaction = deps.transactionStore.findById(transaction.id)!;
+      } catch (error) {
+        checkFailed = true;
+        console.warn(
+          `[status] ${transaction.networkId} gagal: ${error instanceof Error ? error.name : 'unknown'}`,
+        );
+      }
+    }
+    if (transaction.status !== 'pending') lastChecked.delete(transaction.id);
+
+    return c.json({
+      transaction: publicTransaction(transaction, catalog),
+      isFinal: transaction.status !== 'pending',
+      isStuck:
+        transaction.status === 'pending' && network?.chainType === 'evm' && age > STUCK_AFTER_MS,
+      /** `true` = status di atas belum sempat dicek ulang (RPC gagal). */
+      checkFailed,
+    });
+  });
 
   return app;
 }

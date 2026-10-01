@@ -24,6 +24,7 @@ import {
 } from './prices/sources.js';
 import { createBroadcasters } from './transactions/broadcasters.js';
 import { solanaSignatureOf } from './transactions/decode-solana.js';
+import { createStatusCheckers } from './transactions/status.js';
 import { TransactionStore } from './transactions/store.js';
 
 if (existsSync('.env')) process.loadEnvFile('.env');
@@ -79,6 +80,7 @@ const app = createApp({
       solana: solanaSignatureOf,
     }),
     transactionStore: new TransactionStore(db),
+    statusCheckers: createStatusCheckers(loadCatalog(db).networks, config.rpcUrls),
     walletKey: createWalletKey(ownerKeySecret),
     resolveTokenAccountOwner: config.rpcUrls.solana
       ? createTokenAccountOwnerResolver(config.rpcUrls.solana)

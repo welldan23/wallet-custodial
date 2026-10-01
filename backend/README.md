@@ -117,6 +117,25 @@ menolak (`insufficient_funds`, `nonce_too_low`, `fee_too_low`,
 `blockhash_expired`, `rejected`) — tidak dicatat, `502` RPC tidak bisa dihubungi
 (aman kirim ulang transaksi yang sama), `413` body > 64 KB.
 
+### `GET /v1/transactions/:id`
+
+Status kiriman (id = UUID dari `POST /v1/transactions`). Selama `pending`,
+backend mengecek blockchain (paling sering tiap 5 detik per transaksi) lalu
+menyimpan hasilnya.
+
+```json
+{ "transaction": { "id": "…", "status": "success", "feeRaw": "812700000000", "…": "…" },
+  "isFinal": true, "isStuck": false, "checkFailed": false }
+```
+
+- **EVM**: receipt `success` → `success`, `reverted` → `failed`, dengan biaya
+  asli (`gasUsed × effectiveGasPrice`, + biaya L1 di Base). Belum ada receipt
+  → tetap `pending`; lebih dari 30 menit ditandai `isStuck: true` (bukan gagal).
+- **Solana**: `confirmed`/`finalized` → selesai (`failed` kalau ada error
+  eksekusi), biaya dari `meta.fee`. Tidak pernah terlihat setelah 3 menit
+  (blockhash kedaluwarsa) → `failed`.
+- RPC gagal → status terakhir dengan `checkFailed: true`. `404` id tidak ada.
+
 ### `GET /v1/address-check?network=…&owner=…&to=…`
 
 Cek alamat tujuan terhadap alamat yang pernah dikirimi `owner` (kiriman yang

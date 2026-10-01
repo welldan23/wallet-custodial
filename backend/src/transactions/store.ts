@@ -36,6 +36,10 @@ export class TransactionStore {
     private readonly now: () => Date = () => new Date(),
   ) {}
 
+  findById(id: string): Transaction | null {
+    return (this.db.prepare(`${SELECT} WHERE id = ?`).get(id) as Transaction | undefined) ?? null;
+  }
+
   findByHash(walletKey: string, networkId: string, txHash: string): Transaction | null {
     return (
       (this.db
