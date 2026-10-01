@@ -73,6 +73,12 @@ export const en: Dictionary = {
       `My wallet address on the ${network} network (${symbols}):\n${address}\n\nSend ONLY on the ${network} network; assets sent on another network may be lost.`,
     shareFallbackTitle: 'Address copied',
     shareFallbackMessage: 'Sharing is not available here, so the address was copied.',
+    warningTitle: (network: string) => `Send only on the ${network} network`,
+    warningExchangeLabel: 'When sending from an exchange, choose the network:',
+    warningUnsupported: (networks: string) =>
+      `Do not choose ${networks}, or any other network. Assets sent that way won't arrive in MyWallet.`,
+    warningAssets: (symbols: string, network: string) =>
+      `On ${network}, MyWallet currently supports ${symbols}. Other assets won't show up.`,
     sharedEvmAddressNote:
       'This address is the same on Ethereum, Arbitrum, Base, and Polygon, but balances are separate per network.',
   },

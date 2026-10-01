@@ -11,6 +11,7 @@ import type { Network } from '@/types/wallet';
 
 import { AddressQr } from './address-qr';
 import { CopyAddressButton } from './copy-address-button';
+import { NetworkWarning } from './network-warning';
 import { QrFullscreen } from './qr-fullscreen';
 
 type AddressCardProps = {
@@ -98,11 +99,9 @@ export function AddressCard({ network, address, symbols }: AddressCardProps) {
         symbols={symbols}
       />
 
-      {network.chainType === 'evm' && (
-        <Text className="mt-3 text-center text-xs leading-[18px] text-ink-muted">
-          {t.receive.sharedEvmAddressNote}
-        </Text>
-      )}
+      <View className="mt-4 w-full">
+        <NetworkWarning network={network} symbols={symbols} />
+      </View>
     </View>
   );
 }

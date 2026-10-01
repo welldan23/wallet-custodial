@@ -70,6 +70,12 @@ export const id = {
       `Alamat wallet saya di jaringan ${network} (${symbols}):\n${address}\n\nKirim HANYA lewat jaringan ${network}, aset yang dikirim lewat jaringan lain bisa hilang.`,
     shareFallbackTitle: 'Alamat disalin',
     shareFallbackMessage: 'Menu bagikan tidak tersedia di sini, jadi alamatnya disalin.',
+    warningTitle: (network: string) => `Kirim hanya lewat jaringan ${network}`,
+    warningExchangeLabel: 'Kalau kirim dari exchange, pilih jaringan:',
+    warningUnsupported: (networks: string) =>
+      `Jangan pilih ${networks}, atau jaringan lain. Aset yang dikirim lewat jaringan itu nggak akan masuk ke MyWallet.`,
+    warningAssets: (symbols: string, network: string) =>
+      `Di ${network}, MyWallet baru mendukung ${symbols}. Aset lain nggak akan tampil.`,
     sharedEvmAddressNote:
       'Alamat ini sama di Ethereum, Arbitrum, Base, dan Polygon, tapi saldonya terpisah per jaringan.',
   },
