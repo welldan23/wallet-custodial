@@ -17,7 +17,7 @@ const DISPLAY_CURRENCY: FiatCurrency = 'IDR';
 export default function HomeScreen() {
   const { t } = useI18n();
   const insets = useSafeAreaInsets();
-  const { portfolio, fxRates } = usePortfolio();
+  const { portfolio, fxRates, pricesUpdatedAt } = usePortfolio();
   const [balanceHidden, setBalanceHidden] = useState(false);
 
   return (
@@ -33,6 +33,7 @@ export default function HomeScreen() {
             totalUsd={portfolio.totalUsd}
             currency={DISPLAY_CURRENCY}
             fxRates={fxRates}
+            pricesUpdatedAt={pricesUpdatedAt}
             hidden={balanceHidden}
             onToggleHidden={() => setBalanceHidden((hidden) => !hidden)}
           />

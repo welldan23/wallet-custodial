@@ -19,7 +19,11 @@ export const en: Dictionary = {
     totalBalance: 'Total Balance (USD)',
     hideBalance: 'Hide balance',
     showBalance: 'Show balance',
-    portfolioDetail: 'See balance details',
+    fxRate: (rate: string) => `Rate 1 USD ≈ ${rate}`,
+    updatedAt: (time: string) => `updated ${time}`,
+    totalBalanceLabel: (usd: string, fiat?: string) =>
+      fiat ? `Total balance ${usd}, about ${fiat}` : `Total balance ${usd}`,
+    balanceHiddenLabel: 'Total balance hidden',
     actions: {
       send: 'Send',
       receive: 'Receive',

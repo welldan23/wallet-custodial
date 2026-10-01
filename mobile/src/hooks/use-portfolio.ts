@@ -25,5 +25,11 @@ export function usePortfolio() {
     [],
   );
 
-  return { portfolio, fxRates: MOCK_FX_RATES, isLoading: false };
+  // String ISO dengan format sama bisa dibandingkan langsung.
+  const pricesUpdatedAt = MOCK_PRICES.reduce(
+    (latest, price) => (price.updatedAt > latest ? price.updatedAt : latest),
+    '',
+  );
+
+  return { portfolio, fxRates: MOCK_FX_RATES, pricesUpdatedAt, isLoading: false };
 }

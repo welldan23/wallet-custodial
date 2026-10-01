@@ -3,27 +3,35 @@ import { LinearGradient } from 'expo-linear-gradient';
 import { Pressable, Text, View } from 'react-native';
 
 import { useI18n } from '@/i18n';
-import { formatFiat, formatUsdNumber, MASKED_VALUE } from '@/lib/format';
+import { formatFiat, formatTime, formatUsd, formatUsdNumber, MASKED_VALUE } from '@/lib/format';
 import { balanceCardGradient } from '@/theme/colors';
 import type { FiatCurrency, FxRates } from '@/types/wallet';
 
 type BalanceCardProps = {
   totalUsd: number;
+  /** Mata uang pendamping USD, mis. IDR. Kalau `USD`, baris konversi tidak tampil. */
   currency: FiatCurrency;
   fxRates: FxRates;
+  /** Waktu harga/kurs terakhir diperbarui (ISO). */
+  pricesUpdatedAt?: string;
   hidden: boolean;
   onToggleHidden: () => void;
 };
+
+const tabularNums = { fontVariant: ['tabular-nums' as const] };
 
 /** Kartu hijau gelap berisi total saldo USD + konversi ke mata uang tampilan. */
 export function BalanceCard({
   totalUsd,
   currency,
   fxRates,
+  pricesUpdatedAt,
   hidden,
   onToggleHidden,
 }: BalanceCardProps) {
   const { t } = useI18n();
+  const showConversion = currency !== 'USD';
+  const convertedTotal = showConversion ? formatFiat(totalUsd, currency, fxRates) : undefined;
 
   return (
     <LinearGradient
@@ -59,24 +67,41 @@ export function BalanceCard({
           </Pressable>
         </View>
 
-        <Text
-          className="mt-2 font-bold text-white"
-          style={{ fontSize: 34, letterSpacing: -0.5, fontVariant: ['tabular-nums'] }}
-          numberOfLines={1}
-          adjustsFontSizeToFit>
-          {hidden ? (
-            MASKED_VALUE
-          ) : (
-            <>
-              <Text style={{ fontSize: 26 }}>$ </Text>
-              {formatUsdNumber(totalUsd)}
-            </>
-          )}
-        </Text>
+        <View
+          accessible
+          accessibilityLabel={
+            hidden
+              ? t.home.balanceHiddenLabel
+              : t.home.totalBalanceLabel(formatUsd(totalUsd), convertedTotal)
+          }>
+          <Text
+            className="mt-2 font-bold text-white"
+            style={[{ fontSize: 34, letterSpacing: -0.5 }, tabularNums]}
+            numberOfLines={1}
+            adjustsFontSizeToFit>
+            {hidden ? (
+              MASKED_VALUE
+            ) : (
+              <>
+                <Text style={{ fontSize: 26 }}>$ </Text>
+                {formatUsdNumber(totalUsd)}
+              </>
+            )}
+          </Text>
 
-        {currency !== 'USD' && (
-          <Text className="mt-1 text-sm font-medium text-white/75">
-            ≈ {hidden ? MASKED_VALUE : formatFiat(totalUsd, currency, fxRates)}
+          {convertedTotal && (
+            <View className="mt-2 self-start rounded-full bg-white/15 px-3 py-1">
+              <Text className="text-[15px] font-semibold text-white" style={tabularNums}>
+                ≈ {hidden ? MASKED_VALUE : convertedTotal}
+              </Text>
+            </View>
+          )}
+        </View>
+
+        {showConversion && (
+          <Text className="mt-3 text-[11px] font-medium text-white/60">
+            {t.home.fxRate(formatFiat(1, currency, fxRates))}
+            {pricesUpdatedAt ? ` · ${t.home.updatedAt(formatTime(pricesUpdatedAt))}` : ''}
           </Text>
         )}
       </View>

@@ -17,7 +17,11 @@ export const id = {
     totalBalance: 'Total Saldo (USD)',
     hideBalance: 'Sembunyikan saldo',
     showBalance: 'Tampilkan saldo',
-    portfolioDetail: 'Lihat rincian saldo',
+    fxRate: (rate: string) => `Kurs 1 USD ≈ ${rate}`,
+    updatedAt: (time: string) => `diperbarui ${time}`,
+    totalBalanceLabel: (usd: string, fiat?: string) =>
+      fiat ? `Total saldo ${usd}, sekitar ${fiat}` : `Total saldo ${usd}`,
+    balanceHiddenLabel: 'Total saldo disembunyikan',
     actions: {
       send: 'Kirim',
       receive: 'Terima',

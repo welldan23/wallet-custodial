@@ -76,3 +76,10 @@ export function formatTokenAmount(amount: number, isStablecoin: boolean): string
     maximumFractionDigits: amount !== 0 && Math.abs(amount) < 1 ? 6 : 4,
   });
 }
+
+/** Waktu ISO → jam lokal HP, mis. `"10:42"`. */
+export function formatTime(iso: string): string {
+  const date = new Date(iso);
+  const pad = (value: number) => String(value).padStart(2, '0');
+  return `${pad(date.getHours())}:${pad(date.getMinutes())}`;
+}
