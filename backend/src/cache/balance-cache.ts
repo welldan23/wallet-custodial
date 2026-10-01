@@ -1,6 +1,5 @@
-import { createHmac } from 'node:crypto';
-
 import type { RawBalance } from '../chains/types.js';
+import { createWalletKey } from '../lib/wallet-key.js';
 
 import type { BalanceStore } from './balance-store.js';
 
@@ -40,7 +39,7 @@ export class BalanceCache {
 
   /** Kunci tersamar untuk alamat (alamat EVM harus sudah dinormalisasi/checksum). */
   ownerKey(owner: string): string {
-    return createHmac('sha256', this.options.ownerKeySecret).update(owner).digest('hex');
+    return createWalletKey(this.options.ownerKeySecret)(owner);
   }
 
   async load(

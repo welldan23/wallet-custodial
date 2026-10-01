@@ -86,6 +86,37 @@ Estimasi biaya kirim satu token + metadata jaringan. `from`, `to`, `amount`
   memori. Dengan alamat: `no-store`.
 - Error: `400` parameter salah, `503` jaringan tanpa RPC, `502` RPC gagal/timeout.
 
+### `POST /v1/transactions`
+
+Teruskan transaksi yang **sudah ditandatangani di HP** ke jaringan, lalu catat
+di riwayat (`status: "pending"`). Backend tidak pernah menerima kunci/frasa.
+
+```json
+{ "network": "arbitrum", "signedTransaction": "0x02f8…" }
+```
+
+`signedTransaction`: hex transaksi EVM, atau wire transaction Solana (base64).
+
+Isi riwayat **dibaca dari transaksi itu sendiri**, bukan dari klaim aplikasi:
+
+- **EVM**: pengirim dipulihkan dari tanda tangan, `chainId` wajib cocok. Hanya
+  kirim koin gas (`value`, tanpa data) atau `transfer(to, amount)` ERC-20 ke
+  kontrak token di katalog.
+- **Solana**: tepat satu transfer SOL (System) atau SPL `TransferChecked` untuk
+  mint di katalog (desimal dicek). Boleh ditemani compute budget dan pembuatan
+  akun token penerima; instruksi lain dan address lookup table ditolak. Penerima
+  yang dicatat = pemilik akun token (dari instruksi ATA atau RPC).
+
+Jawaban: `201` tercatat baru, `200` hash yang sama sudah tercatat (tidak
+dikirim ulang). Contoh isi `transaction`: `id`, `type`, `status`, `tokenId`,
+`amount`, `amountRaw`, `amountUsd`, `counterpartyAddress`, `txHash`, `explorerUrl`.
+
+Error: `400` (`invalid_encoding`, `unsigned`, `wrong_chain`,
+`unsupported_transaction`, `unsupported_token`, `invalid_amount`), `422` jaringan
+menolak (`insufficient_funds`, `nonce_too_low`, `fee_too_low`,
+`blockhash_expired`, `rejected`) — tidak dicatat, `502` RPC tidak bisa dihubungi
+(aman kirim ulang transaksi yang sama), `413` body > 64 KB.
+
 ### `GET /v1/balances/summary?evm=0x…&solana=…`
 
 Ringkasan saldo USDC, USDT, dan koin gas (ETH/POL/SOL) di **semua jaringan**:

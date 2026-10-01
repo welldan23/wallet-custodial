@@ -1,15 +1,18 @@
 import { serve } from '@hono/node-server';
 import { randomBytes } from 'node:crypto';
 import { existsSync } from 'node:fs';
+import { keccak256 } from 'viem';
 
 import { createApp } from './app.js';
 import { BalanceCache } from './cache/balance-cache.js';
 import { SqliteBalanceStore } from './cache/balance-store.js';
 import { loadCatalog } from './catalog/repository.js';
 import { createBalanceReaders } from './chains/readers.js';
+import { createTokenAccountOwnerResolver } from './chains/solana.js';
 import { loadConfig } from './config.js';
 import { openDatabase } from './db/database.js';
 import { createFeeEstimators } from './fees/estimators.js';
+import { createWalletKey } from './lib/wallet-key.js';
 import { seedCatalog } from './db/seed.js';
 import { PriceService } from './prices/price-service.js';
 import {
@@ -18,6 +21,9 @@ import {
   frankfurterFxSource,
   openErApiFxSource,
 } from './prices/sources.js';
+import { createBroadcasters } from './transactions/broadcasters.js';
+import { solanaSignatureOf } from './transactions/decode-solana.js';
+import { TransactionStore } from './transactions/store.js';
 
 if (existsSync('.env')) process.loadEnvFile('.env');
 
@@ -27,15 +33,17 @@ seedCatalog(db);
 
 if (!config.cacheKeySecret) {
   console.warn(
-    '[cache] CACHE_KEY_SECRET kosong: pakai kunci acak, cache saldo tidak terpakai lagi setelah restart.',
+    '[cache] CACHE_KEY_SECRET kosong: pakai kunci acak, cache saldo & riwayat tidak terhubung lagi setelah restart.',
   );
 }
+// Kunci yang sama untuk cache saldo dan riwayat transaksi (alamat tidak disimpan).
+const ownerKeySecret = config.cacheKeySecret ?? randomBytes(32).toString('hex');
 const balanceStore = new SqliteBalanceStore(db);
 const balanceCache = new BalanceCache({
   store: balanceStore,
   ttlMs: config.balanceCacheTtlMs,
   maxStaleMs: config.balanceMaxStaleMs,
-  ownerKeySecret: config.cacheKeySecret ?? randomBytes(32).toString('hex'),
+  ownerKeySecret,
 });
 const purgeOldBalances = () => {
   const removed = balanceStore.purgeOlderThan(
@@ -63,6 +71,17 @@ const app = createApp({
   loadCatalog: () => loadCatalog(db),
   readers: createBalanceReaders(loadCatalog(db).networks, config.rpcUrls),
   feeEstimators: createFeeEstimators(loadCatalog(db).networks, config.rpcUrls),
+  transactions: {
+    broadcasters: createBroadcasters(loadCatalog(db).networks, config.rpcUrls, {
+      evm: (serialized) => keccak256(serialized as `0x${string}`),
+      solana: solanaSignatureOf,
+    }),
+    transactionStore: new TransactionStore(db),
+    walletKey: createWalletKey(ownerKeySecret),
+    resolveTokenAccountOwner: config.rpcUrls.solana
+      ? createTokenAccountOwnerResolver(config.rpcUrls.solana)
+      : undefined,
+  },
   balanceCache,
   rpcTimeoutMs: config.rpcTimeoutMs,
   priceStaleAfterMs: config.priceStaleAfterMs,

@@ -46,3 +46,13 @@ export function createSolanaBalanceReader(rpcUrl: string): BalanceReader {
     },
   };
 }
+
+/** Pemilik (wallet) sebuah akun token SPL; `null` kalau akun tidak ada. */
+export function createTokenAccountOwnerResolver(rpcUrl: string) {
+  const rpc = createSolanaRpc(rpcUrl);
+  return async (tokenAccount: string): Promise<string | null> => {
+    const info = await rpc.getAccountInfo(address(tokenAccount), { encoding: 'jsonParsed' }).send();
+    const data = info.value?.data as { parsed?: { info?: { owner?: string } } } | undefined;
+    return data?.parsed?.info?.owner ?? null;
+  };
+}
