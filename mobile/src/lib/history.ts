@@ -152,3 +152,22 @@ export function historyAmounts(item: HistoryItem): {
     },
   };
 }
+
+/** Bulan lokal `YYYY-MM` dari string ISO. */
+export const localMonth = (iso: string) => localDay(iso).slice(0, 7);
+
+/**
+ * Bulan untuk pilihan filter, terbaru dulu: bulan ini selalu ada, lalu
+ * semua bulan yang punya transaksi.
+ */
+export function availableMonths(items: HistoryItem[], now: Date = new Date()): string[] {
+  const current = `${now.getFullYear()}-${pad(now.getMonth() + 1)}`;
+  const months = new Set([current, ...items.map((item) => localMonth(item.createdAt))]);
+  return [...months].sort().reverse();
+}
+
+/** `null` = semua bulan. */
+export function filterByMonth(items: HistoryItem[], month: string | null): HistoryItem[] {
+  if (!month) return items;
+  return items.filter((item) => localMonth(item.createdAt) === month);
+}

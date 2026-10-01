@@ -208,6 +208,9 @@ export const id = {
   },
   history: {
     subtitle: 'Semua aktivitas kirim, terima, dan swap.',
+    all: 'Semua',
+    filterLabel: 'Filter bulan',
+    filterMonth: (month: string) => `Tampilkan ${month}`,
     today: 'Hari ini',
     yesterday: 'Kemarin',
     monthsShort: [

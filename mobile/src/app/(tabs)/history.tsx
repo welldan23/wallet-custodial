@@ -1,14 +1,16 @@
 import { router } from 'expo-router';
+import { useState } from 'react';
 import { Text, View } from 'react-native';
 
 import { HistoryEmpty } from '@/components/history/history-empty';
 import { HistoryRow } from '@/components/history/history-row';
+import { MonthFilter, monthLabel } from '@/components/history/month-filter';
 import { TabScreen } from '@/components/layout/tab-screen';
 import { useBalanceVisibility } from '@/hooks/use-balance-visibility';
 import { useHistory } from '@/hooks/use-history';
 import { useSupportedNetworks } from '@/hooks/use-supported-networks';
 import { useI18n } from '@/i18n';
-import { daysAgo, groupByDay } from '@/lib/history';
+import { availableMonths, daysAgo, filterByMonth, groupByDay } from '@/lib/history';
 import { MOCK_FX_RATES } from '@/mocks/wallet';
 import { cardShadow } from '@/theme/colors';
 import type { FiatCurrency, NetworkId } from '@/types/wallet';
@@ -22,7 +24,9 @@ export default function HistoryScreen() {
   const history = useHistory();
   const networks = useSupportedNetworks();
   const { hidden } = useBalanceVisibility();
-  const groups = groupByDay(history);
+  const [month, setMonth] = useState<string | null>(null);
+  const months = availableMonths(history);
+  const groups = groupByDay(filterByMonth(history, month));
   const networkName = (id: NetworkId) =>
     networks.find((item) => item.network.id === id)?.network.name ?? id;
 
@@ -38,8 +42,16 @@ export default function HistoryScreen() {
     <TabScreen active="history" title={t.tabs.history}>
       <Text className="-mt-2 text-[13px] text-ink-muted">{t.history.subtitle}</Text>
 
-      {groups.length === 0 ? (
+      {history.length > 0 && <MonthFilter months={months} selected={month} onSelect={setMonth} />}
+
+      {history.length === 0 ? (
         <HistoryEmpty variant="all" onReceive={() => router.push('/receive')} />
+      ) : groups.length === 0 && month ? (
+        <HistoryEmpty
+          variant="month"
+          monthLabel={monthLabel(month, t.history.monthsShort)}
+          onShowAll={() => setMonth(null)}
+        />
       ) : (
         groups.map((group) => (
           <View key={group.day} className="gap-2">

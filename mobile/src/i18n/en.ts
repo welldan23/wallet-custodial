@@ -216,6 +216,9 @@ export const en: Dictionary = {
   },
   history: {
     subtitle: 'All your send, receive, and swap activity.',
+    all: 'All',
+    filterLabel: 'Month filter',
+    filterMonth: (month: string) => `Show ${month}`,
     today: 'Today',
     yesterday: 'Yesterday',
     monthsShort: [
