@@ -23,9 +23,12 @@ const QUICK_ACTION_ROUTES: Record<QuickAction, Href> = {
 
 const openPortfolio = () => router.navigate('/portfolio');
 const openQuickAction = (action: QuickAction) => router.push(QUICK_ACTION_ROUTES[action]);
-/** Sementara isi gas diarahkan ke Swap (tukar sedikit stablecoin ke koin gas). */
+/**
+ * Isi gas = terima koin gas (mis. kirim POL dari exchange) di jaringan itu.
+ * Bukan Swap, karena swap sendiri butuh gas di jaringan yang sedang kosong.
+ */
 const topUpGas = (networkId: NetworkId) =>
-  router.push({ pathname: '/swap', params: { network: networkId } });
+  router.push({ pathname: '/receive', params: { network: networkId } });
 
 export default function HomeScreen() {
   const { t } = useI18n();
