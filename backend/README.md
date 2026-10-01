@@ -54,6 +54,38 @@ jaringan — dipakai halaman Terima. Data publik, `Cache-Control: public, max-ag
 - Jaringan `is_active = 0` tidak muncul; token `is_visible = 0` (mis. DAI) tidak ikut.
 - Urutan aset: stablecoin dulu, koin gas terakhir.
 
+### `GET /v1/fees?network=…&token=…[&from=…&to=…&amount=…]`
+
+Estimasi biaya kirim satu token + metadata jaringan. `from`, `to`, `amount`
+(dalam satuan token, mis. `12.5`) opsional — makin lengkap, makin akurat.
+
+```json
+{
+  "network": { "id": "arbitrum", "chainId": "42161", "chainType": "evm", "nativeSymbol": "ETH",
+               "nativeDecimals": 18, "explorerUrl": "https://arbiscan.io",
+               "explorerTxUrl": "https://arbiscan.io/tx/{hash}" },
+  "token": { "tokenId": "usdc-arbitrum", "symbol": "USDC", "decimals": 6, "isNative": false },
+  "fee": { "raw": "1694528371200", "amount": "0.0000016945283712", "usd": 0.004576, "idr": 75,
+           "method": "approximate", "parts": [{ "kind": "execution", "raw": "…", "amount": "…" }],
+           "gasLimit": "69658", "maxFeePerGas": "24326400", "createsRecipientAccount": null },
+  "nativeUsdPrice": 2700.5,
+  "isPriceStale": false,
+  "estimatedAt": "2026-10-01T10:00:00.000Z"
+}
+```
+
+- **EVM**: unit gas × `maxFeePerGas` saat ini (+10% margin). `method`:
+  `simulated` (disimulasikan dengan pengirim + jumlah asli), `approximate`
+  (simulasi jumlah 0 + cadangan slot penerima), `default` (angka gas umum).
+  Base menambah biaya data L1 (`parts[].kind = "l1_data"`).
+- **Solana**: biaya dasar 5000 lamport + priority fee (median priority fee
+  bukan nol terbaru di akun mint × compute unit). Kalau `to` belum punya akun
+  token, ada `token_account_rent` (sewa minimum dari RPC) dan
+  `createsRecipientAccount: true` — biaya ini dibayar pengirim.
+- Tanpa alamat: `Cache-Control: public, max-age=15` dan disimpan 15 detik di
+  memori. Dengan alamat: `no-store`.
+- Error: `400` parameter salah, `503` jaringan tanpa RPC, `502` RPC gagal/timeout.
+
 ### `GET /v1/balances/summary?evm=0x…&solana=…`
 
 Ringkasan saldo USDC, USDT, dan koin gas (ETH/POL/SOL) di **semua jaringan**:

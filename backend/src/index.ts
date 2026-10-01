@@ -9,6 +9,7 @@ import { loadCatalog } from './catalog/repository.js';
 import { createBalanceReaders } from './chains/readers.js';
 import { loadConfig } from './config.js';
 import { openDatabase } from './db/database.js';
+import { createFeeEstimators } from './fees/estimators.js';
 import { seedCatalog } from './db/seed.js';
 import { PriceService } from './prices/price-service.js';
 import {
@@ -61,6 +62,7 @@ const stopPriceRefresh = priceService.start(config.priceRefreshIntervalMs);
 const app = createApp({
   loadCatalog: () => loadCatalog(db),
   readers: createBalanceReaders(loadCatalog(db).networks, config.rpcUrls),
+  feeEstimators: createFeeEstimators(loadCatalog(db).networks, config.rpcUrls),
   balanceCache,
   rpcTimeoutMs: config.rpcTimeoutMs,
   priceStaleAfterMs: config.priceStaleAfterMs,

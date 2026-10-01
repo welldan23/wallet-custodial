@@ -2,12 +2,16 @@ import { Hono, type MiddlewareHandler } from 'hono';
 import { cors } from 'hono/cors';
 
 import { balancesRoutes } from './routes/balances.js';
+import { feesRoutes, type FeesRouteDeps } from './routes/fees.js';
 import { networksRoutes } from './routes/networks.js';
 import { pricesRoutes, type PricesRouteDeps } from './routes/prices.js';
 import type { BalanceSummaryDeps } from './services/balance-summary.js';
 
 export type AppDeps = BalanceSummaryDeps &
-  PricesRouteDeps & {
+  PricesRouteDeps &
+  Omit<FeesRouteDeps, 'feeEstimators'> & {
+    /** Penghitung biaya per jaringan; kosong = endpoint biaya menjawab 503. */
+    feeEstimators?: FeesRouteDeps['feeEstimators'];
     /** Matikan log request (mis. saat tes). */
     logRequests?: boolean;
   };
@@ -28,6 +32,7 @@ export function createApp(deps: AppDeps): Hono {
 
   app.get('/health', (c) => c.json({ ok: true }));
   app.route('/v1/networks', networksRoutes(deps));
+  app.route('/v1/fees', feesRoutes({ ...deps, feeEstimators: deps.feeEstimators ?? new Map() }));
   app.route('/v1/balances', balancesRoutes(deps));
   app.route('/v1/prices', pricesRoutes(deps));
 
