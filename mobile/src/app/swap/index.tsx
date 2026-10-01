@@ -9,11 +9,9 @@ import { SwapAssetPickerSheet, type SwapSide } from '@/components/swap/swap-asse
 import { SlippageSheet } from '@/components/swap/slippage-sheet';
 import { SwapDetailsCard } from '@/components/swap/swap-details-card';
 import { DemoBanner } from '@/components/ui/demo-banner';
-import { useToast } from '@/components/ui/toast';
 import { useBalanceVisibility } from '@/hooks/use-balance-visibility';
-import { useNetworkFee } from '@/hooks/use-network-fee';
 import { defaultSwapPair, useSwapAssets, type SwapAsset } from '@/hooks/use-swap-assets';
-import { useSwapQuote } from '@/hooks/use-swap-quote';
+import { useSwapGas, useSwapQuote } from '@/hooks/use-swap-quote';
 import { useWalletAccounts } from '@/hooks/use-wallet-accounts';
 import { useI18n } from '@/i18n';
 import { checkAmount, formatAmountForInput } from '@/lib/amount';
@@ -44,7 +42,9 @@ export default function SwapScreen() {
   if (!from || !to) {
     return (
       <StackScreen title={t.swap.title}>
-        <View className="items-center gap-3 rounded-[20px] bg-surface px-6 py-10" style={cardShadow}>
+        <View
+          className="items-center gap-3 rounded-[20px] bg-surface px-6 py-10"
+          style={cardShadow}>
           <Ionicons name="swap-vertical" size={36} color={colors.ink.faint} />
           <Text className="text-center text-sm leading-5 text-ink-soft">{t.swap.unavailable}</Text>
         </View>
@@ -85,22 +85,17 @@ function SwapForm({
   setToId,
 }: SwapFormProps) {
   const { t } = useI18n();
-  const toast = useToast();
   const { isDemo } = useWalletAccounts();
   const { hidden } = useBalanceVisibility();
   const [picking, setPicking] = useState<SwapSide | null>(null);
   const [slippage, setSlippage] = useState(DEFAULT_SLIPPAGE);
   const [slippageOpen, setSlippageOpen] = useState(false);
-  const fee = useNetworkFee(from.network);
 
   const fiat = (usd: number) => formatFiat(usd, DISPLAY_CURRENCY, MOCK_FX_RATES);
   const check = checkAmount(amountInput, from.balance, from.decimals);
   const amount = check.status === 'valid' ? check.amount : 0;
   const { quote, loading } = useSwapQuote(from, to, amount);
-  const nativeSymbol = from.network.nativeSymbol;
-  const networkFeeNative =
-    quote && fee && fee.nativeUsdPrice > 0 ? quote.networkFeeUsd / fee.nativeUsdPrice : 0;
-  const hasEnoughGas = !quote || (fee?.nativeBalance ?? 0) + 1e-12 >= networkFeeNative;
+  const { nativeSymbol, networkFeeNative, hasEnoughGas } = useSwapGas(from, quote);
   const canReview = check.status === 'valid' && quote !== null && !loading && hasEnoughGas;
 
   const flip = () => {
@@ -119,7 +114,15 @@ function SwapForm({
   };
 
   const review = () =>
-    toast({ title: t.swap.reviewSoonTitle, message: t.swap.reviewSoonBody });
+    router.push({
+      pathname: '/swap/confirm',
+      params: {
+        from: from.tokenId,
+        to: to.tokenId,
+        amount: String(amount),
+        slippage: String(slippage),
+      },
+    });
 
   return (
     <StackScreen title={t.swap.title}>

@@ -19,7 +19,7 @@ export function ConfirmRow({
       <Text className="pt-0.5 text-[13px] text-ink-muted">{label}</Text>
       <View className="flex-1 items-end">
         {children}
-        {hint && <Text className="mt-0.5 text-[11px] text-ink-muted">{hint}</Text>}
+        {hint && <Text className="mt-0.5 text-right text-[11px] text-ink-muted">{hint}</Text>}
       </View>
     </View>
   );

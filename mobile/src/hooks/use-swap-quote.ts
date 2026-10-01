@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 
 import { getMockSwapQuote, type SwapQuote } from '@/mocks/swap';
 
+import { useNetworkFee } from './use-network-fee';
 import type { SwapAsset } from './use-swap-assets';
 
 /** Jeda setelah berhenti mengetik sebelum minta kurs (biar tidak tiap ketukan). */
@@ -38,4 +39,16 @@ export function useSwapQuote(from: SwapAsset, to: SwapAsset, amount: number) {
   if (!(amount > 0)) return { quote: null, loading: false };
   const fresh = state?.key === key;
   return { quote: fresh ? state.quote : null, loading: !fresh };
+}
+
+/** Biaya swap dalam koin gas jaringan asal + cukup-tidaknya saldo gas. */
+export function useSwapGas(from: SwapAsset, quote: SwapQuote | null) {
+  const fee = useNetworkFee(from.network);
+  const nativeUsdPrice = fee?.nativeUsdPrice ?? 0;
+  const networkFeeNative = quote && nativeUsdPrice > 0 ? quote.networkFeeUsd / nativeUsdPrice : 0;
+  return {
+    nativeSymbol: from.network.nativeSymbol,
+    networkFeeNative,
+    hasEnoughGas: !quote || (fee?.nativeBalance ?? 0) + 1e-12 >= networkFeeNative,
+  };
 }

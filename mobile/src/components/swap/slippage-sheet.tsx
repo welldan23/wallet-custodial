@@ -57,8 +57,7 @@ export function SlippageSheet({ visible, onClose, value, onSave }: SlippageSheet
               className={`flex-1 items-center justify-center rounded-2xl border py-3 active:opacity-70 ${
                 active ? 'border-primary-500 bg-primary-50' : 'border-line bg-surface'
               }`}>
-              <Text
-                className={`text-[15px] font-bold ${active ? 'text-primary-500' : 'text-ink'}`}>
+              <Text className={`text-[15px] font-bold ${active ? 'text-primary-500' : 'text-ink'}`}>
                 {item}%
               </Text>
               {item === 0.5 && (
@@ -76,7 +75,11 @@ export function SlippageSheet({ visible, onClose, value, onSave }: SlippageSheet
       </Text>
       <View
         className={`flex-row items-center rounded-2xl border px-4 ${
-          error ? 'border-danger-500' : preset === null && custom ? 'border-primary-500' : 'border-line'
+          error
+            ? 'border-danger-500'
+            : preset === null && custom
+              ? 'border-primary-500'
+              : 'border-line'
         }`}>
         <TextInput
           value={custom}

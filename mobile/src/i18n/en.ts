@@ -119,7 +119,8 @@ export const en: Dictionary = {
       `The transaction is on the ${network} network, waiting for confirmation. Usually just a few seconds.`,
     statusConfirmed: 'Sent!',
     statusConfirmedBody: 'The network has confirmed the transaction. Your Home balance is updated.',
-    statusNotFound: "We couldn't find this transfer. The app may have been closed. Check your balance on Home.",
+    statusNotFound:
+      "We couldn't find this transfer. The app may have been closed. Check your balance on Home.",
     rowTxHash: 'Transaction hash',
     rowTime: 'Time',
     copyTxHash: 'Copy transaction hash',
@@ -215,7 +216,8 @@ export const en: Dictionary = {
     fromLabel: 'From',
     toLabel: 'To (estimate)',
     balance: (amount: string, symbol: string) => `Balance ${amount} ${symbol}`,
-    assetLabel: (side: string, symbol: string, network: string) => `${side}: ${symbol} on ${network}`,
+    assetLabel: (side: string, symbol: string, network: string) =>
+      `${side}: ${symbol} on ${network}`,
     amountLabel: 'Amount to swap',
     estimatedLabel: (amount: string, symbol: string) => `Estimated to receive ${amount} ${symbol}`,
     changeAssetHint: 'Tap to change coin or network',
@@ -246,7 +248,7 @@ export const en: Dictionary = {
     minReceivedHint: 'If the rate gets worse than this, the swap cancels automatically',
     slippageTitle: 'Slippage settings',
     slippageExplain:
-      "Slippage is how much the rate may move while your swap is processed. If it moves more than this, the swap is cancelled: your coins are not swapped, though the network fee may still be spent.",
+      'Slippage is how much the rate may move while your swap is processed. If it moves more than this, the swap is cancelled: your coins are not swapped, though the network fee may still be spent.',
     slippageOption: (value: number) => `Slippage ${value}%`,
     slippageRecommended: 'Recommended',
     slippageCustom: 'Custom',
@@ -262,8 +264,21 @@ export const en: Dictionary = {
     slippageSave: 'Save',
     rowFinal: 'You receive (estimate)',
     review: 'Review swap',
+    confirmTitle: 'Confirm Swap',
+    invalidDraft:
+      'The swap details are incomplete or have changed. Go back and fill them in again.',
+    youPay: 'You swap',
+    youGetEstimate: 'You receive (estimate)',
+    quoteValidFor: (s: number) => `Rate valid for ${s} more seconds`,
+    quoteExpired: 'Rate expired. Refresh it before continuing.',
+    refreshQuote: 'Refresh',
+    irreversible:
+      "Blockchain swaps can't be undone once processed. Double-check the coins, networks, and amount.",
+    bridgeIrreversible:
+      "Cross-network swaps through a bridge can take a few minutes and can't be undone once processed.",
+    confirmSwap: 'Confirm swap',
     reviewSoonTitle: 'Coming soon',
-    reviewSoonBody: 'Fee details, slippage, and swap confirmation are on the way.',
+    reviewSoonBody: 'Biometric approval and swap execution are on the way.',
     demoWarning: 'Demo mode: the rates below are examples, not real market prices.',
     unavailable: 'No stablecoin pair available to swap yet.',
   },

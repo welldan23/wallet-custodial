@@ -20,7 +20,8 @@ type SwapDetailsCardProps = {
   fiat: (usd: number) => string;
   /** Slippage dalam persen. */
   slippage: number;
-  onEditSlippage: () => void;
+  /** Kalau diisi, slippage bisa diubah dari kartu ini. */
+  onEditSlippage?: () => void;
 };
 
 const tabularNums = { fontVariant: ['tabular-nums' as const] };
@@ -70,7 +71,11 @@ export function SwapDetailsCard({
           `${formatNumber(quote.providerFeeRate * 100, { maximumFractionDigits: 2 })}%`,
         )}>
         <Text className="text-sm font-semibold text-ink" style={tabularNums}>
-          {t.swap.rate(from.symbol, formatNumber(quote.rate, { maximumFractionDigits: 4 }), to.symbol)}
+          {t.swap.rate(
+            from.symbol,
+            formatNumber(quote.rate, { maximumFractionDigits: 4 }),
+            to.symbol,
+          )}
         </Text>
       </ConfirmRow>
       <ConfirmRow label={t.swap.rowRoute} hint={eta}>
@@ -90,15 +95,19 @@ export function SwapDetailsCard({
         </ConfirmRow>
       )}
       <ConfirmRow label={t.swap.rowSlippage}>
-        <Pressable
-          onPress={onEditSlippage}
-          hitSlop={6}
-          accessibilityRole="button"
-          accessibilityLabel={t.swap.editSlippage(slippage)}
-          className="flex-row items-center gap-1 rounded-full bg-primary-50 px-2.5 py-1 active:opacity-70">
-          <Text className="text-[13px] font-bold text-primary-500">{slippage}%</Text>
-          <Ionicons name="create-outline" size={14} color={colors.primary[500]} />
-        </Pressable>
+        {onEditSlippage ? (
+          <Pressable
+            onPress={onEditSlippage}
+            hitSlop={6}
+            accessibilityRole="button"
+            accessibilityLabel={t.swap.editSlippage(slippage)}
+            className="flex-row items-center gap-1 rounded-full bg-primary-50 px-2.5 py-1 active:opacity-70">
+            <Text className="text-[13px] font-bold text-primary-500">{slippage}%</Text>
+            <Ionicons name="create-outline" size={14} color={colors.primary[500]} />
+          </Pressable>
+        ) : (
+          <Text className="text-sm font-semibold text-ink">{slippage}%</Text>
+        )}
       </ConfirmRow>
       <ConfirmRow label={t.swap.rowMinReceived} hint={t.swap.minReceivedHint}>
         <Text className="text-sm font-semibold text-ink" style={tabularNums}>
