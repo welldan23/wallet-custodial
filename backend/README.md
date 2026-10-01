@@ -25,6 +25,35 @@ lalu diisi daftar jaringan & token MVP.
 
 Cek server hidup → `{ "ok": true }`.
 
+### `GET /v1/networks`
+
+Jaringan aktif (urut `sort_order`) beserta aset yang bisa diterima di tiap
+jaringan — dipakai halaman Terima. Data publik, `Cache-Control: public, max-age=300`.
+
+```json
+{
+  "networks": [
+    {
+      "id": "arbitrum",
+      "name": "Arbitrum",
+      "chainId": "42161",
+      "chainType": "evm",
+      "nativeSymbol": "ETH",
+      "explorerUrl": "https://arbiscan.io",
+      "assets": [
+        { "tokenId": "usdc-arbitrum", "symbol": "USDC", "name": "USD Coin", "decimals": 6,
+          "isStablecoin": true, "isNative": false, "contractAddress": "0x…" },
+        { "tokenId": "eth-arbitrum", "symbol": "ETH", "name": "Ether", "decimals": 18,
+          "isStablecoin": false, "isNative": true, "contractAddress": null }
+      ]
+    }
+  ]
+}
+```
+
+- Jaringan `is_active = 0` tidak muncul; token `is_visible = 0` (mis. DAI) tidak ikut.
+- Urutan aset: stablecoin dulu, koin gas terakhir.
+
 ### `GET /v1/balances/summary?evm=0x…&solana=…`
 
 Ringkasan saldo USDC, USDT, dan koin gas (ETH/POL/SOL) di **semua jaringan**:

@@ -2,6 +2,7 @@ import { Hono, type MiddlewareHandler } from 'hono';
 import { cors } from 'hono/cors';
 
 import { balancesRoutes } from './routes/balances.js';
+import { networksRoutes } from './routes/networks.js';
 import { pricesRoutes, type PricesRouteDeps } from './routes/prices.js';
 import type { BalanceSummaryDeps } from './services/balance-summary.js';
 
@@ -26,6 +27,7 @@ export function createApp(deps: AppDeps): Hono {
   app.use('/v1/*', cors({ origin: '*', allowMethods: ['GET'] }));
 
   app.get('/health', (c) => c.json({ ok: true }));
+  app.route('/v1/networks', networksRoutes(deps));
   app.route('/v1/balances', balancesRoutes(deps));
   app.route('/v1/prices', pricesRoutes(deps));
 
