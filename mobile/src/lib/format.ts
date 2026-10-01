@@ -83,3 +83,9 @@ export function formatTime(iso: string): string {
   const pad = (value: number) => String(value).padStart(2, '0');
   return `${pad(date.getHours())}:${pad(date.getMinutes())}`;
 }
+
+/** Rasio 0–1 → persen, mis. `0.416` → `"42%"`; porsi sangat kecil jadi `"<1%"`. */
+export function formatPercent(ratio: number): string {
+  if (ratio > 0 && ratio < 0.01) return '<1%';
+  return `${Math.round(ratio * 100)}%`;
+}

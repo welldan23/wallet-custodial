@@ -31,5 +31,9 @@ export const en: Dictionary = {
     gasCoins: 'Gas Coins',
     gasCoinsHint: 'Used to pay network fees',
     emptyAssets: 'No assets in this wallet yet.',
+    networkCount: (count: number) => `${count} ${count === 1 ? 'network' : 'networks'}`,
+    showBreakdown: 'Show per-network breakdown',
+    hideBreakdown: 'Hide per-network breakdown',
+    holdingShare: (percent: string, symbol: string) => `${percent} of your ${symbol}`,
   },
 };

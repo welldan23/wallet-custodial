@@ -4,6 +4,8 @@ export type AssetHolding = {
   network: Network;
   amount: number;
   valueUsd: number;
+  /** Porsi jaringan ini dari total aset (0–1), dihitung dari jumlah token. */
+  share: number;
 };
 
 /** Satu aset (mis. USDC) yang sudah digabung dari semua jaringan. */
@@ -59,12 +61,15 @@ export function buildPortfolio({ networks, tokens, prices, balances }: Portfolio
     };
     asset.amount += amount;
     asset.valueUsd += valueUsd;
-    asset.holdings.push({ network, amount, valueUsd });
+    asset.holdings.push({ network, amount, valueUsd, share: 0 });
     assets.set(token.symbol, asset);
   }
 
   const all = [...assets.values()].sort(byValueDesc);
-  for (const asset of all) asset.holdings.sort(byValueDesc);
+  for (const asset of all) {
+    asset.holdings.sort(byValueDesc);
+    for (const holding of asset.holdings) holding.share = holding.amount / asset.amount;
+  }
 
   return {
     totalUsd: all.reduce((sum, asset) => sum + asset.valueUsd, 0),
