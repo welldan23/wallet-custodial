@@ -44,8 +44,11 @@ export const en: Dictionary = {
     transferPending: (amount: string, symbol: string) => `Sending ${amount} ${symbol}…`,
     transferConfirmed: (amount: string, symbol: string) => `${amount} ${symbol} sent`,
     transferTo: (to: string, network: string) => `To ${to} · ${network}`,
-    transferOpen: 'View transfer status',
-    transferDismiss: 'Dismiss transfer info',
+    swapPending: (amount: string, from: string, to: string) =>
+      `Swapping ${amount} ${from} → ${to}…`,
+    swapConfirmed: (from: string, to: string) => `Swap ${from} → ${to} complete`,
+    activityOpen: 'View status',
+    activityDismiss: 'Dismiss activity info',
   },
   send: {
     title: 'Send',
@@ -277,8 +280,25 @@ export const en: Dictionary = {
     bridgeIrreversible:
       "Cross-network swaps through a bridge can take a few minutes and can't be undone once processed.",
     confirmSwap: 'Confirm swap',
-    reviewSoonTitle: 'Coming soon',
-    reviewSoonBody: 'Biometric approval and swap execution are on the way.',
+    biometricPrompt: (amount: string, from: string, to: string) =>
+      `Approve swapping ${amount} ${from} to ${to}`,
+    cancelled: 'The swap was not run.',
+    statusTitle: 'Swap status',
+    statusPending: 'Swap in progress…',
+    statusPendingBody: (provider: string) =>
+      `The ${provider} route is running. Usually takes a few seconds.`,
+    statusPendingBridge: (provider: string) =>
+      `The ${provider} bridge is moving your coins to the destination network. This can take a few minutes.`,
+    statusConfirmed: 'Swap complete!',
+    statusConfirmedBody: 'The destination coins have arrived and your Home balance is updated.',
+    statusNotFound:
+      "We couldn't find this swap. The app may have been closed. Check your balance on Home.",
+    swapped: 'Swapped',
+    received: 'Received',
+    receivedEstimate: 'Will receive (estimate)',
+    demoStatus:
+      'Demo mode: this swap is simulated. No coins were actually swapped; balances only change on screen until the app closes.',
+    swapAgain: 'Swap again',
     demoWarning: 'Demo mode: the rates below are examples, not real market prices.',
     unavailable: 'No stablecoin pair available to swap yet.',
   },

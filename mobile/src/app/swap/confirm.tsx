@@ -6,14 +6,18 @@ import { Pressable, Text, View } from 'react-native';
 import { NetworkIcon } from '@/components/crypto/network-icon';
 import { TokenNetworkIcon } from '@/components/crypto/token-network-icon';
 import { StackScreen } from '@/components/layout/stack-screen';
+import { DemoAuthSheet } from '@/components/send/demo-auth-sheet';
 import { SwapDetailsCard } from '@/components/swap/swap-details-card';
 import { useToast } from '@/components/ui/toast';
 import { useSwapAssets, type SwapAsset } from '@/hooks/use-swap-assets';
 import { useSwapGas } from '@/hooks/use-swap-quote';
+import { useSwaps } from '@/hooks/use-swaps';
+import { useWalletAccounts } from '@/hooks/use-wallet-accounts';
 import { useI18n } from '@/i18n';
 import { checkAmount } from '@/lib/amount';
 import { formatFiat, formatTokenAmount } from '@/lib/format';
-import { checkSlippage } from '@/lib/slippage';
+import { authorizeSigning } from '@/lib/biometric';
+import { checkSlippage, minReceived } from '@/lib/slippage';
 import { getMockSwapQuote, type SwapQuote } from '@/mocks/swap';
 import { MOCK_FX_RATES } from '@/mocks/wallet';
 import { cardShadow, colors } from '@/theme/colors';
@@ -94,9 +98,13 @@ function SwapConfirmation({ from, to, amount, slippage }: SwapConfirmationProps)
   const toast = useToast();
   const [quote, setQuote] = useState<SwapQuote | null>(() => fetchQuote(from, to, amount));
   const [secondsLeft, setSecondsLeft] = useState(QUOTE_TTL_SECONDS);
+  const [authorizing, setAuthorizing] = useState(false);
+  const [demoAuthOpen, setDemoAuthOpen] = useState(false);
+  const { isDemo } = useWalletAccounts();
+  const { recordSwap } = useSwaps();
   const { nativeSymbol, networkFeeNative, hasEnoughGas } = useSwapGas(from, quote);
   const expired = secondsLeft <= 0;
-  const canConfirm = quote !== null && hasEnoughGas && !expired;
+  const canConfirm = quote !== null && hasEnoughGas && !expired && !authorizing;
 
   useEffect(() => {
     if (expired) return;
@@ -109,7 +117,52 @@ function SwapConfirmation({ from, to, amount, slippage }: SwapConfirmationProps)
     setSecondsLeft(QUOTE_TTL_SECONDS);
   };
 
-  const confirm = () => toast({ title: t.swap.reviewSoonTitle, message: t.swap.reviewSoonBody });
+  /**
+   * Setelah lolos verifikasi: catat swap lalu ganti layar ini dengan status.
+   * Mode demo belum memanggil agregator — swapnya tiruan.
+   */
+  const onAuthorized = () => {
+    setDemoAuthOpen(false);
+    if (!quote) return;
+    const swap = recordSwap(
+      {
+        fromTokenId: from.tokenId,
+        fromSymbol: from.symbol,
+        fromNetworkId: from.network.id,
+        fromAmount: amount,
+        toTokenId: to.tokenId,
+        toSymbol: to.symbol,
+        toNetworkId: to.network.id,
+        toAmount: quote.toAmount,
+        minReceived: minReceived(quote.toAmount, slippage),
+        slippage,
+        provider: quote.provider,
+        crossChain: quote.crossChain,
+        feeNative: networkFeeNative,
+        feeUsd: quote.networkFeeUsd,
+        bridgeFeeUsd: quote.bridgeFeeUsd,
+        amountUsd: amount * from.usdPrice,
+      },
+      from.network.chainType,
+    );
+    router.replace({ pathname: '/swap/status', params: { id: swap.id } });
+  };
+
+  const confirm = async () => {
+    setAuthorizing(true);
+    const result = await authorizeSigning(
+      t.swap.biometricPrompt(formatTokenAmount(amount, true), from.symbol, to.symbol),
+      t.common.cancel,
+    );
+    setAuthorizing(false);
+    if (result === 'success') return onAuthorized();
+    if (result === 'unsupported' && isDemo) return setDemoAuthOpen(true);
+    toast({
+      variant: 'error',
+      title: t.send.authError[result].title,
+      message: result === 'cancelled' ? t.swap.cancelled : t.send.authError[result].body,
+    });
+  };
 
   return (
     <StackScreen title={t.swap.confirmTitle}>
@@ -176,7 +229,7 @@ function SwapConfirmation({ from, to, amount, slippage }: SwapConfirmationProps)
         onPress={confirm}
         disabled={!canConfirm}
         accessibilityRole="button"
-        accessibilityState={{ disabled: !canConfirm }}
+        accessibilityState={{ disabled: !canConfirm, busy: authorizing }}
         className={`flex-row items-center justify-center gap-2 rounded-full py-4 ${
           canConfirm ? 'bg-primary-500 active:opacity-80' : 'bg-line'
         }`}>
@@ -186,9 +239,15 @@ function SwapConfirmation({ from, to, amount, slippage }: SwapConfirmationProps)
           color={canConfirm ? colors.surface : colors.ink.faint}
         />
         <Text className={`text-base font-semibold ${canConfirm ? 'text-white' : 'text-ink-faint'}`}>
-          {t.swap.confirmSwap}
+          {authorizing ? t.send.authorizing : t.swap.confirmSwap}
         </Text>
       </Pressable>
+
+      <DemoAuthSheet
+        visible={demoAuthOpen}
+        onClose={() => setDemoAuthOpen(false)}
+        onApprove={onAuthorized}
+      />
     </StackScreen>
   );
 }

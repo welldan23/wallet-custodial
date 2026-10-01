@@ -2,34 +2,25 @@ import Ionicons from '@expo/vector-icons/Ionicons';
 import { ActivityIndicator, Pressable, Text, View } from 'react-native';
 
 import { useI18n } from '@/i18n';
-import { shortenAddress } from '@/lib/address';
-import { formatTokenAmount, MASKED_VALUE } from '@/lib/format';
-import type { SentTransfer } from '@/lib/sent-transfers';
 import { cardShadow, colors } from '@/theme/colors';
 
-type RecentTransferCardProps = {
-  transfer: SentTransfer;
-  networkName: string;
-  hidden: boolean;
+type RecentActivityCardProps = {
+  confirmed: boolean;
+  title: string;
+  subtitle: string;
   onOpen: () => void;
   onDismiss: () => void;
 };
 
-/** Info kiriman terakhir di Home: masih diproses atau sudah terkirim. */
-export function RecentTransferCard({
-  transfer,
-  networkName,
-  hidden,
+/** Info aktivitas terakhir (kirim/swap) di Home: masih diproses atau sudah selesai. */
+export function RecentActivityCard({
+  confirmed,
+  title,
+  subtitle,
   onOpen,
   onDismiss,
-}: RecentTransferCardProps) {
+}: RecentActivityCardProps) {
   const { t } = useI18n();
-  const confirmed = transfer.status === 'confirmed';
-  const amount = hidden ? MASKED_VALUE : formatTokenAmount(transfer.amount, transfer.isStablecoin);
-  const title = confirmed
-    ? t.home.transferConfirmed(amount, transfer.symbol)
-    : t.home.transferPending(amount, transfer.symbol);
-  const recipient = transfer.contact ?? shortenAddress(transfer.to);
 
   return (
     <View
@@ -39,7 +30,7 @@ export function RecentTransferCard({
       <Pressable
         onPress={onOpen}
         accessibilityRole="button"
-        accessibilityLabel={`${title}. ${t.home.transferTo(recipient, networkName)}. ${t.home.transferOpen}`}
+        accessibilityLabel={`${title}. ${subtitle}. ${t.home.activityOpen}`}
         className="flex-1 flex-row items-center gap-3 py-3.5 pl-4 active:opacity-70">
         <View
           className={`h-10 w-10 items-center justify-center rounded-full ${
@@ -56,7 +47,7 @@ export function RecentTransferCard({
             {title}
           </Text>
           <Text className="text-xs text-ink-muted" numberOfLines={1}>
-            {t.home.transferTo(recipient, networkName)}
+            {subtitle}
           </Text>
         </View>
         <Ionicons name="chevron-forward" size={16} color={colors.ink.faint} />
@@ -66,7 +57,7 @@ export function RecentTransferCard({
           onPress={onDismiss}
           hitSlop={6}
           accessibilityRole="button"
-          accessibilityLabel={t.home.transferDismiss}
+          accessibilityLabel={t.home.activityDismiss}
           className="ml-1 h-9 w-9 items-center justify-center rounded-full active:bg-black/5">
           <Ionicons name="close" size={18} color={colors.ink.muted} />
         </Pressable>

@@ -42,8 +42,10 @@ export const id = {
     transferPending: (amount: string, symbol: string) => `Mengirim ${amount} ${symbol}…`,
     transferConfirmed: (amount: string, symbol: string) => `${amount} ${symbol} terkirim`,
     transferTo: (to: string, network: string) => `Ke ${to} · ${network}`,
-    transferOpen: 'Lihat status kiriman',
-    transferDismiss: 'Tutup info kiriman',
+    swapPending: (amount: string, from: string, to: string) => `Menukar ${amount} ${from} → ${to}…`,
+    swapConfirmed: (from: string, to: string) => `Swap ${from} → ${to} berhasil`,
+    activityOpen: 'Lihat status',
+    activityDismiss: 'Tutup info aktivitas',
   },
   send: {
     title: 'Kirim',
@@ -269,8 +271,25 @@ export const id = {
     bridgeIrreversible:
       'Swap beda jaringan lewat bridge bisa makan beberapa menit dan nggak bisa dibatalkan setelah diproses.',
     confirmSwap: 'Konfirmasi swap',
-    reviewSoonTitle: 'Segera hadir',
-    reviewSoonBody: 'Verifikasi sidik jari & eksekusi swap lagi disiapkan.',
+    biometricPrompt: (amount: string, from: string, to: string) =>
+      `Setujui tukar ${amount} ${from} ke ${to}`,
+    cancelled: 'Swap belum dijalankan.',
+    statusTitle: 'Status swap',
+    statusPending: 'Swap sedang diproses…',
+    statusPendingBody: (provider: string) =>
+      `Rute lewat ${provider} lagi dijalankan. Biasanya beberapa detik.`,
+    statusPendingBridge: (provider: string) =>
+      `Bridge lewat ${provider} lagi memindahkan koin ke jaringan tujuan. Bisa beberapa menit.`,
+    statusConfirmed: 'Swap berhasil!',
+    statusConfirmedBody: 'Koin tujuan sudah masuk dan saldo di Home sudah diperbarui.',
+    statusNotFound:
+      'Data swap ini nggak ketemu. Mungkin app sempat ditutup. Cek saldo di Home, ya.',
+    swapped: 'Ditukar',
+    received: 'Diterima',
+    receivedEstimate: 'Akan diterima (perkiraan)',
+    demoStatus:
+      'Mode demo: swap ini tiruan. Nggak ada koin yang benar-benar ditukar, saldo cuma berubah di tampilan sampai app ditutup.',
+    swapAgain: 'Swap lagi',
     demoWarning: 'Mode demo: kurs di bawah cuma contoh, bukan harga pasar asli.',
     unavailable: 'Belum ada pasangan stablecoin yang bisa ditukar.',
   },

@@ -6,6 +6,7 @@ import { StatusBar } from 'expo-status-bar';
 import { ToastProvider } from '@/components/ui/toast';
 import { BalanceVisibilityProvider } from '@/hooks/use-balance-visibility';
 import { SentTransfersProvider } from '@/hooks/use-sent-transfers';
+import { SwapsProvider } from '@/hooks/use-swaps';
 import { I18nProvider } from '@/i18n';
 
 export default function RootLayout() {
@@ -13,10 +14,12 @@ export default function RootLayout() {
     <I18nProvider>
       <BalanceVisibilityProvider>
         <SentTransfersProvider>
-          <ToastProvider>
-            <StatusBar style="dark" />
-            <Stack screenOptions={{ headerShown: false }} />
-          </ToastProvider>
+          <SwapsProvider>
+            <ToastProvider>
+              <StatusBar style="dark" />
+              <Stack screenOptions={{ headerShown: false }} />
+            </ToastProvider>
+          </SwapsProvider>
         </SentTransfersProvider>
       </BalanceVisibilityProvider>
     </I18nProvider>
