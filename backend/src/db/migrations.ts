@@ -162,4 +162,30 @@ export const MIGRATIONS: Migration[] = [
         WHERE bridge_status = 'pending';
     `,
   },
+  {
+    id: 7,
+    name: 'history_sources',
+    sql: `
+      -- Riwayat lengkap: selain transaksi dari aplikasi ('app'), transaksi yang
+      -- diimpor dari blockchain ('chain'), mis. uang masuk dari exchange.
+      ALTER TABLE transactions ADD COLUMN source TEXT NOT NULL DEFAULT 'app'
+        CHECK (source IN ('app', 'chain'));
+      -- Waktu blok di blockchain (ISO); NULL selama belum masuk blok.
+      ALTER TABLE transactions ADD COLUMN block_time TEXT;
+
+      -- Untuk daftar riwayat per wallet + jaringan, urut waktu.
+      CREATE INDEX transactions_wallet_network_created
+        ON transactions (wallet_key, network_id, created_at DESC);
+
+      -- Sampai mana riwayat on-chain satu wallet di satu jaringan sudah diimpor.
+      -- cursor = penanda dari sumber data (nomor blok EVM / signature Solana).
+      CREATE TABLE history_sync (
+        wallet_key TEXT NOT NULL,
+        network_id TEXT NOT NULL REFERENCES networks (id),
+        cursor TEXT,
+        synced_at TEXT NOT NULL,
+        PRIMARY KEY (wallet_key, network_id)
+      );
+    `,
+  },
 ];

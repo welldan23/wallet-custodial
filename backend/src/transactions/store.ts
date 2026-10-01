@@ -40,6 +40,24 @@ export type NewSwap = Omit<NewTransaction, 'type'> & {
   quoteId?: string | null;
 };
 
+/** Transaksi yang ditemukan di blockchain (sudah final). */
+export type ImportedTransaction = {
+  walletKey: string;
+  networkId: string;
+  tokenId: string;
+  type: TransactionType;
+  status: Exclude<TransactionStatus, 'pending'>;
+  amountRaw: bigint;
+  amountUsd: number | null;
+  feeRaw?: bigint | null;
+  counterpartyAddress: string;
+  txHash: string;
+  /** Waktu blok (ISO). */
+  blockTime: string;
+};
+
+export type HistorySyncState = { cursor: string | null; syncedAt: string };
+
 const SWAP_SELECT = `
   SELECT transaction_id AS transactionId, provider, to_network_id AS toNetworkId,
          to_token_id AS toTokenId, quoted_amount_raw AS quotedAmountRaw,
@@ -52,6 +70,7 @@ const SELECT = `
   SELECT id, wallet_key AS walletKey, network_id AS networkId, token_id AS tokenId, type, status,
          amount_raw AS amountRaw, amount_usd AS amountUsd, fee_raw AS feeRaw,
          counterparty_address AS counterpartyAddress, tx_hash AS txHash,
+         source, block_time AS blockTime,
          created_at AS createdAt, updated_at AS updatedAt
   FROM transactions`;
 
@@ -197,6 +216,66 @@ export class TransactionStore {
       .filter((swap): swap is SwapTransaction => swap !== null);
   }
 
+  /**
+   * Impor transaksi yang ditemukan di blockchain (mis. uang masuk). Sudah
+   * final, jadi langsung berstatus `success`/`failed`; hash yang sudah
+   * tercatat (termasuk dari aplikasi) tidak ditimpa. Mengembalikan jumlah baru.
+   */
+  importFromChain(rows: ImportedTransaction[]): number {
+    const insert = this.db.prepare(
+      `INSERT INTO transactions (id, wallet_key, network_id, token_id, type, status, amount_raw,
+         amount_usd, fee_raw, counterparty_address, tx_hash, source, block_time, created_at, updated_at)
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'chain', ?, ?, ?)
+       ON CONFLICT (wallet_key, network_id, tx_hash) DO NOTHING`,
+    );
+    const at = this.now().toISOString();
+    return this.db.transaction(() =>
+      rows.reduce(
+        (count, row) =>
+          count +
+          insert.run(
+            randomUUID(),
+            row.walletKey,
+            row.networkId,
+            row.tokenId,
+            row.type,
+            row.status,
+            row.amountRaw.toString(),
+            row.amountUsd,
+            row.feeRaw?.toString() ?? null,
+            row.counterpartyAddress,
+            row.txHash,
+            row.blockTime,
+            // Urutan riwayat memakai waktu blok, bukan waktu impor.
+            row.blockTime,
+            at,
+          ).changes,
+        0,
+      ),
+    )();
+  }
+
+  getSyncCursor(walletKey: string, networkId: string): HistorySyncState | null {
+    return (
+      (this.db
+        .prepare(
+          'SELECT cursor, synced_at AS syncedAt FROM history_sync WHERE wallet_key = ? AND network_id = ?',
+        )
+        .get(walletKey, networkId) as HistorySyncState | undefined) ?? null
+    );
+  }
+
+  setSyncCursor(walletKey: string, networkId: string, cursor: string | null): void {
+    this.db
+      .prepare(
+        `INSERT INTO history_sync (wallet_key, network_id, cursor, synced_at) VALUES (?, ?, ?, ?)
+         ON CONFLICT (wallet_key, network_id) DO UPDATE SET
+           cursor = COALESCE(excluded.cursor, history_sync.cursor),
+           synced_at = excluded.synced_at`,
+      )
+      .run(walletKey, networkId, cursor, this.now().toISOString());
+  }
+
   /** Catat hasil akhir swap: jumlah diterima dan (kalau bridge) status + hash tujuan. */
   setSwapResult(
     transactionId: string,
@@ -225,9 +304,17 @@ export class TransactionStore {
   setStatus(id: string, status: TransactionStatus, feeRaw?: bigint | null): void {
     this.db
       .prepare(
-        `UPDATE transactions SET status = ?, fee_raw = COALESCE(?, fee_raw), updated_at = ?
+        `UPDATE transactions SET status = ?, fee_raw = COALESCE(?, fee_raw), updated_at = ?,
+           block_time = CASE WHEN ? != 'pending' THEN COALESCE(block_time, ?) ELSE block_time END
          WHERE id = ?`,
       )
-      .run(status, feeRaw?.toString() ?? null, this.now().toISOString(), id);
+      .run(
+        status,
+        feeRaw?.toString() ?? null,
+        this.now().toISOString(),
+        status,
+        this.now().toISOString(),
+        id,
+      );
   }
 }

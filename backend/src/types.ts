@@ -54,9 +54,15 @@ export type Transaction = {
   feeRaw: string | null;
   counterpartyAddress: string;
   txHash: string;
+  /** `app` = dicatat aplikasi saat kirim/swap; `chain` = diimpor dari blockchain. */
+  source: TransactionSource;
+  /** Waktu blok di blockchain; `null` selama belum masuk blok. */
+  blockTime: string | null;
   createdAt: string;
   updatedAt: string;
 };
+
+export type TransactionSource = 'app' | 'chain';
 
 export type SwapProvider = 'lifi' | 'jupiter';
 export type BridgeStatus = 'pending' | 'done' | 'failed' | 'refunded';

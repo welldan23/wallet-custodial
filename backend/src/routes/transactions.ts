@@ -66,6 +66,8 @@ export function publicTransaction(tx: Transaction | SwapTransaction, catalog: Ca
     counterpartyAddress: tx.counterpartyAddress,
     txHash: tx.txHash,
     explorerUrl: network ? `${network.explorerUrl.replace(/\/$/, '')}/tx/${tx.txHash}` : null,
+    source: tx.source,
+    blockTime: tx.blockTime,
     createdAt: tx.createdAt,
     updatedAt: tx.updatedAt,
     swap: swap

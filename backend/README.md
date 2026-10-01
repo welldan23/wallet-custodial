@@ -379,6 +379,17 @@ dengan dua penyesuaian:
 Status: `pending` → `success` / `failed`. Satu `tx_hash` hanya sekali per wallet +
 jaringan.
 
+### Sumber riwayat (migrasi 7)
+
+- `transactions.source`: `app` = dicatat aplikasi saat kirim/swap, `chain` =
+  diimpor dari blockchain (mis. uang masuk dari exchange/teman). Impor tidak
+  pernah menimpa baris yang sudah ada (unik per wallet + jaringan + hash).
+- `transactions.block_time`: waktu blok; transaksi impor memakai waktu blok
+  sebagai `created_at` supaya urutan riwayat sesuai blockchain.
+- `history_sync`: posisi terakhir impor per wallet + jaringan (`cursor` =
+  nomor blok EVM / signature Solana), supaya sinkron berikutnya tidak membaca
+  ulang dari awal.
+
 ### Riwayat swap
 
 Swap dicatat sebagai baris `transactions` bertipe `swap` (sisi asal: token,
