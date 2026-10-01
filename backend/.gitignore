@@ -1,0 +1,8 @@
+node_modules/
+dist/
+# Database SQLite lokal (dibuat otomatis saat server jalan)
+data/
+*.db
+*.db-shm
+*.db-wal
+.env

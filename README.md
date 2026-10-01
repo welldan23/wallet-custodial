@@ -7,5 +7,7 @@ Wallet kripto **non-custodial** untuk pengguna Indonesia yang pegang stablecoin
 | Folder | Isi |
 | --- | --- |
 | [`mobile/`](mobile/) | Aplikasi iOS & Android (Expo + React Native) |
+| [`backend/`](backend/) | API data publik: jaringan, token, harga, ringkasan saldo (Hono + SQLite) |
 
-Cara menjalankan aplikasi ada di [`mobile/README.md`](mobile/README.md).
+Cara menjalankan ada di [`mobile/README.md`](mobile/README.md) dan
+[`backend/README.md`](backend/README.md).

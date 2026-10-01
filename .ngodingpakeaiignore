@@ -14,3 +14,8 @@ package-lock.json
 # Aturan/skill bawaan CLI NgodingPakeAI
 .claude/
 /AGENTS.md
+
+# Database SQLite lokal
+*.db
+*.db-shm
+*.db-wal
