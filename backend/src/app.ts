@@ -60,7 +60,11 @@ export function createApp(deps: AppDeps): Hono {
   );
   app.use(
     '/v1/contacts',
-    cors({ origin: '*', allowMethods: ['GET'], allowHeaders: ['Authorization', 'Content-Type'] }),
+    cors({
+      origin: '*',
+      allowMethods: ['GET', 'POST'],
+      allowHeaders: ['Authorization', 'Content-Type'],
+    }),
   );
   app.use('/v1/*', cors({ origin: '*', allowMethods: ['GET'] }));
 

@@ -178,6 +178,31 @@ karena alamat itu publik.
 - Perangkat yang belum pernah menyimpan kontak mendapat daftar kosong.
 - `401` tanpa/salah token, `no-store`.
 
+### `POST /v1/contacts`
+
+Simpan kontak baru (header `Authorization: Device <token>` sama seperti di atas;
+perangkat baru otomatis didaftarkan).
+
+```json
+{ "name": "Deposit Indodax", "address": "0xd8da…6045", "networkId": "ethereum", "isFavorite": true }
+```
+
+- `networkId` boleh `null`/tidak diisi = semua jaringan; tipe alamat lalu
+  ditebak dari bentuknya (`0x…` = EVM, selain itu Solana).
+- Nama dirapikan (spasi ganda jadi satu), 1–40 karakter. Alamat EVM disimpan
+  dalam format checksum; huruf besar-kecil campuran yang salah checksum ditolak.
+- `201 { "contact": { … } }` dengan bentuk yang sama seperti di daftar.
+
+| Status | `error` | Keterangan |
+| --- | --- | --- |
+| 400 | `invalid_name` | `reason`: `missing` / `empty` / `too_long` / `invalid_characters` |
+| 400 | `invalid_address` | `reason`: `missing` / `evm_format` / `evm_checksum` / `solana_on_evm` / `evm_on_solana` / `solana_format` (sama dengan pesan di aplikasi) |
+| 400 | `unknown_network` / `invalid_favorite` / `invalid_json` | |
+| 401 | `unauthorized` | token tidak ada/salah |
+| 409 | `duplicate_contact` | alamat sama dengan jaringan tumpang tindih; `existing: { id, name }` |
+| 409 | `contact_limit` | maksimal 500 kontak per perangkat |
+| 413 | `body_too_large` | body > 4 KB |
+
 ### `GET /v1/swap/tokens`
 
 Stablecoin yang bisa ditukar, per jaringan aktif. Data publik, cache 5 menit.
