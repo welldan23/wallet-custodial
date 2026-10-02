@@ -151,8 +151,17 @@ export const en: Dictionary = {
     addressBookEmpty: (network: string) => `No contacts for the ${network} network yet.`,
     manageContacts: 'Manage contacts',
     saveToContacts: 'Save this address to your address book',
-    contactNetworkMismatch: (name: string, usual: string, current: string) =>
-      `${name} is saved for the ${usual} network, but you're sending on ${current}. If this is an exchange deposit address, make sure the exchange accepts ${current}, or switch to an asset on ${usual}.`,
+    contactNetwork: {
+      title: (usual: string, current: string) =>
+        `This contact is usually on ${usual}, not ${current}`,
+      body: (name: string, usual: string, current: string) =>
+        `${name} is saved for the ${usual} network. The address is the same on ${current}, so the transaction will go through, but if this is an exchange deposit address that only accepts ${usual}, your assets may get stuck or lost.`,
+      switchTo: (network: string) => `Send on ${network} instead`,
+      acknowledge: (current: string) =>
+        `I've checked: this address can receive assets on ${current}.`,
+      wrongChain: 'Different network type',
+      wrongChainHint: (network: string) => `This address can't be used to send on ${network}.`,
+    },
     contactUsualNetwork: (network: string) => `Usually on ${network}`,
     contactUsualNetworkOther: (network: string) =>
       `Usually on ${network}, double-check the network`,

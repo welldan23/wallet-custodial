@@ -1,7 +1,7 @@
 import { router, useLocalSearchParams } from 'expo-router';
 import { useState } from 'react';
 import Ionicons from '@expo/vector-icons/Ionicons';
-import { Pressable, Text, View } from 'react-native';
+import { Pressable, Text } from 'react-native';
 
 import { StackScreen } from '@/components/layout/stack-screen';
 import { AmountInput } from '@/components/send/amount-input';
@@ -9,6 +9,7 @@ import { AssetPickerSheet } from '@/components/send/asset-picker-sheet';
 import { AssetSelector } from '@/components/send/asset-selector';
 import { ContactPickerSheet } from '@/components/send/contact-picker-sheet';
 import { QrScannerModal } from '@/components/send/qr-scanner-modal';
+import { ContactNetworkWarning } from '@/components/send/contact-network-warning';
 import { KnownRecipientNote, LookalikeWarning } from '@/components/send/lookalike-warning';
 import { RecipientInput } from '@/components/send/recipient-input';
 import { useToast } from '@/components/ui/toast';
@@ -22,6 +23,7 @@ import { useWalletAccounts } from '@/hooks/use-wallet-accounts';
 import { useI18n } from '@/i18n';
 import { validateRecipient } from '@/lib/address-validation';
 import { checkAmount, normalizeAmountInput } from '@/lib/amount';
+import { contactNetworkStatus, findContactByAddress } from '@/lib/contacts';
 import { recognizeRecipient } from '@/lib/lookalike';
 import { parseScannedAddress } from '@/lib/payment-uri';
 import { colors } from '@/theme/colors';
@@ -84,15 +86,28 @@ export default function SendScreen() {
   };
 
   const contactName = pickedContact?.name ?? null;
-  // Kontak khusus satu jaringan (mis. alamat deposit exchange) dipakai di jaringan lain.
-  const contactNetworkMismatch =
-    selected && pickedContact?.networkId && pickedContact.networkId !== selected.network.id
-      ? (networks.find((network) => network.id === pickedContact.networkId) ?? null)
-      : null;
-
   const recipientCheck = selected
     ? validateRecipient(recipient, selected.network, accounts)
     : ({ status: 'empty' } as const);
+
+  // Kontak yang dipilih, atau kontak yang alamatnya diketik/ditempel persis.
+  const matchedContact =
+    pickedContact ??
+    (recipientCheck.status === 'valid'
+      ? findContactByAddress(contacts, recipientCheck.address)
+      : undefined);
+  const contactStatus =
+    selected && matchedContact
+      ? contactNetworkStatus(matchedContact, selected.network, networks)
+      : ({ kind: 'ok' } as const);
+  // Aset yang sama di jaringan kontak, untuk tombol "Kirim lewat … saja".
+  const assetOnUsualNetwork =
+    selected && contactStatus.kind === 'other_network'
+      ? assets.find(
+          (asset) =>
+            asset.symbol === selected.symbol && asset.network.id === contactStatus.usual.id,
+        )
+      : undefined;
 
   const recognition =
     recipientCheck.status === 'valid'
@@ -144,19 +159,17 @@ export default function SendScreen() {
             onOpenScanner={() => setScannerOpen(true)}
             onOpenContacts={() => setContactsOpen(true)}
           />
-          {contactNetworkMismatch && pickedContact && (
-            <View
-              className="flex-row items-start gap-2 rounded-2xl bg-warning-50 px-3.5 py-3"
-              accessibilityRole="alert">
-              <Ionicons name="warning" size={16} color={colors.warning[600]} />
-              <Text className="flex-1 text-xs leading-[18px] text-warning-600">
-                {t.send.contactNetworkMismatch(
-                  pickedContact.name,
-                  contactNetworkMismatch.name,
-                  selected.network.name,
-                )}
-              </Text>
-            </View>
+          {matchedContact && contactStatus.kind === 'other_network' && (
+            <ContactNetworkWarning
+              contactName={matchedContact.name}
+              usual={contactStatus.usual}
+              current={selected.network}
+              onSwitch={
+                assetOnUsualNetwork
+                  ? () => router.setParams({ token: assetOnUsualNetwork.tokenId })
+                  : undefined
+              }
+            />
           )}
           {recipientCheck.status === 'valid' && recognition.kind === 'lookalike' && (
             <LookalikeWarning recipient={recipientCheck.address} match={recognition.match} />

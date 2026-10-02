@@ -148,8 +148,17 @@ export const id = {
     addressBookEmpty: (network: string) => `Belum ada kontak untuk jaringan ${network}.`,
     manageContacts: 'Kelola kontak',
     saveToContacts: 'Simpan alamat ini ke Buku Alamat',
-    contactNetworkMismatch: (name: string, usual: string, current: string) =>
-      `${name} disimpan untuk jaringan ${usual}, tapi kamu mau kirim di ${current}. Kalau ini alamat deposit exchange, pastikan exchange-nya menerima ${current}, atau ganti aset ke jaringan ${usual}.`,
+    contactNetwork: {
+      title: (usual: string, current: string) => `Kontak ini biasa di ${usual}, bukan ${current}`,
+      body: (name: string, usual: string, current: string) =>
+        `${name} disimpan untuk jaringan ${usual}. Alamatnya sama di ${current}, jadi transaksi tetap bisa jalan, tapi kalau ini alamat deposit exchange yang cuma menerima ${usual}, aset bisa nyangkut atau hilang.`,
+      switchTo: (network: string) => `Kirim lewat ${network} saja`,
+      acknowledge: (current: string) =>
+        `Aku sudah cek, alamat ini memang bisa menerima aset di ${current}.`,
+      wrongChain: 'Beda tipe jaringan',
+      wrongChainHint: (network: string) =>
+        `Alamat ini nggak bisa dipakai buat kirim di ${network}.`,
+    },
     contactUsualNetwork: (network: string) => `Biasa di ${network}`,
     contactUsualNetworkOther: (network: string) => `Biasa di ${network}, cek lagi jaringannya`,
     cameraPermissionTitle: 'Izinkan kamera untuk scan QR',

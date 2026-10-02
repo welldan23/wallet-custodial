@@ -8,18 +8,22 @@ import { TokenNetworkIcon } from '@/components/crypto/token-network-icon';
 import { StackScreen } from '@/components/layout/stack-screen';
 import { ConfirmRow } from '@/components/send/confirm-row';
 import { DemoAuthSheet } from '@/components/send/demo-auth-sheet';
+import { ContactNetworkWarning } from '@/components/send/contact-network-warning';
 import { LookalikeWarning } from '@/components/send/lookalike-warning';
 import { useToast } from '@/components/ui/toast';
+import { useContacts } from '@/hooks/use-contacts';
 import { useKnownAddresses } from '@/hooks/use-known-addresses';
 import { useNetworkFee } from '@/hooks/use-network-fee';
 import { useSentTransfers } from '@/hooks/use-sent-transfers';
 import { useSendableAssets } from '@/hooks/use-sendable-assets';
+import { useSupportedNetworks } from '@/hooks/use-supported-networks';
 import { useSimulatedTransactions } from '@/hooks/use-simulated-transactions';
 import { useWalletAccounts } from '@/hooks/use-wallet-accounts';
 import { useI18n } from '@/i18n';
 import { groupAddress } from '@/lib/address';
 import { validateRecipient } from '@/lib/address-validation';
 import { checkAmount } from '@/lib/amount';
+import { contactNetworkStatus, findContactByAddress } from '@/lib/contacts';
 import { authorizeSigning } from '@/lib/biometric';
 import { formatFiat, formatTokenAmount } from '@/lib/format';
 import { recognizeRecipient } from '@/lib/lookalike';
@@ -50,6 +54,9 @@ export default function ConfirmSendScreen() {
   const [authorizing, setAuthorizing] = useState(false);
   const [demoAuthOpen, setDemoAuthOpen] = useState(false);
   const [lookalikeAcknowledged, setLookalikeAcknowledged] = useState(false);
+  const [networkAcknowledged, setNetworkAcknowledged] = useState(false);
+  const { contacts } = useContacts();
+  const networks = useSupportedNetworks().map((item) => item.network);
   const knownAddresses = useKnownAddresses();
   const { recordTransfer } = useSentTransfers();
 
@@ -88,7 +95,13 @@ export default function ConfirmSendScreen() {
   });
   const groups = groupAddress(recipient.address);
   const recognition = recognizeRecipient(recipient.address, knownAddresses);
-  const needsAcknowledge = recognition.kind === 'lookalike' && !lookalikeAcknowledged;
+  const contact = findContactByAddress(contacts, recipient.address);
+  const contactStatus = contact
+    ? contactNetworkStatus(contact, asset.network, networks)
+    : ({ kind: 'ok' } as const);
+  const needsAcknowledge =
+    (recognition.kind === 'lookalike' && !lookalikeAcknowledged) ||
+    (contactStatus.kind === 'other_network' && !networkAcknowledged);
   const canSign = quote.hasEnoughGas && !authorizing && !needsAcknowledge;
 
   /**
@@ -187,6 +200,16 @@ export default function ConfirmSendScreen() {
           match={recognition.match}
           acknowledged={lookalikeAcknowledged}
           onAcknowledge={setLookalikeAcknowledged}
+        />
+      )}
+
+      {contact && contactStatus.kind === 'other_network' && (
+        <ContactNetworkWarning
+          contactName={contact.name}
+          usual={contactStatus.usual}
+          current={asset.network}
+          acknowledged={networkAcknowledged}
+          onAcknowledge={setNetworkAcknowledged}
         />
       )}
 

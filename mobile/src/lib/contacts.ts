@@ -52,3 +52,34 @@ export function contactNetwork(contact: Contact, networks: Network[]): Network |
     ? (networks.find((network) => network.id === contact.networkId) ?? null)
     : null;
 }
+
+/** Kontak dengan alamat persis sama (EVM tanpa beda huruf besar-kecil). */
+export function findContactByAddress(contacts: Contact[], address: string): Contact | undefined {
+  if (!address) return undefined;
+  const evm = address.startsWith('0x');
+  return contacts.find((contact) =>
+    evm ? contact.address.toLowerCase() === address.toLowerCase() : contact.address === address,
+  );
+}
+
+export type ContactNetworkStatus =
+  | { kind: 'ok' }
+  /** Kontak disimpan untuk jaringan lain bertipe sama, mis. deposit exchange di Ethereum. */
+  | { kind: 'other_network'; usual: Network }
+  /** Tipe alamat beda total (Solana vs EVM): tidak bisa dipakai sama sekali. */
+  | { kind: 'wrong_chain' };
+
+/** Cocokkan kontak dengan jaringan aset yang mau dikirim. */
+export function contactNetworkStatus(
+  contact: Contact,
+  network: Network,
+  networks: Network[],
+): ContactNetworkStatus {
+  const usual = contact.networkId
+    ? networks.find((item) => item.id === contact.networkId)
+    : undefined;
+  const chainType = usual?.chainType ?? chainTypeOfAddress(contact.address);
+  if (chainType !== network.chainType) return { kind: 'wrong_chain' };
+  if (usual && usual.id !== network.id) return { kind: 'other_network', usual };
+  return { kind: 'ok' };
+}

@@ -61,6 +61,14 @@ export function ContactPickerSheet({
   const [query, setQuery] = useState('');
   const usable = contactsForNetwork(contacts, network, networks);
   const { favorites, others } = groupContacts(filterContacts(usable, query));
+  // Kontak tipe lain (Solana saat kirim di EVM, atau sebaliknya) tetap tampil tapi tidak bisa dipilih.
+  const otherChain = groupContacts(
+    filterContacts(
+      contacts.filter((contact) => !usable.includes(contact)),
+      query,
+    ),
+  );
+  const unusable = [...otherChain.favorites, ...otherChain.others];
 
   const close = () => {
     setQuery('');
@@ -70,6 +78,30 @@ export function ContactPickerSheet({
     close();
     router.push(pathname);
   };
+
+  const disabledRow = (contact: Contact, isLast: boolean) => (
+    <View
+      key={contact.id}
+      accessible
+      accessibilityLabel={`${contact.name}, ${t.send.contactNetwork.wrongChainHint(network.name)}`}
+      className={`flex-row items-center gap-3 py-3 opacity-50 ${isLast ? '' : 'border-b border-line'}`}>
+      <View className="h-10 w-10 items-center justify-center rounded-full bg-ink-faint">
+        <Text className="text-sm font-bold text-white">{contactInitials(contact.name)}</Text>
+      </View>
+      <View className="flex-1">
+        <Text className="text-[15px] font-semibold text-ink" numberOfLines={1}>
+          {contact.name}
+        </Text>
+        <Text className="text-xs text-ink-muted" style={{ fontFamily: monoFont }}>
+          {shortenAddress(contact.address)}
+        </Text>
+        <Text className="mt-1 text-[11px] text-ink-muted">
+          {t.send.contactNetwork.wrongChainHint(network.name)}
+        </Text>
+      </View>
+      <Ionicons name="ban-outline" size={18} color={colors.ink.faint} />
+    </View>
+  );
 
   const row = (contact: Contact, isLast: boolean) => {
     const usualNetwork = networks.find((item) => item.id === contact.networkId);
@@ -147,7 +179,7 @@ export function ContactPickerSheet({
     <BottomSheet visible={visible} onClose={close} title={t.send.addressBookTitle}>
       <Text className="mb-2 text-xs text-ink-muted">{t.send.addressBookHint(network.name)}</Text>
 
-      {usable.length > 0 && (
+      {contacts.length > 0 && (
         <View className="mb-1 flex-row items-center gap-2 rounded-full bg-subtle px-4 py-2.5">
           <Ionicons name="search" size={16} color={colors.ink.faint} />
           <TextInput
@@ -169,7 +201,7 @@ export function ContactPickerSheet({
           <Text className="py-8 text-center text-sm text-ink-muted">
             {t.send.addressBookEmpty(network.name)}
           </Text>
-        ) : favorites.length + others.length === 0 ? (
+        ) : favorites.length + others.length + unusable.length === 0 ? (
           <Text className="py-8 text-center text-sm text-ink-muted">
             {t.contacts.noResult(query.trim())}
           </Text>
@@ -178,6 +210,16 @@ export function ContactPickerSheet({
             {section(t.contacts.favorites, favorites)}
             {section(query ? t.contacts.results : t.contacts.all, others)}
           </>
+        )}
+        {unusable.length > 0 && (
+          <View>
+            <Text
+              className="pt-2 text-[12px] font-semibold uppercase text-ink-faint"
+              accessibilityRole="header">
+              {t.send.contactNetwork.wrongChain}
+            </Text>
+            {unusable.map((contact, index) => disabledRow(contact, index === unusable.length - 1))}
+          </View>
         )}
       </ScrollView>
 
