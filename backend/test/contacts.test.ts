@@ -10,6 +10,7 @@ const TOKEN = 'b3f1c0de-7a9e-4c11-9d2a-5e6f7a8b9c0d';
 const OTHER_TOKEN = 'Zx9_aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa';
 const EVM = '0xd8dA6BF26964aF9D7eEd9e03E53415D37aA96045';
 const SOL = '7xKXtg2CW87d97TXJSDpbD5jBkheTqA83TZRuJosgAsU';
+const EVM_2 = '0x1111111111111111111111111111111111111111';
 
 function contactsApp() {
   const db = seededDb();
@@ -31,7 +32,7 @@ function contactsApp() {
 
 function seedContacts(store: ContactStore) {
   const userId = store.ensureUserId(TOKEN);
-  store.add(userId, { name: 'Zainal', address: EVM, chainType: 'evm', networkId: null });
+  store.add(userId, { name: 'Zainal', address: EVM_2, chainType: 'evm', networkId: null });
   store.add(userId, {
     name: 'Deposit Tokocrypto',
     address: EVM,
@@ -146,7 +147,7 @@ describe('tabel contacts', () => {
     store.add(userId, { name: 'A', address: EVM, chainType: 'evm', networkId: null });
     expect(() =>
       store.add(userId, { name: 'B', address: EVM, chainType: 'evm', networkId: null }),
-    ).toThrow(/UNIQUE/);
+    ).toThrow(/contact_duplicate/);
     expect(() =>
       store.add(userId, { name: '   ', address: SOL, chainType: 'solana', networkId: null }),
     ).toThrow(/CHECK/);

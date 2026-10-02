@@ -188,4 +188,101 @@ export const MIGRATIONS: Migration[] = [
       );
     `,
   },
+  {
+    id: 8,
+    name: 'contacts_rules',
+    sql: `
+      -- Buku Alamat dibangun ulang dengan aturan yang sama dengan form di HP:
+      -- nama 1–40 karakter tanpa spasi di ujung, format alamat sesuai tipe
+      -- jaringan, dan alamat EVM dibandingkan tanpa beda huruf besar-kecil.
+      CREATE TABLE contacts_v8 (
+        id TEXT PRIMARY KEY,
+        user_id TEXT NOT NULL REFERENCES users (id) ON DELETE CASCADE,
+        name TEXT NOT NULL CHECK (name = trim(name) AND length(name) BETWEEN 1 AND 40),
+        address TEXT NOT NULL CHECK (
+          (chain_type = 'evm' AND length(address) = 42 AND substr(address, 1, 2) = '0x'
+            AND substr(address, 3) NOT GLOB '*[^0-9a-fA-F]*')
+          OR (chain_type = 'solana' AND length(address) BETWEEN 32 AND 44
+            AND address NOT GLOB '*[^1-9A-HJ-NP-Za-km-z]*')
+        ),
+        chain_type TEXT NOT NULL CHECK (chain_type IN ('evm', 'solana')),
+        -- Kunci pembanding alamat: EVM huruf kecil (beda checksum = alamat sama).
+        address_key TEXT GENERATED ALWAYS AS (
+          CASE chain_type WHEN 'evm' THEN lower(address) ELSE address END
+        ) STORED,
+        -- NULL = bisa dipakai di semua jaringan bertipe sama.
+        network_id TEXT REFERENCES networks (id),
+        is_favorite INTEGER NOT NULL DEFAULT 0 CHECK (is_favorite IN (0, 1)),
+        created_at TEXT NOT NULL,
+        updated_at TEXT NOT NULL
+      );
+
+      -- Salin data lama. Baris yang melanggar aturan baru dilewati (OR IGNORE),
+      -- nama kepanjangan dipotong, dan dari kontak dobel (alamat sama, jaringan
+      -- tumpang tindih) hanya yang paling awal disimpan.
+      INSERT OR IGNORE INTO contacts_v8
+        (id, user_id, name, address, chain_type, network_id, is_favorite, created_at, updated_at)
+      SELECT c.id, c.user_id, trim(substr(trim(c.name), 1, 40)), c.address, c.chain_type,
+             c.network_id, CASE WHEN c.is_favorite THEN 1 ELSE 0 END, c.created_at, c.updated_at
+      FROM contacts c
+      LEFT JOIN networks n ON n.id = c.network_id
+      WHERE (c.network_id IS NULL OR n.chain_type = c.chain_type)
+        AND NOT EXISTS (
+          SELECT 1 FROM contacts e
+          WHERE e.user_id = c.user_id
+            AND e.chain_type = c.chain_type
+            AND (CASE e.chain_type WHEN 'evm' THEN lower(e.address) ELSE e.address END)
+              = (CASE c.chain_type WHEN 'evm' THEN lower(c.address) ELSE c.address END)
+            AND (e.network_id IS NULL OR c.network_id IS NULL OR e.network_id = c.network_id)
+            AND (e.created_at < c.created_at OR (e.created_at = c.created_at AND e.id < c.id))
+        )
+      ORDER BY c.created_at, c.id;
+
+      DROP TABLE contacts;
+      ALTER TABLE contacts_v8 RENAME TO contacts;
+
+      CREATE UNIQUE INDEX contacts_unique
+        ON contacts (user_id, address_key, COALESCE(network_id, ''));
+      -- Urutan tampil: favorit dulu, lalu nama.
+      CREATE INDEX contacts_user_order ON contacts (user_id, is_favorite DESC, name COLLATE NOCASE);
+
+      -- Jaringan kontak harus setipe dengan alamatnya (mis. bukan Solana untuk 0x…).
+      CREATE TRIGGER contacts_network_type_insert BEFORE INSERT ON contacts
+      WHEN NEW.network_id IS NOT NULL
+        AND NEW.chain_type IS NOT (SELECT chain_type FROM networks WHERE id = NEW.network_id)
+      BEGIN
+        SELECT RAISE(ABORT, 'contact_network_mismatch');
+      END;
+      CREATE TRIGGER contacts_network_type_update BEFORE UPDATE OF network_id, chain_type ON contacts
+      WHEN NEW.network_id IS NOT NULL
+        AND NEW.chain_type IS NOT (SELECT chain_type FROM networks WHERE id = NEW.network_id)
+      BEGIN
+        SELECT RAISE(ABORT, 'contact_network_mismatch');
+      END;
+
+      -- Alamat sama + jaringan tumpang tindih ("semua EVM" vs "Arbitrum") = dobel.
+      -- Indeks unik di atas hanya menangkap jaringan yang persis sama.
+      CREATE TRIGGER contacts_overlap_insert BEFORE INSERT ON contacts
+      WHEN EXISTS (
+        SELECT 1 FROM contacts e
+        WHERE e.user_id = NEW.user_id
+          AND e.address_key = (CASE NEW.chain_type WHEN 'evm' THEN lower(NEW.address) ELSE NEW.address END)
+          AND (e.network_id IS NULL OR NEW.network_id IS NULL OR e.network_id = NEW.network_id)
+      )
+      BEGIN
+        SELECT RAISE(ABORT, 'contact_duplicate');
+      END;
+      CREATE TRIGGER contacts_overlap_update BEFORE UPDATE OF address, chain_type, network_id ON contacts
+      WHEN EXISTS (
+        SELECT 1 FROM contacts e
+        WHERE e.user_id = NEW.user_id
+          AND e.id <> NEW.id
+          AND e.address_key = (CASE NEW.chain_type WHEN 'evm' THEN lower(NEW.address) ELSE NEW.address END)
+          AND (e.network_id IS NULL OR NEW.network_id IS NULL OR e.network_id = NEW.network_id)
+      )
+      BEGIN
+        SELECT RAISE(ABORT, 'contact_duplicate');
+      END;
+    `,
+  },
 ];

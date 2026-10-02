@@ -438,6 +438,24 @@ satu baris `swap_details` (migrasi 6):
 
 `min ≤ quoted` dicek di kode (BigInt), karena jumlah 18 desimal melebihi INTEGER SQLite.
 
+## Tabel kontak (Buku Alamat)
+
+Migrasi 5 membuat `users` (pengguna anonim per perangkat, hanya hash token
+perangkat yang disimpan) dan `contacts`. Migrasi 8 membangun ulang `contacts`
+dengan aturan yang sama dengan form di aplikasi:
+
+| Aturan | Cara dijaga |
+| --- | --- |
+| Nama 1–40 karakter, tanpa spasi di ujung | `CHECK` |
+| Alamat EVM `0x` + 40 hex, Solana base58 32–44 karakter | `CHECK` per `chain_type` |
+| `network_id` setipe dengan alamat (bukan Solana untuk `0x…`) | trigger → `contact_network_mismatch` |
+| Alamat sama + jaringan tumpang tindih = dobel (`NULL` "semua jaringan" bertabrakan dengan jaringan apa pun bertipe sama) | indeks unik + trigger → `contact_duplicate` |
+
+`address_key` (kolom turunan) = alamat EVM huruf kecil / Solana apa adanya,
+jadi beda huruf besar-kecil (checksum) tetap dianggap alamat yang sama. Saat
+migrasi, data lama yang melanggar aturan dibuang, nama dipotong ke 40 karakter,
+dan dari kontak dobel hanya yang paling awal disimpan.
+
 ## Harga & kurs
 
 Server memperbarui tabel `prices` secara otomatis:
