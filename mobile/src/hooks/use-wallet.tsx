@@ -1,6 +1,8 @@
-import { createContext, use, useEffect, useState, type ReactNode } from 'react';
+import { createContext, use, useEffect, useRef, useState, type ReactNode } from 'react';
+import { AppState } from 'react-native';
 
 import { useI18n } from '@/i18n';
+import { shouldLockOnResume } from '@/lib/auto-lock';
 import { deriveAddresses } from '@/lib/keys';
 import type { ReadMnemonicResult, WalletStorage } from '@/lib/storage';
 import { walletStorage } from '@/lib/wallet-storage';
@@ -20,6 +22,9 @@ type WalletState = {
   /** Baca frasa (minta biometrik) — hanya untuk tanda tangan/ekspor. */
   readMnemonic: () => Promise<ReadMnemonicResult>;
   removeWallet: () => Promise<void>;
+  /** `true` = tampilkan layar kunci (wallet ada, belum dibuka sesi ini). */
+  locked: boolean;
+  unlock: () => void;
 };
 
 const WalletContext = createContext<WalletState | null>(null);
@@ -38,6 +43,8 @@ export function WalletProvider({
   const { t } = useI18n();
   const [status, setStatus] = useState<WalletStatus>('loading');
   const [accounts, setAccounts] = useState<WalletAccounts | null>(null);
+  const [locked, setLocked] = useState(false);
+  const backgroundAt = useRef<number | null>(null);
 
   useEffect(() => {
     let active = true;
@@ -48,11 +55,25 @@ export function WalletProvider({
         if (!active) return;
         setAccounts(loaded);
         setStatus(loaded ? 'ready' : 'none');
+        // Wallet lama dibuka lagi → wajib verifikasi dulu.
+        setLocked(Boolean(loaded));
       });
     return () => {
       active = false;
     };
   }, [storage]);
+
+  // Kunci lagi kalau app lama ditinggal di latar belakang.
+  useEffect(() => {
+    const subscription = AppState.addEventListener('change', (state) => {
+      if (state === 'background') backgroundAt.current = Date.now();
+      if (state === 'active') {
+        if (shouldLockOnResume(backgroundAt.current, Date.now())) setLocked(true);
+        backgroundAt.current = null;
+      }
+    });
+    return () => subscription.remove();
+  }, []);
 
   const value: WalletState = {
     status,
@@ -71,7 +92,10 @@ export function WalletProvider({
       await storage.clearWallet();
       setAccounts(null);
       setStatus('none');
+      setLocked(false);
     },
+    locked: status === 'ready' && locked,
+    unlock: () => setLocked(false),
   };
 
   return <WalletContext value={value}>{children}</WalletContext>;

@@ -25,6 +25,7 @@ export type SigningAuthResult =
 export async function authorizeSigning(
   promptMessage: string,
   cancelLabel: string,
+  { requireConfirmation = true }: { requireConfirmation?: boolean } = {},
 ): Promise<SigningAuthResult> {
   if (Platform.OS === 'web') return 'unsupported';
   try {
@@ -35,7 +36,7 @@ export async function authorizeSigning(
       promptMessage,
       cancelLabel,
       disableDeviceFallback: false,
-      requireConfirmation: true,
+      requireConfirmation,
     });
     if (result.success) return 'success';
 

@@ -3,6 +3,7 @@ import '@/global.css';
 import { Stack } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 
+import { AppLockGate } from '@/components/lock/app-lock-gate';
 import { ToastProvider } from '@/components/ui/toast';
 import { BalanceVisibilityProvider } from '@/hooks/use-balance-visibility';
 import { SentTransfersProvider } from '@/hooks/use-sent-transfers';
@@ -20,6 +21,7 @@ export default function RootLayout() {
               <ToastProvider>
                 <StatusBar style="dark" />
                 <Stack screenOptions={{ headerShown: false }} />
+                <AppLockGate />
               </ToastProvider>
             </SwapsProvider>
           </SentTransfersProvider>

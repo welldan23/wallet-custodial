@@ -214,6 +214,22 @@ export const en: Dictionary = {
     sharedEvmAddressNote:
       'This address is the same on Ethereum, Arbitrum, Base, and Polygon, but balances are separate per network.',
   },
+  lock: {
+    title: 'MyWallet is locked',
+    subtitle: 'Unlock with fingerprint or Face ID to see your balance and transactions.',
+    prompt: 'Unlock MyWallet',
+    unlock: 'Unlock with fingerprint',
+    previewUnlock: 'Unlock (preview simulation)',
+    previewNote:
+      'The web preview has no biometric sensor. On a phone this step requires fingerprint, Face ID, or PIN.',
+    errors: {
+      cancelled: 'Verification cancelled. Tap the button below to try again.',
+      failed: 'Verification failed. Please try again.',
+      lockout: 'Too many attempts. Unlock your phone with its PIN first, then try again.',
+      no_lock:
+        'This phone has no screen lock. Turn on fingerprint, Face ID, or a PIN in phone settings to open the wallet.',
+    },
+  },
   wallet: {
     savePrompt: 'Verify to save the wallet on this phone',
     unlockPrompt: 'Verify to unlock your wallet',

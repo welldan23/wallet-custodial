@@ -206,6 +206,22 @@ export const id = {
     sharedEvmAddressNote:
       'Alamat ini sama di Ethereum, Arbitrum, Base, dan Polygon, tapi saldonya terpisah per jaringan.',
   },
+  lock: {
+    title: 'MyWallet terkunci',
+    subtitle: 'Buka pakai sidik jari atau Face ID buat lihat saldo dan transaksi.',
+    prompt: 'Buka MyWallet',
+    unlock: 'Buka pakai sidik jari',
+    previewUnlock: 'Buka (simulasi preview)',
+    previewNote:
+      'Preview web nggak punya sensor biometrik. Di HP, langkah ini wajib sidik jari, Face ID, atau PIN.',
+    errors: {
+      cancelled: 'Verifikasi dibatalkan. Ketuk tombol di bawah buat coba lagi.',
+      failed: 'Verifikasi gagal. Coba lagi.',
+      lockout: 'Terlalu banyak percobaan. Buka kunci HP pakai PIN dulu, lalu coba lagi.',
+      no_lock:
+        'HP ini belum punya kunci layar. Aktifkan sidik jari, Face ID, atau PIN di pengaturan HP supaya wallet bisa dibuka.',
+    },
+  },
   wallet: {
     savePrompt: 'Verifikasi untuk menyimpan wallet di HP ini',
     unlockPrompt: 'Verifikasi untuk membuka kunci wallet',
