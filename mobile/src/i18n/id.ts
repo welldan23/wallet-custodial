@@ -208,6 +208,25 @@ export const id = {
   },
   onboarding: {
     stepLabel: (current: number, total: number) => `Langkah ${current} dari ${total}`,
+    continue: 'Lanjut',
+    createTitle: 'Catat 12 kata ini',
+    createSubtitle:
+      'Ini kunci cadangan wallet-mu. Kalau HP hilang, cuma 12 kata ini yang bisa memulihkan asetmu.',
+    secretWarning:
+      'Siapa pun yang tahu 12 kata ini bisa mengambil semua asetmu. MyWallet nggak akan pernah memintanya.',
+    showWords: 'Tampilkan kata',
+    hideWords: 'Sembunyikan kata',
+    wordsHiddenLabel: '12 kata pemulihan, disembunyikan. Ketuk Tampilkan kata untuk melihat.',
+    wordLabel: (index: number, word: string) => `Kata ke-${index}: ${word}`,
+    writeTips: [
+      'Tulis di kertas, urut sesuai nomor, lalu simpan di tempat aman.',
+      'Jangan difoto, di-screenshot, atau disimpan di chat, email, dan cloud.',
+      'Kalau perlu, simpan di dua tempat berbeda yang sama-sama aman.',
+    ],
+    revealFirst: 'Tampilkan dan catat dulu 12 katanya.',
+    writtenCheck:
+      'Saya sudah mencatat 12 kata ini di tempat aman dan paham nggak bisa dipulihkan kalau hilang.',
+    confirmTitle: 'Cek catatanmu',
     welcomeTitle: 'Selamat datang 👋',
     welcomeSubtitle: 'Simpan, kirim, dan tukar stablecoin di banyak jaringan, dari satu tempat.',
     tagline: 'Wallet stablecoin yang kuncinya kamu pegang sendiri',

@@ -1,10 +1,13 @@
 import Ionicons from '@expo/vector-icons/Ionicons';
+import * as Crypto from 'expo-crypto';
 import { router } from 'expo-router';
 import type { ComponentProps } from 'react';
 import { Text, View } from 'react-native';
 
 import { OnboardingButton, OnboardingScreen } from '@/components/onboarding/onboarding-screen';
+import { useOnboardingDraft } from '@/hooks/use-onboarding-draft';
 import { useI18n } from '@/i18n';
+import { createMnemonic } from '@/lib/mnemonic';
 import { cardShadow, colors } from '@/theme/colors';
 
 const POINTS: {
@@ -19,6 +22,13 @@ const POINTS: {
 /** Layar sambutan: pilih bikin wallet baru atau impor dari 12 kata. */
 export default function WelcomeScreen() {
   const { t } = useI18n();
+  const draft = useOnboardingDraft();
+
+  /** Frasa baru setiap kali mulai bikin wallet (dari sumber acak kriptografis HP). */
+  const startCreate = () => {
+    draft.setMnemonic(createMnemonic(Crypto.getRandomBytes));
+    router.push('/onboarding/create');
+  };
 
   return (
     <OnboardingScreen
@@ -30,7 +40,7 @@ export default function WelcomeScreen() {
           <OnboardingButton
             label={t.onboarding.createWallet}
             icon="add-circle-outline"
-            onPress={() => router.push('/onboarding/create')}
+            onPress={startCreate}
           />
           <OnboardingButton
             label={t.onboarding.importWallet}

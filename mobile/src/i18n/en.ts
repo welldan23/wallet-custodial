@@ -216,6 +216,25 @@ export const en: Dictionary = {
   },
   onboarding: {
     stepLabel: (current: number, total: number) => `Step ${current} of ${total}`,
+    continue: 'Continue',
+    createTitle: 'Write down these 12 words',
+    createSubtitle:
+      "This is your wallet's backup key. If you lose your phone, only these 12 words can recover your assets.",
+    secretWarning:
+      'Anyone who knows these 12 words can take all your assets. MyWallet will never ask for them.',
+    showWords: 'Show words',
+    hideWords: 'Hide words',
+    wordsHiddenLabel: '12 recovery words, hidden. Tap Show words to see them.',
+    wordLabel: (index: number, word: string) => `Word ${index}: ${word}`,
+    writeTips: [
+      'Write them on paper in numbered order and keep it somewhere safe.',
+      "Don't photograph, screenshot, or save them in chats, email, or the cloud.",
+      'If needed, keep copies in two separate safe places.',
+    ],
+    revealFirst: 'Show and write down the 12 words first.',
+    writtenCheck:
+      "I've written these 12 words somewhere safe and understand they can't be recovered if lost.",
+    confirmTitle: 'Check your backup',
     welcomeTitle: 'Welcome 👋',
     welcomeSubtitle: 'Hold, send, and swap stablecoins across many networks, all in one place.',
     tagline: 'The stablecoin wallet where you hold the keys',
