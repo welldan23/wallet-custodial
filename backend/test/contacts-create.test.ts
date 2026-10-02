@@ -3,7 +3,7 @@ import { describe, expect, it } from 'vitest';
 import { createApp } from '../src/app.js';
 import { ContactStore, MAX_CONTACTS_PER_USER } from '../src/contacts/store.js';
 import { parseContactInput } from '../src/contacts/validate.js';
-import { MVP_NETWORKS } from '../src/catalog/mvp.js';
+import { MVP_NETWORKS, MVP_TOKENS } from '../src/catalog/mvp.js';
 
 import { makeDeps, seededDb, TEST_NOW } from './helpers.js';
 
@@ -41,7 +41,7 @@ function setup() {
 }
 
 describe('parseContactInput', () => {
-  const parse = (body: unknown) => parseContactInput(body, MVP_NETWORKS);
+  const parse = (body: unknown) => parseContactInput(body, { networks: MVP_NETWORKS, tokens: MVP_TOKENS });
 
   it('merapikan nama & menormalkan alamat EVM ke checksum', () => {
     expect(parse({ name: '  Ani \n  Wijaya ', address: ` ${EVM.toLowerCase()} ` })).toEqual({

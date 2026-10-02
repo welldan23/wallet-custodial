@@ -1,19 +1,36 @@
 import { isAddress as isSolanaAddress } from '@solana/kit';
 import { getAddress, isAddress as isEvmAddress } from 'viem';
 
-import type { ChainType, Network } from '../types.js';
+import type { Catalog } from '../catalog/repository.js';
+import type { ChainType } from '../types.js';
 import type { NewContact } from './store.js';
 
 /** Sama dengan batas di form aplikasi (`CONTACT_NAME_MAX`). */
 export const CONTACT_NAME_MAX = 40;
 
-/** Alasan alamat ditolak; namanya sama dengan `InvalidReason` di aplikasi. */
+/**
+ * Alasan alamat ditolak. Format (sampai `unknown`) namanya sama dengan
+ * `InvalidReason` di aplikasi; tiga terakhir khusus Buku Alamat.
+ */
 export type AddressReason =
-  'evm_format' | 'evm_checksum' | 'solana_on_evm' | 'evm_on_solana' | 'solana_format';
+  | 'evm_format'
+  | 'evm_checksum'
+  | 'solana_on_evm'
+  | 'evm_on_solana'
+  | 'solana_format'
+  | 'tron'
+  | 'bitcoin'
+  | 'unknown'
+  /** Alamat nol / 0x…dEaD: aset yang dikirim ke sini hangus. */
+  | 'burn_address'
+  /** Alamat program bawaan Solana (System, Token), bukan wallet. */
+  | 'program_address'
+  /** Alamat kontrak/mint token itu sendiri, bukan wallet penerima. */
+  | 'token_contract';
 
 export type ContactInputError =
   | { error: 'invalid_name'; reason: 'missing' | 'empty' | 'too_long' | 'invalid_characters' }
-  | { error: 'invalid_address'; reason: AddressReason | 'missing' }
+  | { error: 'invalid_address'; reason: AddressReason | 'missing'; tokenSymbol?: string }
   | { error: 'unknown_network' }
   | { error: 'invalid_favorite' };
 
@@ -21,6 +38,20 @@ export type ParsedContact =
   { ok: true; contact: Required<NewContact> } | ({ ok: false } & ContactInputError);
 
 const EVM_LIKE = /^0x[0-9a-fA-F]{40}$/;
+const TRON = /^T[1-9A-HJ-NP-Za-km-z]{33}$/;
+const BITCOIN = /^(bc1[02-9ac-hj-np-z]{11,71}|[13][1-9A-HJ-NP-Za-km-z]{25,34})$/;
+
+/** Alamat EVM yang dipakai untuk membakar aset (huruf kecil). */
+const EVM_BURN = new Set([
+  '0x0000000000000000000000000000000000000000',
+  '0x000000000000000000000000000000000000dead',
+]);
+/** Program bawaan Solana: System, SPL Token, Token-2022. */
+const SOLANA_PROGRAMS = new Set([
+  '11111111111111111111111111111111',
+  'TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA',
+  'TokenzQdBNbLqP5VEhdkAS6EPFLC1PHnBqCXEpPxuEb',
+]);
 // Karakter kontrol (baris baru, tab, dll.) tidak boleh ada di nama.
 const CONTROL = /\p{Cc}/u;
 
@@ -40,10 +71,18 @@ export function parseContactName(value: unknown): ParsedName {
   return { ok: true, name };
 }
 
+/** Format alamat jaringan yang belum didukung, untuk pesan yang lebih jelas. */
+function otherFormat(address: string): 'tron' | 'bitcoin' | null {
+  if (TRON.test(address)) return 'tron';
+  if (BITCOIN.test(address)) return 'bitcoin';
+  return null;
+}
+
 /**
- * Periksa alamat untuk tipe jaringan tertentu. EVM dikembalikan dalam format
- * checksum; huruf besar-kecil campuran yang tidak cocok checksum ditolak
- * (tanda salah ketik).
+ * Periksa format alamat untuk tipe jaringan tertentu. EVM dikembalikan dalam
+ * format checksum; huruf besar-kecil campuran yang tidak cocok checksum
+ * ditolak (tanda salah ketik). Alamat Solana dicek lebih dulu karena format
+ * Tron/Bitcoin lama juga base58.
  */
 export function parseContactAddress(
   value: unknown,
@@ -56,12 +95,38 @@ export function parseContactAddress(
   if (chainType === 'evm') {
     if (EVM_LIKE.test(address)) {
       if (!isEvmAddress(address, { strict: true })) return { ok: false, reason: 'evm_checksum' };
+      if (EVM_BURN.has(address.toLowerCase())) return { ok: false, reason: 'burn_address' };
       return { ok: true, address: getAddress(address) };
     }
-    return { ok: false, reason: isSolanaAddress(address) ? 'solana_on_evm' : 'evm_format' };
+    if (isSolanaAddress(address)) return { ok: false, reason: 'solana_on_evm' };
+    const other = otherFormat(address);
+    if (other) return { ok: false, reason: other };
+    return { ok: false, reason: address.startsWith('0x') ? 'evm_format' : 'unknown' };
   }
-  if (isSolanaAddress(address)) return { ok: true, address };
-  return { ok: false, reason: EVM_LIKE.test(address) ? 'evm_on_solana' : 'solana_format' };
+
+  if (isSolanaAddress(address)) {
+    if (SOLANA_PROGRAMS.has(address)) return { ok: false, reason: 'program_address' };
+    return { ok: true, address };
+  }
+  if (EVM_LIKE.test(address)) return { ok: false, reason: 'evm_on_solana' };
+  return { ok: false, reason: otherFormat(address) ?? 'solana_format' };
+}
+
+/** Token di katalog yang alamat kontrak/mint-nya sama (jaringan bertipe sama). */
+export function findTokenContract(
+  address: string,
+  chainType: ChainType,
+  catalog: Pick<Catalog, 'networks' | 'tokens'>,
+) {
+  const key = chainType === 'evm' ? address.toLowerCase() : address;
+  return catalog.tokens.find((token) => {
+    if (!token.contractAddress) return false;
+    const network = catalog.networks.find((item) => item.id === token.networkId);
+    if (network?.chainType !== chainType) return false;
+    const contract =
+      chainType === 'evm' ? token.contractAddress.toLowerCase() : token.contractAddress;
+    return contract === key;
+  });
 }
 
 /**
@@ -69,7 +134,11 @@ export function parseContactAddress(
  * `networkId` kosong/`null` = semua jaringan; tipe alamat lalu ditebak dari
  * bentuknya (`0x…` = EVM, selain itu Solana).
  */
-export function parseContactInput(body: unknown, networks: Network[]): ParsedContact {
+export function parseContactInput(
+  body: unknown,
+  catalog: Pick<Catalog, 'networks' | 'tokens'>,
+): ParsedContact {
+  const { networks } = catalog;
   const input = (body && typeof body === 'object' ? body : {}) as Record<string, unknown>;
 
   const name = parseContactName(input.name);
@@ -89,6 +158,15 @@ export function parseContactInput(body: unknown, networks: Network[]): ParsedCon
 
   const address = parseContactAddress(input.address, chainType);
   if (!address.ok) return { ok: false, error: 'invalid_address', reason: address.reason };
+  const token = findTokenContract(address.address, chainType, catalog);
+  if (token) {
+    return {
+      ok: false,
+      error: 'invalid_address',
+      reason: 'token_contract',
+      tokenSymbol: token.symbol,
+    };
+  }
 
   if (input.isFavorite !== undefined && typeof input.isFavorite !== 'boolean') {
     return { ok: false, error: 'invalid_favorite' };

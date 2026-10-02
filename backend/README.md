@@ -196,12 +196,28 @@ perangkat baru otomatis didaftarkan).
 | Status | `error` | Keterangan |
 | --- | --- | --- |
 | 400 | `invalid_name` | `reason`: `missing` / `empty` / `too_long` / `invalid_characters` |
-| 400 | `invalid_address` | `reason`: `missing` / `evm_format` / `evm_checksum` / `solana_on_evm` / `evm_on_solana` / `solana_format` (sama dengan pesan di aplikasi) |
+| 400 | `invalid_address` | `reason`, lihat tabel alasan alamat di bawah |
 | 400 | `unknown_network` / `invalid_favorite` / `invalid_json` | |
 | 401 | `unauthorized` | token tidak ada/salah |
 | 409 | `duplicate_contact` | alamat sama dengan jaringan tumpang tindih; `existing: { id, name }` |
 | 409 | `contact_limit` | maksimal 500 kontak per perangkat |
 | 413 | `body_too_large` | body > 4 KB |
+
+Alasan alamat (`reason`). Alamat dicek terhadap tipe jaringan yang dipilih
+(`networkId`), atau tipe hasil tebakan kalau `networkId` kosong:
+
+| `reason` | Arti |
+| --- | --- |
+| `missing` | alamat kosong |
+| `evm_format` / `solana_format` | bukan alamat EVM / Solana yang valid |
+| `evm_checksum` | huruf besar-kecil tidak cocok checksum EIP-55 (kemungkinan salah ketik) |
+| `solana_on_evm` / `evm_on_solana` | alamat tipe lain untuk jaringan ini |
+| `tron` / `bitcoin` / `unknown` | format jaringan yang belum didukung / tidak dikenal |
+| `burn_address` | alamat nol atau `0x…dEaD`: aset yang dikirim ke sini hangus |
+| `program_address` | program bawaan Solana (System, SPL Token, Token-2022), bukan wallet |
+| `token_contract` | alamat kontrak/mint token di katalog (mis. kontrak USDC), dengan `tokenSymbol`; dicek di semua jaringan bertipe sama |
+
+Tujuh alasan pertama memakai nama yang sama dengan `InvalidReason` di aplikasi.
 
 ### `PATCH /v1/contacts/:id` dan `DELETE /v1/contacts/:id`
 

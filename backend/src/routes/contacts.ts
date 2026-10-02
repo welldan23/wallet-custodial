@@ -118,7 +118,7 @@ export function contactsRoutes(deps: ContactsRouteDeps): Hono {
 
     const body = await readObject(c);
     if (!body) return invalidJson(c);
-    const parsed = parseContactInput(body, deps.loadCatalog().networks);
+    const parsed = parseContactInput(body, deps.loadCatalog());
     if (!parsed.ok) {
       const { ok: _ok, ...error } = parsed;
       return c.json({ ...error, message: INPUT_MESSAGES[error.error] }, 400);
@@ -160,7 +160,7 @@ export function contactsRoutes(deps: ContactsRouteDeps): Hono {
       networkId: 'networkId' in body ? body.networkId : existing.networkId,
       isFavorite: 'isFavorite' in body ? body.isFavorite : existing.isFavorite,
     };
-    const parsed = parseContactInput(merged, deps.loadCatalog().networks);
+    const parsed = parseContactInput(merged, deps.loadCatalog());
     if (!parsed.ok) {
       const { ok: _ok, ...error } = parsed;
       return c.json({ ...error, message: INPUT_MESSAGES[error.error] }, 400);
