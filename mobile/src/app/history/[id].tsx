@@ -7,7 +7,7 @@ import { StackScreen } from '@/components/layout/stack-screen';
 import { useBalanceVisibility } from '@/hooks/use-balance-visibility';
 import { useHistory } from '@/hooks/use-history';
 import { useSupportedNetworks } from '@/hooks/use-supported-networks';
-import { useWalletAccounts } from '@/hooks/use-wallet-accounts';
+import { useSimulatedTransactions } from '@/hooks/use-simulated-transactions';
 import { useI18n } from '@/i18n';
 import { MOCK_FX_RATES } from '@/mocks/wallet';
 import { cardShadow, colors } from '@/theme/colors';
@@ -23,7 +23,7 @@ export default function TransactionDetailScreen() {
   const history = useHistory();
   const networks = useSupportedNetworks();
   const { hidden } = useBalanceVisibility();
-  const { isDemo } = useWalletAccounts();
+  const isDemo = useSimulatedTransactions();
   const item = history.find((entry) => entry.id === id);
   const networkOf = (networkId: NetworkId) =>
     networks.find((entry) => entry.network.id === networkId)?.network;

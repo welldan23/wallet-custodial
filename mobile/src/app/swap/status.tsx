@@ -11,7 +11,7 @@ import { DemoBanner } from '@/components/ui/demo-banner';
 import { useToast } from '@/components/ui/toast';
 import { useSupportedNetworks } from '@/hooks/use-supported-networks';
 import { useSwaps } from '@/hooks/use-swaps';
-import { useWalletAccounts } from '@/hooks/use-wallet-accounts';
+import { useSimulatedTransactions } from '@/hooks/use-simulated-transactions';
 import { useI18n } from '@/i18n';
 import { shortenAddress } from '@/lib/address';
 import { formatFiat, formatTime, formatTokenAmount } from '@/lib/format';
@@ -37,7 +37,7 @@ export default function SwapStatusScreen() {
   const toast = useToast();
   const { id } = useLocalSearchParams<{ id?: string }>();
   const { swaps } = useSwaps();
-  const { isDemo } = useWalletAccounts();
+  const isDemo = useSimulatedTransactions();
   const networks = useSupportedNetworks();
   const networkOf = (networkId: NetworkId): Network | undefined =>
     networks.find((item) => item.network.id === networkId)?.network;

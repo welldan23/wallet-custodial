@@ -47,6 +47,13 @@
         {
           "faceIDPermission": "MyWallet memakai Face ID untuk menyetujui transaksi dan membuka wallet."
         }
+      ],
+      [
+        "expo-secure-store",
+        {
+          "configureAndroidBackup": true,
+          "faceIDPermission": "MyWallet memakai Face ID untuk membuka kunci wallet di HP ini."
+        }
       ]
     ],
     "experiments": {

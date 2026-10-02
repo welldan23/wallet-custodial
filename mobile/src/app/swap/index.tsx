@@ -12,7 +12,7 @@ import { DemoBanner } from '@/components/ui/demo-banner';
 import { useBalanceVisibility } from '@/hooks/use-balance-visibility';
 import { defaultSwapPair, useSwapAssets, type SwapAsset } from '@/hooks/use-swap-assets';
 import { useSwapGas, useSwapQuote } from '@/hooks/use-swap-quote';
-import { useWalletAccounts } from '@/hooks/use-wallet-accounts';
+import { useSimulatedTransactions } from '@/hooks/use-simulated-transactions';
 import { useI18n } from '@/i18n';
 import { checkAmount, formatAmountForInput } from '@/lib/amount';
 import { formatFiat, formatTokenAmount } from '@/lib/format';
@@ -85,7 +85,7 @@ function SwapForm({
   setToId,
 }: SwapFormProps) {
   const { t } = useI18n();
-  const { isDemo } = useWalletAccounts();
+  const isDemo = useSimulatedTransactions();
   const { hidden } = useBalanceVisibility();
   const [picking, setPicking] = useState<SwapSide | null>(null);
   const [slippage, setSlippage] = useState(DEFAULT_SLIPPAGE);

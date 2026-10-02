@@ -14,6 +14,7 @@ import { useKnownAddresses } from '@/hooks/use-known-addresses';
 import { useNetworkFee } from '@/hooks/use-network-fee';
 import { useSentTransfers } from '@/hooks/use-sent-transfers';
 import { useSendableAssets } from '@/hooks/use-sendable-assets';
+import { useSimulatedTransactions } from '@/hooks/use-simulated-transactions';
 import { useWalletAccounts } from '@/hooks/use-wallet-accounts';
 import { useI18n } from '@/i18n';
 import { groupAddress } from '@/lib/address';
@@ -44,7 +45,8 @@ export default function ConfirmSendScreen() {
     contact?: string;
   }>();
   const { assets, fxRates } = useSendableAssets();
-  const { accounts, isDemo } = useWalletAccounts();
+  const { accounts } = useWalletAccounts();
+  const isDemo = useSimulatedTransactions();
   const [authorizing, setAuthorizing] = useState(false);
   const [demoAuthOpen, setDemoAuthOpen] = useState(false);
   const [lookalikeAcknowledged, setLookalikeAcknowledged] = useState(false);

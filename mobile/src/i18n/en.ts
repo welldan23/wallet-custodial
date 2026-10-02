@@ -214,6 +214,10 @@ export const en: Dictionary = {
     sharedEvmAddressNote:
       'This address is the same on Ethereum, Arbitrum, Base, and Polygon, but balances are separate per network.',
   },
+  wallet: {
+    savePrompt: 'Verify to save the wallet on this phone',
+    unlockPrompt: 'Verify to unlock your wallet',
+  },
   onboarding: {
     stepLabel: (current: number, total: number) => `Step ${current} of ${total}`,
     continue: 'Continue',
@@ -259,6 +263,19 @@ export const en: Dictionary = {
     evmAddress: 'EVM address (Ethereum, Arbitrum, Base, Polygon)',
     solanaAddress: 'Solana address',
     useThisWallet: 'Use this wallet',
+    secureSubtitle: 'Your wallet is stored in the safest part of this phone.',
+    secureDevice: "The phrase is encrypted in this phone's Keychain/Keystore, not on a server.",
+    secureBiometric:
+      'Opening the phrase requires fingerprint or Face ID, enforced by the phone itself.',
+    secureAppGate: 'Important actions still ask for fingerprint or Face ID first.',
+    secureNoBackup:
+      "The phrase isn't included in cloud backups or phone transfers. On a new phone, import with your 12 words.",
+    webNotSaved:
+      'The web preview has no secure storage: the phrase is only kept until the page closes.',
+    saveAndStart: 'Save & start',
+    saving: 'Saving…',
+    saveFailedTitle: "Couldn't save the wallet",
+    saveFailedBody: 'Verification was cancelled or the phone storage refused. Please try again.',
     welcomeTitle: 'Welcome 👋',
     welcomeSubtitle: 'Hold, send, and swap stablecoins across many networks, all in one place.',
     tagline: 'The stablecoin wallet where you hold the keys',

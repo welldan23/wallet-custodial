@@ -12,7 +12,7 @@ import { useToast } from '@/components/ui/toast';
 import { useSwapAssets, type SwapAsset } from '@/hooks/use-swap-assets';
 import { useSwapGas } from '@/hooks/use-swap-quote';
 import { useSwaps } from '@/hooks/use-swaps';
-import { useWalletAccounts } from '@/hooks/use-wallet-accounts';
+import { useSimulatedTransactions } from '@/hooks/use-simulated-transactions';
 import { useI18n } from '@/i18n';
 import { checkAmount } from '@/lib/amount';
 import { formatFiat, formatTokenAmount } from '@/lib/format';
@@ -100,7 +100,7 @@ function SwapConfirmation({ from, to, amount, slippage }: SwapConfirmationProps)
   const [secondsLeft, setSecondsLeft] = useState(QUOTE_TTL_SECONDS);
   const [authorizing, setAuthorizing] = useState(false);
   const [demoAuthOpen, setDemoAuthOpen] = useState(false);
-  const { isDemo } = useWalletAccounts();
+  const isDemo = useSimulatedTransactions();
   const { recordSwap } = useSwaps();
   const { nativeSymbol, networkFeeNative, hasEnoughGas } = useSwapGas(from, quote);
   const expired = secondsLeft <= 0;

@@ -206,6 +206,10 @@ export const id = {
     sharedEvmAddressNote:
       'Alamat ini sama di Ethereum, Arbitrum, Base, dan Polygon, tapi saldonya terpisah per jaringan.',
   },
+  wallet: {
+    savePrompt: 'Verifikasi untuk menyimpan wallet di HP ini',
+    unlockPrompt: 'Verifikasi untuk membuka kunci wallet',
+  },
   onboarding: {
     stepLabel: (current: number, total: number) => `Langkah ${current} dari ${total}`,
     continue: 'Lanjut',
@@ -251,6 +255,18 @@ export const id = {
     evmAddress: 'Alamat EVM (Ethereum, Arbitrum, Base, Polygon)',
     solanaAddress: 'Alamat Solana',
     useThisWallet: 'Pakai wallet ini',
+    secureSubtitle: 'Wallet-mu disimpan di bagian paling aman HP ini.',
+    secureDevice: 'Frasa disimpan terenkripsi di Keychain/Keystore HP ini, bukan di server.',
+    secureBiometric: 'Membuka frasa wajib sidik jari atau Face ID, dijaga langsung oleh sistem HP.',
+    secureAppGate: 'Aksi penting tetap minta sidik jari atau Face ID sebelum jalan.',
+    secureNoBackup:
+      'Frasa nggak ikut backup cloud atau pindah HP. Kalau ganti HP, impor lagi pakai 12 kata.',
+    webNotSaved:
+      'Preview web nggak punya penyimpanan aman: frasa cuma diingat sampai halaman ditutup.',
+    saveAndStart: 'Simpan & mulai',
+    saving: 'Menyimpan…',
+    saveFailedTitle: 'Gagal menyimpan wallet',
+    saveFailedBody: 'Verifikasi dibatalkan atau penyimpanan HP menolak. Coba lagi.',
     welcomeTitle: 'Selamat datang 👋',
     welcomeSubtitle: 'Simpan, kirim, dan tukar stablecoin di banyak jaringan, dari satu tempat.',
     tagline: 'Wallet stablecoin yang kuncinya kamu pegang sendiri',
