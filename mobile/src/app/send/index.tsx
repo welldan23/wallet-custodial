@@ -1,6 +1,7 @@
 import { router, useLocalSearchParams } from 'expo-router';
 import { useState } from 'react';
-import { Pressable, Text } from 'react-native';
+import Ionicons from '@expo/vector-icons/Ionicons';
+import { Pressable, Text, View } from 'react-native';
 
 import { StackScreen } from '@/components/layout/stack-screen';
 import { AmountInput } from '@/components/send/amount-input';
@@ -23,6 +24,7 @@ import { validateRecipient } from '@/lib/address-validation';
 import { checkAmount, normalizeAmountInput } from '@/lib/amount';
 import { recognizeRecipient } from '@/lib/lookalike';
 import { parseScannedAddress } from '@/lib/payment-uri';
+import { colors } from '@/theme/colors';
 import type { Contact, FiatCurrency } from '@/types/wallet';
 
 /** Mata uang pendamping USD. Nanti diambil dari Pengaturan. */
@@ -41,7 +43,7 @@ export default function SendScreen() {
   const [pickerOpen, setPickerOpen] = useState(false);
   const [recipient, setRecipient] = useState('');
   const [amount, setAmount] = useState('');
-  const [contactName, setContactName] = useState<string | null>(null);
+  const [pickedContact, setPickedContact] = useState<Contact | null>(null);
   const [scannerOpen, setScannerOpen] = useState(false);
   const [contactsOpen, setContactsOpen] = useState(false);
   const { contacts } = useContacts();
@@ -52,7 +54,7 @@ export default function SendScreen() {
   const selected = assets.find((asset) => asset.tokenId === params.token) ?? assets[0] ?? null;
   const editRecipient = (value: string) => {
     setRecipient(value);
-    setContactName(null);
+    setPickedContact(null);
   };
 
   const handleScanned = (data: string) => {
@@ -78,8 +80,15 @@ export default function SendScreen() {
 
   const pickContact = (contact: Contact) => {
     setRecipient(contact.address);
-    setContactName(contact.name);
+    setPickedContact(contact);
   };
+
+  const contactName = pickedContact?.name ?? null;
+  // Kontak khusus satu jaringan (mis. alamat deposit exchange) dipakai di jaringan lain.
+  const contactNetworkMismatch =
+    selected && pickedContact?.networkId && pickedContact.networkId !== selected.network.id
+      ? (networks.find((network) => network.id === pickedContact.networkId) ?? null)
+      : null;
 
   const recipientCheck = selected
     ? validateRecipient(recipient, selected.network, accounts)
@@ -135,12 +144,44 @@ export default function SendScreen() {
             onOpenScanner={() => setScannerOpen(true)}
             onOpenContacts={() => setContactsOpen(true)}
           />
+          {contactNetworkMismatch && pickedContact && (
+            <View
+              className="flex-row items-start gap-2 rounded-2xl bg-warning-50 px-3.5 py-3"
+              accessibilityRole="alert">
+              <Ionicons name="warning" size={16} color={colors.warning[600]} />
+              <Text className="flex-1 text-xs leading-[18px] text-warning-600">
+                {t.send.contactNetworkMismatch(
+                  pickedContact.name,
+                  contactNetworkMismatch.name,
+                  selected.network.name,
+                )}
+              </Text>
+            </View>
+          )}
           {recipientCheck.status === 'valid' && recognition.kind === 'lookalike' && (
             <LookalikeWarning recipient={recipientCheck.address} match={recognition.match} />
           )}
           {recognition.kind === 'exact' && !contactName && (
             <KnownRecipientNote label={recognition.known.label} />
           )}
+          {recipientCheck.status === 'valid' &&
+            recognition.kind === 'unknown' &&
+            !recipientCheck.warning && (
+              <Pressable
+                onPress={() =>
+                  router.push({
+                    pathname: '/contacts/new',
+                    params: { address: recipientCheck.address },
+                  })
+                }
+                accessibilityRole="button"
+                className="flex-row items-center gap-1.5 self-start px-1 active:opacity-70">
+                <Ionicons name="person-add-outline" size={15} color={colors.primary[500]} />
+                <Text className="text-xs font-semibold text-primary-500">
+                  {t.send.saveToContacts}
+                </Text>
+              </Pressable>
+            )}
           {fee && (
             <AmountInput
               value={amount}
@@ -172,6 +213,7 @@ export default function SendScreen() {
             contacts={contacts}
             network={selected.network}
             networks={networks}
+            selectedAddress={pickedContact?.address}
             onSelect={pickContact}
           />
         </>

@@ -146,6 +146,10 @@ export const id = {
     addressBookTitle: 'Buku Alamat',
     addressBookHint: (network: string) => `Kontak yang alamatnya bisa dipakai di ${network}.`,
     addressBookEmpty: (network: string) => `Belum ada kontak untuk jaringan ${network}.`,
+    manageContacts: 'Kelola kontak',
+    saveToContacts: 'Simpan alamat ini ke Buku Alamat',
+    contactNetworkMismatch: (name: string, usual: string, current: string) =>
+      `${name} disimpan untuk jaringan ${usual}, tapi kamu mau kirim di ${current}. Kalau ini alamat deposit exchange, pastikan exchange-nya menerima ${current}, atau ganti aset ke jaringan ${usual}.`,
     contactUsualNetwork: (network: string) => `Biasa di ${network}`,
     contactUsualNetworkOther: (network: string) => `Biasa di ${network}, cek lagi jaringannya`,
     cameraPermissionTitle: 'Izinkan kamera untuk scan QR',

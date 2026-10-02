@@ -149,6 +149,10 @@ export const en: Dictionary = {
     addressBookTitle: 'Address Book',
     addressBookHint: (network: string) => `Contacts whose address works on ${network}.`,
     addressBookEmpty: (network: string) => `No contacts for the ${network} network yet.`,
+    manageContacts: 'Manage contacts',
+    saveToContacts: 'Save this address to your address book',
+    contactNetworkMismatch: (name: string, usual: string, current: string) =>
+      `${name} is saved for the ${usual} network, but you're sending on ${current}. If this is an exchange deposit address, make sure the exchange accepts ${current}, or switch to an asset on ${usual}.`,
     contactUsualNetwork: (network: string) => `Usually on ${network}`,
     contactUsualNetworkOther: (network: string) =>
       `Usually on ${network}, double-check the network`,
