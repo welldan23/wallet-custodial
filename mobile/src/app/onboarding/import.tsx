@@ -7,6 +7,7 @@ import { ActivityIndicator, Platform, Pressable, Text, TextInput, View } from 'r
 import { NoScreenCapture } from '@/components/onboarding/no-screen-capture';
 import { OnboardingButton, OnboardingScreen } from '@/components/onboarding/onboarding-screen';
 import { NetworkIcon } from '@/components/crypto/network-icon';
+import { useToast } from '@/components/ui/toast';
 import { useOnboardingDraft } from '@/hooks/use-onboarding-draft';
 import { useI18n } from '@/i18n';
 import { groupAddress } from '@/lib/address';
@@ -33,6 +34,7 @@ const monoFont = Platform.select({ ios: 'Menlo', default: 'monospace' });
 export default function ImportWalletScreen() {
   const { t } = useI18n();
   const draft = useOnboardingDraft();
+  const toast = useToast();
   const [words, setWords] = useState<string[]>(EMPTY);
   const [focused, setFocused] = useState<number | null>(0);
   const [checksumError, setChecksumError] = useState(false);
@@ -72,7 +74,11 @@ export default function ImportWalletScreen() {
   const pasteAll = async () => {
     const text = await Clipboard.getStringAsync().catch(() => '');
     const parts = splitMnemonicText(text);
-    if (parts.length) update(fillWords(EMPTY, 0, parts));
+    if (!parts.length) return;
+    update(fillWords(EMPTY, 0, parts));
+    // Jangan biarkan frasa tertinggal di clipboard (bisa dibaca app lain).
+    await Clipboard.setStringAsync('').catch(() => false);
+    toast({ title: t.onboarding.clipboardCleared, message: t.onboarding.clipboardClearedBody });
   };
 
   const verify = () => {

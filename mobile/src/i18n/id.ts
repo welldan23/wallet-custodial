@@ -283,6 +283,10 @@ export const id = {
     saving: 'Menyimpan…',
     saveFailedTitle: 'Gagal menyimpan wallet',
     saveFailedBody: 'Verifikasi dibatalkan atau penyimpanan HP menolak. Coba lagi.',
+    exploreDemo: 'Lihat demo dulu (pakai data contoh)',
+    clipboardCleared: 'Clipboard dibersihkan',
+    clipboardClearedBody:
+      'Frasa sudah ditempel dan dihapus dari clipboard supaya nggak terbaca app lain.',
     welcomeTitle: 'Selamat datang 👋',
     welcomeSubtitle: 'Simpan, kirim, dan tukar stablecoin di banyak jaringan, dari satu tempat.',
     tagline: 'Wallet stablecoin yang kuncinya kamu pegang sendiri',

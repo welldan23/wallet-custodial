@@ -1,7 +1,7 @@
 import Ionicons from '@expo/vector-icons/Ionicons';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useEffect, useState } from 'react';
-import { ActivityIndicator, Pressable, StyleSheet, Text, View } from 'react-native';
+import { ActivityIndicator, BackHandler, Pressable, StyleSheet, Text, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { useWallet } from '@/hooks/use-wallet';
@@ -31,6 +31,12 @@ export function UnlockScreen() {
     setResult(outcome);
     if (outcome === 'success') wallet.unlock();
   };
+
+  // Android: tombol back tidak boleh membuka/menggeser layar di bawah kunci.
+  useEffect(() => {
+    const subscription = BackHandler.addEventListener('hardwareBackPress', () => true);
+    return () => subscription.remove();
+  }, []);
 
   // Minta verifikasi otomatis sekali saat layar kunci muncul (kecuali di web).
   useEffect(() => {

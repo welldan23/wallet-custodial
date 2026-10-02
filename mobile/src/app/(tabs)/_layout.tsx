@@ -1,8 +1,10 @@
 import Ionicons from '@expo/vector-icons/Ionicons';
+import { Redirect } from 'expo-router';
 import { Tabs } from 'expo-router/js-tabs';
 import type { ComponentProps } from 'react';
 import type { ColorValue } from 'react-native';
 
+import { useWallet } from '@/hooks/use-wallet';
 import { useI18n } from '@/i18n';
 import { colors } from '@/theme/colors';
 
@@ -22,6 +24,11 @@ function TabIcon({ focused, color, size, icons: [active, inactive] }: TabIconPro
 
 export default function TabsLayout() {
   const { t } = useI18n();
+  const wallet = useWallet();
+
+  // Pengguna baru (belum punya wallet) mulai dari onboarding, kecuali memilih demo.
+  if (wallet.status === 'loading') return null;
+  if (wallet.status === 'none' && !wallet.demoMode) return <Redirect href="/onboarding" />;
 
   return (
     <Tabs

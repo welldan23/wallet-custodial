@@ -1,9 +1,15 @@
 import { useWallet } from '@/hooks/use-wallet';
 
+import { PrivacyCover } from './privacy-cover';
 import { UnlockScreen } from './unlock-screen';
 
-/** Pasang layar kunci di atas app selama wallet terkunci. */
+/** Layar kunci selama wallet terkunci + penutup privasi saat app tidak aktif. */
 export function AppLockGate() {
-  const { locked } = useWallet();
-  return locked ? <UnlockScreen /> : null;
+  const { locked, status } = useWallet();
+  return (
+    <>
+      {locked && <UnlockScreen />}
+      {status === 'ready' && <PrivacyCover />}
+    </>
+  );
 }

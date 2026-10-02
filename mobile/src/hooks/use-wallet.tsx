@@ -22,6 +22,9 @@ type WalletState = {
   /** Baca frasa (minta biometrik) — hanya untuk tanda tangan/ekspor. */
   readMnemonic: () => Promise<ReadMnemonicResult>;
   removeWallet: () => Promise<void>;
+  /** Belum punya wallet tapi memilih melihat demo dulu (sesi ini saja). */
+  demoMode: boolean;
+  exploreDemo: () => void;
   /** `true` = tampilkan layar kunci (wallet ada, belum dibuka sesi ini). */
   locked: boolean;
   unlock: () => void;
@@ -44,6 +47,7 @@ export function WalletProvider({
   const [status, setStatus] = useState<WalletStatus>('loading');
   const [accounts, setAccounts] = useState<WalletAccounts | null>(null);
   const [locked, setLocked] = useState(false);
+  const [demoMode, setDemoMode] = useState(false);
   const backgroundAt = useRef<number | null>(null);
 
   useEffect(() => {
@@ -94,6 +98,8 @@ export function WalletProvider({
       setStatus('none');
       setLocked(false);
     },
+    demoMode,
+    exploreDemo: () => setDemoMode(true),
     locked: status === 'ready' && locked,
     unlock: () => setLocked(false),
   };

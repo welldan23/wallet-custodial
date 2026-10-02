@@ -292,6 +292,10 @@ export const en: Dictionary = {
     saving: 'Saving…',
     saveFailedTitle: "Couldn't save the wallet",
     saveFailedBody: 'Verification was cancelled or the phone storage refused. Please try again.',
+    exploreDemo: 'Try the demo first (sample data)',
+    clipboardCleared: 'Clipboard cleared',
+    clipboardClearedBody:
+      'The phrase was pasted and removed from the clipboard so other apps cannot read it.',
     welcomeTitle: 'Welcome 👋',
     welcomeSubtitle: 'Hold, send, and swap stablecoins across many networks, all in one place.',
     tagline: 'The stablecoin wallet where you hold the keys',
