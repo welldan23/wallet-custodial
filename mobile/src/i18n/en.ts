@@ -214,6 +214,23 @@ export const en: Dictionary = {
     sharedEvmAddressNote:
       'This address is the same on Ethereum, Arbitrum, Base, and Polygon, but balances are separate per network.',
   },
+  contacts: {
+    title: 'Address Book',
+    search: 'Search name or address',
+    add: 'Add contact',
+    favorites: 'Favorites',
+    favorite: 'Favorite',
+    all: 'All contacts',
+    results: 'Search results',
+    count: (count: number) => `${count} saved contacts`,
+    allNetworks: { evm: 'All EVM', solana: 'Solana' },
+    noResult: (query: string) => `No contacts match "${query}".`,
+    emptyTitle: 'No contacts yet',
+    emptyBody: 'Save addresses you send to often so you never have to type or paste them again.',
+  },
+  profile: {
+    moreSoon: 'Currency, language, and security settings are coming in a later update.',
+  },
   lock: {
     title: 'MyWallet is locked',
     subtitle: 'Unlock with fingerprint or Face ID to see your balance and transactions.',

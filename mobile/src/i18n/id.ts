@@ -206,6 +206,23 @@ export const id = {
     sharedEvmAddressNote:
       'Alamat ini sama di Ethereum, Arbitrum, Base, dan Polygon, tapi saldonya terpisah per jaringan.',
   },
+  contacts: {
+    title: 'Buku Alamat',
+    search: 'Cari nama atau alamat',
+    add: 'Tambah kontak',
+    favorites: 'Favorit',
+    favorite: 'Favorit',
+    all: 'Semua kontak',
+    results: 'Hasil pencarian',
+    count: (count: number) => `${count} kontak tersimpan`,
+    allNetworks: { evm: 'Semua EVM', solana: 'Solana' },
+    noResult: (query: string) => `Nggak ada kontak yang cocok dengan "${query}".`,
+    emptyTitle: 'Belum ada kontak',
+    emptyBody: 'Simpan alamat yang sering kamu kirimi supaya nggak perlu ketik atau tempel lagi.',
+  },
+  profile: {
+    moreSoon: 'Pengaturan mata uang, bahasa, dan keamanan menyusul di update berikutnya.',
+  },
   lock: {
     title: 'MyWallet terkunci',
     subtitle: 'Buka pakai sidik jari atau Face ID buat lihat saldo dan transaksi.',
