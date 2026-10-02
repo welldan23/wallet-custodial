@@ -6,6 +6,7 @@ import { StatusBar } from 'expo-status-bar';
 import { AppLockGate } from '@/components/lock/app-lock-gate';
 import { ToastProvider } from '@/components/ui/toast';
 import { BalanceVisibilityProvider } from '@/hooks/use-balance-visibility';
+import { ContactsProvider } from '@/hooks/use-contacts';
 import { SentTransfersProvider } from '@/hooks/use-sent-transfers';
 import { SwapsProvider } from '@/hooks/use-swaps';
 import { WalletProvider } from '@/hooks/use-wallet';
@@ -18,11 +19,13 @@ export default function RootLayout() {
         <BalanceVisibilityProvider>
           <SentTransfersProvider>
             <SwapsProvider>
-              <ToastProvider>
-                <StatusBar style="dark" />
-                <Stack screenOptions={{ headerShown: false }} />
-                <AppLockGate />
-              </ToastProvider>
+              <ContactsProvider>
+                <ToastProvider>
+                  <StatusBar style="dark" />
+                  <Stack screenOptions={{ headerShown: false }} />
+                  <AppLockGate />
+                </ToastProvider>
+              </ContactsProvider>
             </SwapsProvider>
           </SentTransfersProvider>
         </BalanceVisibilityProvider>
