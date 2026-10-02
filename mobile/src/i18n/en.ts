@@ -214,6 +214,28 @@ export const en: Dictionary = {
     sharedEvmAddressNote:
       'This address is the same on Ethereum, Arbitrum, Base, and Polygon, but balances are separate per network.',
   },
+  onboarding: {
+    stepLabel: (current: number, total: number) => `Step ${current} of ${total}`,
+    welcomeTitle: 'Welcome 👋',
+    welcomeSubtitle: 'Hold, send, and swap stablecoins across many networks, all in one place.',
+    tagline: 'The stablecoin wallet where you hold the keys',
+    createWallet: 'Create New Wallet',
+    importWallet: 'Import from 12 Words',
+    points: {
+      keys: {
+        title: 'Your keys, your coins',
+        body: 'Your wallet key stays only on this phone. We can never see or move your assets.',
+      },
+      biometric: {
+        title: 'Locked with your fingerprint',
+        body: 'Open the app and approve transactions with fingerprint or Face ID.',
+      },
+      networks: {
+        title: '5 networks, 1 wallet',
+        body: 'Ethereum, Arbitrum, Base, Polygon, and Solana in one view.',
+      },
+    },
+  },
   history: {
     subtitle: 'All your send, receive, and swap activity.',
     all: 'All',

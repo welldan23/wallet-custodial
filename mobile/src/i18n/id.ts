@@ -206,6 +206,28 @@ export const id = {
     sharedEvmAddressNote:
       'Alamat ini sama di Ethereum, Arbitrum, Base, dan Polygon, tapi saldonya terpisah per jaringan.',
   },
+  onboarding: {
+    stepLabel: (current: number, total: number) => `Langkah ${current} dari ${total}`,
+    welcomeTitle: 'Selamat datang 👋',
+    welcomeSubtitle: 'Simpan, kirim, dan tukar stablecoin di banyak jaringan, dari satu tempat.',
+    tagline: 'Wallet stablecoin yang kuncinya kamu pegang sendiri',
+    createWallet: 'Bikin Wallet Baru',
+    importWallet: 'Impor dari 12 Kata',
+    points: {
+      keys: {
+        title: 'Kunci di tanganmu',
+        body: 'Kunci wallet cuma tersimpan di HP ini. Kami nggak pernah bisa melihat atau memindahkan asetmu.',
+      },
+      biometric: {
+        title: 'Terkunci sidik jari',
+        body: 'Buka app dan setujui transaksi pakai sidik jari atau Face ID.',
+      },
+      networks: {
+        title: '5 jaringan, 1 wallet',
+        body: 'Ethereum, Arbitrum, Base, Polygon, dan Solana dalam satu tampilan.',
+      },
+    },
+  },
   history: {
     subtitle: 'Semua aktivitas kirim, terima, dan swap.',
     all: 'Semua',
