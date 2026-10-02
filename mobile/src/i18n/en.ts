@@ -249,6 +249,21 @@ export const en: Dictionary = {
       evmOnSolana: 'This is an EVM address (0x…). Pick All EVM or one of the EVM networks above.',
       autoNetwork: (network: string) => `Network switched to ${network} to match the address.`,
     },
+    edit: {
+      title: 'Edit contact',
+      save: 'Save changes',
+      saved: 'Contact changes saved',
+      delete: 'Delete contact',
+      confirmTitle: 'Delete this contact?',
+      confirmBody: (name: string) =>
+        `${name} will be removed from your address book. Your transaction history with this address stays.`,
+      confirmDelete: 'Yes, delete',
+      cancel: 'Cancel',
+      deleted: (name: string) => `${name} removed from your address book`,
+      notFoundTitle: 'Contact not found',
+      notFoundBody: 'This contact may have been deleted.',
+      backToList: 'Back to address book',
+    },
   },
   profile: {
     moreSoon: 'Currency, language, and security settings are coming in a later update.',

@@ -33,6 +33,9 @@ export default function ContactsScreen() {
               contact={contact}
               network={contactNetwork(contact, networks)}
               isLast={index === items.length - 1}
+              onPress={() =>
+                router.push({ pathname: '/contacts/[id]', params: { id: contact.id } })
+              }
             />
           ))}
         </View>

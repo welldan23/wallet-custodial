@@ -96,10 +96,23 @@ export function findDuplicateContact(
   );
 }
 
+/** Isi awal form ubah kontak. `networkId: null` di alamat Solana = jaringan Solana. */
+export function contactToFormInput(contact: Contact): ContactFormInput {
+  const scope: ContactScope =
+    contact.networkId ?? (contact.address.startsWith('0x') ? 'all_evm' : 'solana');
+  return { name: contact.name, address: contact.address, scope, isFavorite: contact.isFavorite };
+}
+
 /** Periksa seluruh form tambah kontak. */
 export function checkContactForm(
   input: ContactFormInput,
-  deps: { networks: Network[]; contacts: Contact[]; ownAccounts?: WalletAccounts },
+  deps: {
+    networks: Network[];
+    contacts: Contact[];
+    /** Kontak yang sedang diubah: dilewati saat cek duplikat. */
+    excludeId?: string;
+    ownAccounts?: WalletAccounts;
+  },
 ): ContactFormCheck {
   const name = checkContactName(input.name);
   const network = validationNetwork(input.scope, deps.networks);
@@ -114,7 +127,7 @@ export function checkContactForm(
       recipient.address,
       networkId,
       scopeChainType(input.scope, deps.networks),
-      deps.contacts,
+      deps.contacts.filter((contact) => contact.id !== deps.excludeId),
       deps.networks,
     );
     if (duplicate) address = { status: 'duplicate', existingName: duplicate.name };

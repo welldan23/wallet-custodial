@@ -241,6 +241,21 @@ export const id = {
       evmOnSolana: 'Ini alamat EVM (0x…). Pilih Semua EVM atau salah satu jaringan EVM di atas.',
       autoNetwork: (network: string) => `Jaringan otomatis diganti ke ${network} sesuai alamat.`,
     },
+    edit: {
+      title: 'Ubah kontak',
+      save: 'Simpan perubahan',
+      saved: 'Perubahan kontak tersimpan',
+      delete: 'Hapus kontak',
+      confirmTitle: 'Hapus kontak ini?',
+      confirmBody: (name: string) =>
+        `${name} akan dihapus dari Buku Alamat. Riwayat transaksi ke alamat ini tetap ada.`,
+      confirmDelete: 'Ya, hapus',
+      cancel: 'Batal',
+      deleted: (name: string) => `${name} dihapus dari Buku Alamat`,
+      notFoundTitle: 'Kontak nggak ditemukan',
+      notFoundBody: 'Kontak ini mungkin sudah dihapus.',
+      backToList: 'Kembali ke Buku Alamat',
+    },
   },
   profile: {
     moreSoon: 'Pengaturan mata uang, bahasa, dan keamanan menyusul di update berikutnya.',

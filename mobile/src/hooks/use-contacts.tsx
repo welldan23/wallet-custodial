@@ -7,6 +7,8 @@ type ContactsContextValue = {
   contacts: Contact[];
   /** Simpan kontak baru dan kembalikan kontak lengkap dengan id-nya. */
   addContact: (contact: Omit<Contact, 'id'>) => Contact;
+  updateContact: (id: string, changes: Omit<Contact, 'id'>) => void;
+  removeContact: (id: string) => void;
 };
 
 const ContactsContext = createContext<ContactsContextValue | null>(null);
@@ -27,7 +29,20 @@ export function ContactsProvider({ children }: { children: ReactNode }) {
     return contact;
   }, []);
 
-  const value = useMemo(() => ({ contacts, addContact }), [contacts, addContact]);
+  const updateContact = useCallback((id: string, changes: Omit<Contact, 'id'>) => {
+    setContacts((current) =>
+      current.map((contact) => (contact.id === id ? { ...changes, id } : contact)),
+    );
+  }, []);
+
+  const removeContact = useCallback((id: string) => {
+    setContacts((current) => current.filter((contact) => contact.id !== id));
+  }, []);
+
+  const value = useMemo(
+    () => ({ contacts, addContact, updateContact, removeContact }),
+    [contacts, addContact, updateContact, removeContact],
+  );
   return <ContactsContext value={value}>{children}</ContactsContext>;
 }
 
