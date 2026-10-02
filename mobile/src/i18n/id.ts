@@ -227,6 +227,12 @@ export const id = {
     writtenCheck:
       'Saya sudah mencatat 12 kata ini di tempat aman dan paham nggak bisa dipulihkan kalau hilang.',
     confirmTitle: 'Cek catatanmu',
+    confirmSubtitle: 'Pilih kata yang benar sesuai nomor di catatanmu.',
+    whichWord: (position: number) => `Kata ke-${position}`,
+    quizWrong: 'Belum cocok. Cek lagi catatanmu, pastikan urutannya sesuai nomor.',
+    quizAllRight: 'Mantap, catatanmu sudah benar.',
+    seeWordsAgain: 'Lihat catatan lagi',
+    secureTitle: 'Amankan wallet',
     welcomeTitle: 'Selamat datang 👋',
     welcomeSubtitle: 'Simpan, kirim, dan tukar stablecoin di banyak jaringan, dari satu tempat.',
     tagline: 'Wallet stablecoin yang kuncinya kamu pegang sendiri',

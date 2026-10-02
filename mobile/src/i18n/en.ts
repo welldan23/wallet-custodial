@@ -235,6 +235,12 @@ export const en: Dictionary = {
     writtenCheck:
       "I've written these 12 words somewhere safe and understand they can't be recovered if lost.",
     confirmTitle: 'Check your backup',
+    confirmSubtitle: 'Pick the right word for each number in your backup.',
+    whichWord: (position: number) => `Word #${position}`,
+    quizWrong: "That doesn't match. Check your backup and make sure the order follows the numbers.",
+    quizAllRight: 'Great, your backup is correct.',
+    seeWordsAgain: 'See the words again',
+    secureTitle: 'Secure your wallet',
     welcomeTitle: 'Welcome 👋',
     welcomeSubtitle: 'Hold, send, and swap stablecoins across many networks, all in one place.',
     tagline: 'The stablecoin wallet where you hold the keys',
