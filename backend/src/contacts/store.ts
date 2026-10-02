@@ -159,6 +159,50 @@ export class ContactStore {
   }
 
   /**
+   * Ganti isi kontak milik pengguna ini; `null` kalau tidak ada. Melempar
+   * `DuplicateContactError` kalau hasilnya dobel dengan kontak lain.
+   */
+  update(userId: string, id: string, contact: Required<NewContact>): Contact | null {
+    return this.db.transaction(() => {
+      if (!this.get(userId, id)) return null;
+      const duplicate = this.findOverlapping(userId, contact, id);
+      if (duplicate) throw new DuplicateContactError({ id: duplicate.id, name: duplicate.name });
+      try {
+        this.db
+          .prepare(
+            `UPDATE contacts
+             SET name = ?, address = ?, chain_type = ?, network_id = ?, is_favorite = ?, updated_at = ?
+             WHERE user_id = ? AND id = ?`,
+          )
+          .run(
+            contact.name.trim(),
+            contact.address,
+            contact.chainType,
+            contact.networkId,
+            contact.isFavorite ? 1 : 0,
+            this.now().toISOString(),
+            userId,
+            id,
+          );
+      } catch (error) {
+        if (error instanceof Error && /contact_duplicate|UNIQUE/.test(error.message)) {
+          throw new DuplicateContactError(null);
+        }
+        throw error;
+      }
+      return this.get(userId, id);
+    })();
+  }
+
+  /** Hapus kontak milik pengguna ini; `false` kalau tidak ada. */
+  remove(userId: string, id: string): boolean {
+    return (
+      this.db.prepare('DELETE FROM contacts WHERE user_id = ? AND id = ?').run(userId, id).changes >
+      0
+    );
+  }
+
+  /**
    * Kontak milik pengguna: favorit dulu lalu urut nama. Kalau `usableOn`
    * diisi, hanya kontak yang alamatnya bisa dipakai di jaringan itu
    * (jaringannya sama, atau kontak "semua jaringan" dengan tipe sama).

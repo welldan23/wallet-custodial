@@ -203,6 +203,18 @@ perangkat baru otomatis didaftarkan).
 | 409 | `contact_limit` | maksimal 500 kontak per perangkat |
 | 413 | `body_too_large` | body > 4 KB |
 
+### `PATCH /v1/contacts/:id` dan `DELETE /v1/contacts/:id`
+
+- **PATCH**: kirim sebagian atau semua dari `name`, `address`, `networkId`,
+  `isFavorite`. Field yang tidak dikirim tetap; hasil gabungannya dicek dengan
+  aturan yang sama seperti `POST` (mis. ganti alamat ke Solana harus bersama
+  `networkId: "solana"` atau `null`). `200 { "contact": { … } }`, `updatedAt`
+  ikut maju. Simpan ulang dengan isi sama tidak dianggap dobel.
+- **DELETE**: `204` tanpa body. Alamatnya boleh disimpan lagi setelah itu.
+- Error sama dengan `POST`, ditambah `400 empty_update` (tidak ada field yang
+  bisa diubah) dan `404 contact_not_found`, termasuk untuk kontak milik
+  perangkat lain (tidak dibedakan, supaya id kontak orang lain tidak bisa ditebak).
+
 ### `GET /v1/swap/tokens`
 
 Stablecoin yang bisa ditukar, per jaringan aktif. Data publik, cache 5 menit.

@@ -66,6 +66,14 @@ export function createApp(deps: AppDeps): Hono {
       allowHeaders: ['Authorization', 'Content-Type'],
     }),
   );
+  app.use(
+    '/v1/contacts/*',
+    cors({
+      origin: '*',
+      allowMethods: ['GET', 'PATCH', 'DELETE'],
+      allowHeaders: ['Authorization', 'Content-Type'],
+    }),
+  );
   app.use('/v1/*', cors({ origin: '*', allowMethods: ['GET'] }));
 
   app.get('/health', (c) => c.json({ ok: true }));
