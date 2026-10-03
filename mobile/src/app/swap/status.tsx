@@ -12,16 +12,15 @@ import { useToast } from '@/components/ui/toast';
 import { useSupportedNetworks } from '@/hooks/use-supported-networks';
 import { useSwaps } from '@/hooks/use-swaps';
 import { useSimulatedTransactions } from '@/hooks/use-simulated-transactions';
+import { useDisplayCurrency } from '@/hooks/use-settings';
 import { useI18n } from '@/i18n';
 import { shortenAddress } from '@/lib/address';
 import { formatFiat, formatTime, formatTokenAmount } from '@/lib/format';
 import { explorerTxUrl } from '@/lib/sent-transfers';
 import { MOCK_FX_RATES } from '@/mocks/wallet';
 import { cardShadow, colors } from '@/theme/colors';
-import type { FiatCurrency, Network, NetworkId } from '@/types/wallet';
+import type { Network, NetworkId } from '@/types/wallet';
 
-/** Mata uang pendamping USD. Nanti diambil dari Pengaturan. */
-const DISPLAY_CURRENCY: FiatCurrency = 'IDR';
 const monoFont = Platform.select({ ios: 'Menlo', default: 'monospace' });
 
 /** Balik ke Home: tutup semua layar Swap supaya tidak bisa "kembali" ke konfirmasi. */
@@ -33,6 +32,7 @@ const swapAgain = () => {
 
 /** Status swap setelah disetujui: diproses → berhasil. */
 export default function SwapStatusScreen() {
+  const displayCurrency = useDisplayCurrency();
   const { t } = useI18n();
   const toast = useToast();
   const { id } = useLocalSearchParams<{ id?: string }>();
@@ -68,7 +68,7 @@ export default function SwapStatusScreen() {
   }
 
   const confirmed = swap.status === 'confirmed';
-  const fiat = (usd: number) => formatFiat(usd, DISPLAY_CURRENCY, MOCK_FX_RATES);
+  const fiat = (usd: number) => formatFiat(usd, displayCurrency, MOCK_FX_RATES);
 
   const copyHash = async () => {
     try {

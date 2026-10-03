@@ -9,6 +9,7 @@ import { TabScreen } from '@/components/layout/tab-screen';
 import { useBalanceVisibility } from '@/hooks/use-balance-visibility';
 import { useHistory } from '@/hooks/use-history';
 import { useSupportedNetworks } from '@/hooks/use-supported-networks';
+import { useDisplayCurrency } from '@/hooks/use-settings';
 import { useI18n } from '@/i18n';
 import { formatFiat } from '@/lib/format';
 import {
@@ -21,14 +22,12 @@ import {
 } from '@/lib/history';
 import { MOCK_FX_RATES } from '@/mocks/wallet';
 import { cardShadow } from '@/theme/colors';
-import type { FiatCurrency, NetworkId } from '@/types/wallet';
-
-/** Mata uang pendamping USD. Nanti diambil dari Pengaturan. */
-const DISPLAY_CURRENCY: FiatCurrency = 'IDR';
+import type { NetworkId } from '@/types/wallet';
 
 /** Riwayat: semua kirim, terima, dan swap, dikelompokkan per hari. */
 export default function HistoryScreen() {
   const { t } = useI18n();
+  const displayCurrency = useDisplayCurrency();
   const history = useHistory();
   const networks = useSupportedNetworks();
   const { hidden } = useBalanceVisibility();
@@ -65,7 +64,7 @@ export default function HistoryScreen() {
         <MonthSummary
           summary={summarizeHistory(filtered)}
           periodLabel={periodLabel}
-          formatValue={(usd) => formatFiat(usd, DISPLAY_CURRENCY, MOCK_FX_RATES)}
+          formatValue={(usd) => formatFiat(usd, displayCurrency, MOCK_FX_RATES)}
           hidden={hidden}
         />
       )}
@@ -89,7 +88,7 @@ export default function HistoryScreen() {
                 key={item.id}
                 item={item}
                 networkName={networkName}
-                currency={DISPLAY_CURRENCY}
+                currency={displayCurrency}
                 fxRates={MOCK_FX_RATES}
                 hidden={hidden}
                 isLast={index === group.items.length - 1}

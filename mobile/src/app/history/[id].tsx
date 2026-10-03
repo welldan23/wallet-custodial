@@ -8,16 +8,15 @@ import { useBalanceVisibility } from '@/hooks/use-balance-visibility';
 import { useHistory } from '@/hooks/use-history';
 import { useSupportedNetworks } from '@/hooks/use-supported-networks';
 import { useSimulatedTransactions } from '@/hooks/use-simulated-transactions';
+import { useDisplayCurrency } from '@/hooks/use-settings';
 import { useI18n } from '@/i18n';
 import { MOCK_FX_RATES } from '@/mocks/wallet';
 import { cardShadow, colors } from '@/theme/colors';
-import type { FiatCurrency, NetworkId } from '@/types/wallet';
-
-/** Mata uang pendamping USD. Nanti diambil dari Pengaturan. */
-const DISPLAY_CURRENCY: FiatCurrency = 'IDR';
+import type { NetworkId } from '@/types/wallet';
 
 /** Halaman detail satu transaksi dari Riwayat. */
 export default function TransactionDetailScreen() {
+  const displayCurrency = useDisplayCurrency();
   const { t } = useI18n();
   const { id } = useLocalSearchParams<{ id: string }>();
   const history = useHistory();
@@ -34,7 +33,7 @@ export default function TransactionDetailScreen() {
         <TransactionDetail
           item={item}
           networkOf={networkOf}
-          currency={DISPLAY_CURRENCY}
+          currency={displayCurrency}
           fxRates={MOCK_FX_RATES}
           hidden={hidden}
           isDemo={isDemo}

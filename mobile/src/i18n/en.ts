@@ -289,6 +289,10 @@ export const en: Dictionary = {
     dangerZone: 'Danger zone',
     currency: 'Display currency',
     currencyValue: { IDR: 'Rupiah (IDR)', USD: 'US Dollar (USD)' },
+    currencyDescription:
+      'Balances are still counted in dollars (stablecoins). This only changes the companion amount shown on every screen.',
+    currencyExample: (value: string) => `1 USDC ≈ ${value}`,
+    currencyChanged: (currency: string) => `Display currency: ${currency}`,
     language: 'Language',
     languageValue: { id: 'Indonesia', en: 'English' },
     theme: 'Theme',

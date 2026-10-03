@@ -12,14 +12,12 @@ import { useBalanceVisibility } from '@/hooks/use-balance-visibility';
 import { useGasSummary } from '@/hooks/use-gas-summary';
 import { usePortfolio } from '@/hooks/use-portfolio';
 import { useActivity, type ActivityItem } from '@/hooks/use-activity';
+import { useDisplayCurrency } from '@/hooks/use-settings';
 import { useI18n } from '@/i18n';
 import type { Dictionary } from '@/i18n/id';
 import { shortenAddress } from '@/lib/address';
 import { formatTokenAmount, MASKED_VALUE } from '@/lib/format';
-import type { FiatCurrency, Network, NetworkId } from '@/types/wallet';
-
-/** Mata uang pendamping USD. Nanti diambil dari Pengaturan. */
-const DISPLAY_CURRENCY: FiatCurrency = 'IDR';
+import type { Network, NetworkId } from '@/types/wallet';
 
 const QUICK_ACTION_ROUTES: Record<QuickAction, Href> = {
   send: '/send',
@@ -76,6 +74,7 @@ function describeActivity(
 
 export default function HomeScreen() {
   const { t } = useI18n();
+  const displayCurrency = useDisplayCurrency();
   const { portfolio, networks, fxRates, pricesUpdatedAt } = usePortfolio();
   const gas = useGasSummary();
   const { hidden: balanceHidden, toggleHidden } = useBalanceVisibility();
@@ -92,7 +91,7 @@ export default function HomeScreen() {
     <TabScreen active="home">
       <BalanceCard
         totalUsd={portfolio.totalUsd}
-        currency={DISPLAY_CURRENCY}
+        currency={displayCurrency}
         fxRates={fxRates}
         pricesUpdatedAt={pricesUpdatedAt}
         hidden={balanceHidden}
@@ -118,7 +117,7 @@ export default function HomeScreen() {
           <AssetSection
             title={t.home.stablecoinAssets}
             assets={portfolio.stablecoins}
-            currency={DISPLAY_CURRENCY}
+            currency={displayCurrency}
             fxRates={fxRates}
             hidden={balanceHidden}
             emptyText={t.home.emptyStablecoins}
@@ -126,7 +125,7 @@ export default function HomeScreen() {
           />
           <GasBalanceCard
             summary={gas}
-            currency={DISPLAY_CURRENCY}
+            currency={displayCurrency}
             fxRates={fxRates}
             hidden={balanceHidden}
             onTopUp={topUpGas}

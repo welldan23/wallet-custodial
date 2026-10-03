@@ -19,6 +19,7 @@ import { useSendableAssets } from '@/hooks/use-sendable-assets';
 import { useSupportedNetworks } from '@/hooks/use-supported-networks';
 import { useSimulatedTransactions } from '@/hooks/use-simulated-transactions';
 import { useWalletAccounts } from '@/hooks/use-wallet-accounts';
+import { useDisplayCurrency } from '@/hooks/use-settings';
 import { useI18n } from '@/i18n';
 import { groupAddress } from '@/lib/address';
 import { validateRecipient } from '@/lib/address-validation';
@@ -29,10 +30,7 @@ import { formatFiat, formatTokenAmount } from '@/lib/format';
 import { recognizeRecipient } from '@/lib/lookalike';
 import { buildSendQuote } from '@/lib/send-quote';
 import { cardShadow, colors } from '@/theme/colors';
-import type { FiatCurrency } from '@/types/wallet';
 
-/** Mata uang pendamping USD. Nanti diambil dari Pengaturan. */
-const DISPLAY_CURRENCY: FiatCurrency = 'IDR';
 const monoFont = Platform.select({ ios: 'Menlo', default: 'monospace' });
 
 /**
@@ -40,6 +38,7 @@ const monoFont = Platform.select({ ios: 'Menlo', default: 'monospace' });
  * URL divalidasi ulang di sini — kalau tidak cocok, layar menolak lanjut.
  */
 export default function ConfirmSendScreen() {
+  const displayCurrency = useDisplayCurrency();
   const { t } = useI18n();
   const toast = useToast();
   const params = useLocalSearchParams<{
@@ -144,7 +143,7 @@ export default function ConfirmSendScreen() {
       message: t.send.authError[result].body,
     });
   };
-  const fiat = (usd: number) => formatFiat(usd, DISPLAY_CURRENCY, fxRates);
+  const fiat = (usd: number) => formatFiat(usd, displayCurrency, fxRates);
 
   return (
     <StackScreen title={t.send.confirmTitle}>

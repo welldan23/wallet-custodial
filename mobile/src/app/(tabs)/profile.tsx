@@ -1,9 +1,11 @@
 import Ionicons from '@expo/vector-icons/Ionicons';
 import Constants from 'expo-constants';
 import { router } from 'expo-router';
+import { useState } from 'react';
 import { Platform, Switch, Text, View } from 'react-native';
 
 import { TabScreen } from '@/components/layout/tab-screen';
+import { OptionSheet } from '@/components/settings/option-sheet';
 import { SettingsGroup, SettingsRow } from '@/components/settings/settings-row';
 import { useToast } from '@/components/ui/toast';
 import { useContacts } from '@/hooks/use-contacts';
@@ -11,6 +13,8 @@ import { useSettings } from '@/hooks/use-settings';
 import { useWalletAccounts } from '@/hooks/use-wallet-accounts';
 import { useI18n } from '@/i18n';
 import { shortenAddress } from '@/lib/address';
+import { formatFiat } from '@/lib/format';
+import { MOCK_FX_RATES } from '@/mocks/wallet';
 import { cardShadow, colors } from '@/theme/colors';
 
 const monoFont = Platform.select({ ios: 'Menlo', default: 'monospace' });
@@ -20,7 +24,8 @@ export default function ProfileScreen() {
   const { t } = useI18n();
   const toast = useToast();
   const { contacts } = useContacts();
-  const { settings } = useSettings();
+  const { settings, updateSettings } = useSettings();
+  const [sheet, setSheet] = useState<'currency' | null>(null);
   const { accounts, isDemo } = useWalletAccounts();
   const s = t.settings;
   const soon = () => toast({ title: t.common.comingSoon, message: s.soonMessage });
@@ -65,7 +70,7 @@ export default function ProfileScreen() {
           icon="cash-outline"
           label={s.currency}
           value={s.currencyValue[settings.displayCurrency]}
-          onPress={soon}
+          onPress={() => setSheet('currency')}
         />
         <SettingsRow
           icon="language-outline"
@@ -132,6 +137,23 @@ export default function ProfileScreen() {
           isLast
         />
       </SettingsGroup>
+
+      <OptionSheet
+        visible={sheet === 'currency'}
+        onClose={() => setSheet(null)}
+        title={s.currency}
+        description={s.currencyDescription}
+        options={(['IDR', 'USD'] as const).map((currency) => ({
+          value: currency,
+          label: s.currencyValue[currency],
+          hint: s.currencyExample(formatFiat(1, currency, MOCK_FX_RATES)),
+        }))}
+        selected={settings.displayCurrency}
+        onSelect={(displayCurrency) => {
+          updateSettings({ displayCurrency });
+          toast({ variant: 'success', title: s.currencyChanged(s.currencyValue[displayCurrency]) });
+        }}
+      />
     </TabScreen>
   );
 }

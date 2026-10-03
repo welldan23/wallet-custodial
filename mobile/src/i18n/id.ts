@@ -281,6 +281,10 @@ export const id = {
     dangerZone: 'Zona bahaya',
     currency: 'Mata uang tampilan',
     currencyValue: { IDR: 'Rupiah (IDR)', USD: 'Dolar AS (USD)' },
+    currencyDescription:
+      'Saldo tetap dihitung dalam dolar (stablecoin). Pilihan ini cuma mengubah angka pendamping yang tampil di semua layar.',
+    currencyExample: (value: string) => `1 USDC ≈ ${value}`,
+    currencyChanged: (currency: string) => `Mata uang tampilan: ${currency}`,
     language: 'Bahasa',
     languageValue: { id: 'Indonesia', en: 'English' },
     theme: 'Tema',

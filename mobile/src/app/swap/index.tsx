@@ -13,16 +13,13 @@ import { useBalanceVisibility } from '@/hooks/use-balance-visibility';
 import { defaultSwapPair, useSwapAssets, type SwapAsset } from '@/hooks/use-swap-assets';
 import { useSwapGas, useSwapQuote } from '@/hooks/use-swap-quote';
 import { useSimulatedTransactions } from '@/hooks/use-simulated-transactions';
+import { useDisplayCurrency } from '@/hooks/use-settings';
 import { useI18n } from '@/i18n';
 import { checkAmount, formatAmountForInput } from '@/lib/amount';
 import { formatFiat, formatTokenAmount } from '@/lib/format';
 import { DEFAULT_SLIPPAGE } from '@/lib/slippage';
 import { MOCK_FX_RATES } from '@/mocks/wallet';
 import { cardShadow, colors } from '@/theme/colors';
-import type { FiatCurrency } from '@/types/wallet';
-
-/** Mata uang pendamping USD. Nanti diambil dari Pengaturan. */
-const DISPLAY_CURRENCY: FiatCurrency = 'IDR';
 
 /**
  * Swap antar stablecoin: isi jumlah koin asal, lihat perkiraan koin tujuan.
@@ -84,6 +81,7 @@ function SwapForm({
   setFromId,
   setToId,
 }: SwapFormProps) {
+  const displayCurrency = useDisplayCurrency();
   const { t } = useI18n();
   const isDemo = useSimulatedTransactions();
   const { hidden } = useBalanceVisibility();
@@ -91,7 +89,7 @@ function SwapForm({
   const [slippage, setSlippage] = useState(DEFAULT_SLIPPAGE);
   const [slippageOpen, setSlippageOpen] = useState(false);
 
-  const fiat = (usd: number) => formatFiat(usd, DISPLAY_CURRENCY, MOCK_FX_RATES);
+  const fiat = (usd: number) => formatFiat(usd, displayCurrency, MOCK_FX_RATES);
   const check = checkAmount(amountInput, from.balance, from.decimals);
   const amount = check.status === 'valid' ? check.amount : 0;
   const { quote, loading } = useSwapQuote(from, to, amount);

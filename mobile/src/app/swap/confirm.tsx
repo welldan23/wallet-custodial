@@ -13,6 +13,7 @@ import { useSwapAssets, type SwapAsset } from '@/hooks/use-swap-assets';
 import { useSwapGas } from '@/hooks/use-swap-quote';
 import { useSwaps } from '@/hooks/use-swaps';
 import { useSimulatedTransactions } from '@/hooks/use-simulated-transactions';
+import { useDisplayCurrency } from '@/hooks/use-settings';
 import { useI18n } from '@/i18n';
 import { checkAmount } from '@/lib/amount';
 import { formatFiat, formatTokenAmount } from '@/lib/format';
@@ -21,14 +22,15 @@ import { checkSlippage, minReceived } from '@/lib/slippage';
 import { getMockSwapQuote, type SwapQuote } from '@/mocks/swap';
 import { MOCK_FX_RATES } from '@/mocks/wallet';
 import { cardShadow, colors } from '@/theme/colors';
-import type { FiatCurrency } from '@/types/wallet';
 
-/** Mata uang pendamping USD. Nanti diambil dari Pengaturan. */
-const DISPLAY_CURRENCY: FiatCurrency = 'IDR';
 /** Kurs dari agregator cuma berlaku sebentar; setelah itu wajib diperbarui. */
 const QUOTE_TTL_SECONDS = 30;
 
-const fiat = (usd: number) => formatFiat(usd, DISPLAY_CURRENCY, MOCK_FX_RATES);
+/** Format USD ke mata uang tampilan dari Pengaturan. */
+function useFiat() {
+  const displayCurrency = useDisplayCurrency();
+  return (usd: number) => formatFiat(usd, displayCurrency, MOCK_FX_RATES);
+}
 
 /**
  * Konfirmasi swap: rincian lengkap dari kurs terbaru. Data dari URL
@@ -94,6 +96,7 @@ const fetchQuote = (from: SwapAsset, to: SwapAsset, amount: number) =>
   });
 
 function SwapConfirmation({ from, to, amount, slippage }: SwapConfirmationProps) {
+  const fiat = useFiat();
   const { t } = useI18n();
   const toast = useToast();
   const [quote, setQuote] = useState<SwapQuote | null>(() => fetchQuote(from, to, amount));
@@ -264,6 +267,7 @@ function SwapLeg({
   amount: number;
   highlight?: boolean;
 }) {
+  const fiat = useFiat();
   return (
     <View className="flex-row items-center gap-3">
       <TokenNetworkIcon symbol={asset.symbol} networkId={asset.network.id} size={40} />

@@ -20,6 +20,7 @@ import { useNetworkFee } from '@/hooks/use-network-fee';
 import { useSupportedNetworks } from '@/hooks/use-supported-networks';
 import { useSendableAssets } from '@/hooks/use-sendable-assets';
 import { useWalletAccounts } from '@/hooks/use-wallet-accounts';
+import { useDisplayCurrency } from '@/hooks/use-settings';
 import { useI18n } from '@/i18n';
 import { validateRecipient } from '@/lib/address-validation';
 import { checkAmount, normalizeAmountInput } from '@/lib/amount';
@@ -27,16 +28,14 @@ import { contactNetworkStatus, findContactByAddress } from '@/lib/contacts';
 import { recognizeRecipient } from '@/lib/lookalike';
 import { parseScannedAddress } from '@/lib/payment-uri';
 import { colors } from '@/theme/colors';
-import type { Contact, FiatCurrency } from '@/types/wallet';
-
-/** Mata uang pendamping USD. Nanti diambil dari Pengaturan. */
-const DISPLAY_CURRENCY: FiatCurrency = 'IDR';
+import type { Contact } from '@/types/wallet';
 
 /**
  * Kirim Aset. Aset (koin + jaringan) terpilih disimpan di URL
  * (`/send?token=usdc-arbitrum`); default-nya saldo terbesar.
  */
 export default function SendScreen() {
+  const displayCurrency = useDisplayCurrency();
   const { t } = useI18n();
   const params = useLocalSearchParams<{ token?: string }>();
   const { assets, fxRates } = useSendableAssets();
@@ -146,7 +145,7 @@ export default function SendScreen() {
           <AssetSelector
             asset={selected}
             onPress={() => setPickerOpen(true)}
-            currency={DISPLAY_CURRENCY}
+            currency={displayCurrency}
             fxRates={fxRates}
             hidden={hidden}
           />
@@ -203,7 +202,7 @@ export default function SendScreen() {
               check={amountCheck}
               maxAmount={maxAmount}
               usdPrice={fee.priceOf(selected.symbol)}
-              currency={DISPLAY_CURRENCY}
+              currency={displayCurrency}
               fxRates={fxRates}
             />
           )}
@@ -246,7 +245,7 @@ export default function SendScreen() {
         assets={assets}
         selectedTokenId={selected?.tokenId ?? null}
         onSelect={(tokenId) => router.setParams({ token: tokenId })}
-        currency={DISPLAY_CURRENCY}
+        currency={displayCurrency}
         fxRates={fxRates}
         hidden={hidden}
       />

@@ -12,16 +12,14 @@ import { useToast } from '@/components/ui/toast';
 import { useSentTransfers } from '@/hooks/use-sent-transfers';
 import { useSupportedNetworks } from '@/hooks/use-supported-networks';
 import { useSimulatedTransactions } from '@/hooks/use-simulated-transactions';
+import { useDisplayCurrency } from '@/hooks/use-settings';
 import { useI18n } from '@/i18n';
 import { shortenAddress } from '@/lib/address';
 import { formatFiat, formatTime, formatTokenAmount } from '@/lib/format';
 import { explorerTxUrl } from '@/lib/sent-transfers';
 import { MOCK_FX_RATES } from '@/mocks/wallet';
 import { cardShadow, colors } from '@/theme/colors';
-import type { FiatCurrency } from '@/types/wallet';
 
-/** Mata uang pendamping USD. Nanti diambil dari Pengaturan. */
-const DISPLAY_CURRENCY: FiatCurrency = 'IDR';
 const monoFont = Platform.select({ ios: 'Menlo', default: 'monospace' });
 
 /** Balik ke Home: tutup semua layar Kirim supaya tidak bisa "kembali" ke konfirmasi. */
@@ -33,6 +31,7 @@ const sendAgain = () => {
 
 /** Status kiriman setelah disetujui: menunggu konfirmasi → terkirim. */
 export default function SendStatusScreen() {
+  const displayCurrency = useDisplayCurrency();
   const { t } = useI18n();
   const toast = useToast();
   const { id } = useLocalSearchParams<{ id?: string }>();
@@ -65,7 +64,7 @@ export default function SendStatusScreen() {
   }
 
   const confirmed = transfer.status === 'confirmed';
-  const fiat = (usd: number) => formatFiat(usd, DISPLAY_CURRENCY, MOCK_FX_RATES);
+  const fiat = (usd: number) => formatFiat(usd, displayCurrency, MOCK_FX_RATES);
   const amountLabel = `${formatTokenAmount(transfer.amount, transfer.isStablecoin)} ${transfer.symbol}`;
 
   const copyHash = async () => {
