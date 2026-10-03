@@ -287,6 +287,7 @@ export const id = {
     currencyChanged: (currency: string) => `Mata uang tampilan: ${currency}`,
     language: 'Bahasa',
     languageValue: { id: 'Indonesia', en: 'English' },
+    languageNative: { id: 'Bahasa Indonesia', en: 'Bahasa Inggris' },
     theme: 'Tema',
     themeValue: { light: 'Terang', dark: 'Gelap', system: 'Ikuti sistem' },
     autoLock: 'Kunci otomatis',

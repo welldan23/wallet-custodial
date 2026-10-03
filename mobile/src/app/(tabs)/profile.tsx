@@ -25,7 +25,7 @@ export default function ProfileScreen() {
   const toast = useToast();
   const { contacts } = useContacts();
   const { settings, updateSettings } = useSettings();
-  const [sheet, setSheet] = useState<'currency' | null>(null);
+  const [sheet, setSheet] = useState<'currency' | 'language' | null>(null);
   const { accounts, isDemo } = useWalletAccounts();
   const s = t.settings;
   const soon = () => toast({ title: t.common.comingSoon, message: s.soonMessage });
@@ -76,7 +76,7 @@ export default function ProfileScreen() {
           icon="language-outline"
           label={s.language}
           value={s.languageValue[settings.language]}
-          onPress={soon}
+          onPress={() => setSheet('language')}
         />
         <SettingsRow
           icon="contrast-outline"
@@ -153,6 +153,19 @@ export default function ProfileScreen() {
           updateSettings({ displayCurrency });
           toast({ variant: 'success', title: s.currencyChanged(s.currencyValue[displayCurrency]) });
         }}
+      />
+
+      <OptionSheet
+        visible={sheet === 'language'}
+        onClose={() => setSheet(null)}
+        title={s.language}
+        options={(['id', 'en'] as const).map((language) => ({
+          value: language,
+          label: s.languageValue[language],
+          hint: s.languageNative[language],
+        }))}
+        selected={settings.language}
+        onSelect={(language) => updateSettings({ language })}
       />
     </TabScreen>
   );

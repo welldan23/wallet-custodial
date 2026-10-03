@@ -295,6 +295,7 @@ export const en: Dictionary = {
     currencyChanged: (currency: string) => `Display currency: ${currency}`,
     language: 'Language',
     languageValue: { id: 'Indonesia', en: 'English' },
+    languageNative: { id: 'Indonesian', en: 'English' },
     theme: 'Theme',
     themeValue: { light: 'Light', dark: 'Dark', system: 'Follow system' },
     autoLock: 'Auto-lock',

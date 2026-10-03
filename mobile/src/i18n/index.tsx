@@ -1,4 +1,6 @@
-import { createContext, use, useState, type ReactNode } from 'react';
+import { createContext, use, useMemo, type ReactNode } from 'react';
+
+import { useSettings } from '@/hooks/use-settings';
 
 import { en } from './en';
 import { id, type Dictionary } from './id';
@@ -15,14 +17,19 @@ type I18nContextValue = {
 
 const I18nContext = createContext<I18nContextValue | null>(null);
 
-/** Bahasa default Indonesia; nanti bisa diganti dari halaman Pengaturan. */
+/** Bahasa dari Pengaturan (bawaan Indonesia); harus di dalam `SettingsProvider`. */
 export function I18nProvider({ children }: { children: ReactNode }) {
-  const [language, setLanguage] = useState<Language>('id');
-  return (
-    <I18nContext value={{ language, setLanguage, t: dictionaries[language] }}>
-      {children}
-    </I18nContext>
+  const { settings, updateSettings } = useSettings();
+  const language = settings.language;
+  const value = useMemo(
+    () => ({
+      language,
+      setLanguage: (next: Language) => updateSettings({ language: next }),
+      t: dictionaries[language],
+    }),
+    [language, updateSettings],
   );
+  return <I18nContext value={value}>{children}</I18nContext>;
 }
 
 export function useI18n() {
