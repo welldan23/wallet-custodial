@@ -20,13 +20,13 @@ import { useSupportedNetworks } from '@/hooks/use-supported-networks';
 import { useSimulatedTransactions } from '@/hooks/use-simulated-transactions';
 import { useWalletAccounts } from '@/hooks/use-wallet-accounts';
 import { useDisplayCurrency } from '@/hooks/use-settings';
+import { useFormat } from '@/hooks/use-format';
 import { useI18n } from '@/i18n';
 import { groupAddress } from '@/lib/address';
 import { validateRecipient } from '@/lib/address-validation';
 import { checkAmount } from '@/lib/amount';
 import { contactNetworkStatus, findContactByAddress } from '@/lib/contacts';
 import { authorizeSigning } from '@/lib/biometric';
-import { formatFiat, formatTokenAmount } from '@/lib/format';
 import { recognizeRecipient } from '@/lib/lookalike';
 import { buildSendQuote } from '@/lib/send-quote';
 import { cardShadow, colors } from '@/theme/colors';
@@ -38,6 +38,7 @@ const monoFont = Platform.select({ ios: 'Menlo', default: 'monospace' });
  * URL divalidasi ulang di sini — kalau tidak cocok, layar menolak lanjut.
  */
 export default function ConfirmSendScreen() {
+  const { formatFiat, formatTokenAmount } = useFormat();
   const displayCurrency = useDisplayCurrency();
   const { t } = useI18n();
   const toast = useToast();

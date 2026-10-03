@@ -3,9 +3,10 @@ import type { ComponentProps } from 'react';
 import { Pressable, Text, View } from 'react-native';
 
 import { NetworkIcon } from '@/components/crypto/network-icon';
+import { useFormat } from '@/hooks/use-format';
 import { useI18n } from '@/i18n';
 import { shortenAddress } from '@/lib/address';
-import { formatFiat, formatTime, formatTokenAmount, MASKED_VALUE } from '@/lib/format';
+import { formatTime, MASKED_VALUE } from '@/lib/format';
 import {
   historyAmounts,
   type HistoryAmountLine,
@@ -69,6 +70,7 @@ export function HistoryRow({
   isLast,
   onPress,
 }: HistoryRowProps) {
+  const { formatFiat, formatTokenAmount } = useFormat();
   const { t } = useI18n();
   const style = TYPE_STYLES[item.type];
   const failed = item.status === 'failed';

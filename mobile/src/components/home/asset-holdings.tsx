@@ -2,8 +2,9 @@ import { Text, View } from 'react-native';
 import Animated, { FadeIn } from 'react-native-reanimated';
 
 import { NetworkIcon } from '@/components/crypto/network-icon';
+import { useFormat } from '@/hooks/use-format';
 import { useI18n } from '@/i18n';
-import { formatFiat, formatPercent, formatTokenAmount, MASKED_VALUE } from '@/lib/format';
+import { formatPercent, MASKED_VALUE } from '@/lib/format';
 import type { PortfolioAsset } from '@/lib/portfolio';
 import type { FiatCurrency, FxRates } from '@/types/wallet';
 
@@ -18,6 +19,7 @@ const tabularNums = { fontVariant: ['tabular-nums' as const] };
 
 /** Rincian satu aset per jaringan: logo + nama jaringan, porsi, jumlah, dan nilai fiat. */
 export function AssetHoldings({ asset, currency, fxRates, hidden }: AssetHoldingsProps) {
+  const { formatFiat, formatTokenAmount } = useFormat();
   const { t } = useI18n();
 
   return (

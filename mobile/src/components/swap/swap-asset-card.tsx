@@ -4,8 +4,9 @@ import { Pressable, Text, TextInput, View } from 'react-native';
 import { NetworkIcon } from '@/components/crypto/network-icon';
 import { TokenNetworkIcon } from '@/components/crypto/token-network-icon';
 import type { SwapAsset } from '@/hooks/use-swap-assets';
+import { useFormat } from '@/hooks/use-format';
 import { useI18n } from '@/i18n';
-import { formatTokenAmount, MASKED_VALUE } from '@/lib/format';
+import { MASKED_VALUE } from '@/lib/format';
 import { cardShadow, colors } from '@/theme/colors';
 
 type SwapAssetCardProps = {
@@ -26,6 +27,7 @@ const tabularNums = { fontVariant: ['tabular-nums' as const] };
 
 /** Kartu "Dari" (bisa diketik) atau "Ke" (hasil perkiraan) di layar Swap. */
 export function SwapAssetCard(props: SwapAssetCardProps) {
+  const { formatTokenAmount } = useFormat();
   const { t } = useI18n();
   const { label, asset, hidden, caption, captionIsError, onPickAsset } = props;
   const balance = hidden ? MASKED_VALUE : formatTokenAmount(asset.balance, true);

@@ -6,8 +6,9 @@ import { NetworkIcon } from '@/components/crypto/network-icon';
 import { TokenIcon } from '@/components/crypto/token-icon';
 import { BottomSheet } from '@/components/ui/bottom-sheet';
 import type { SwapAsset } from '@/hooks/use-swap-assets';
+import { useFormat } from '@/hooks/use-format';
 import { useI18n } from '@/i18n';
-import { formatTokenAmount, MASKED_VALUE } from '@/lib/format';
+import { MASKED_VALUE } from '@/lib/format';
 import { colors } from '@/theme/colors';
 import type { NetworkId } from '@/types/wallet';
 
@@ -41,6 +42,7 @@ export function SwapAssetPickerSheet({
   hidden,
   onSelect,
 }: SwapAssetPickerSheetProps) {
+  const { formatTokenAmount } = useFormat();
   const { t } = useI18n();
   const symbols = [...new Set(assets.map((asset) => asset.symbol))].sort();
   // Mulai dari koin yang sedang terpilih; induk memberi `key` per sisi

@@ -3,8 +3,8 @@ import { ActivityIndicator, Pressable, Text, View } from 'react-native';
 
 import { ConfirmRow } from '@/components/send/confirm-row';
 import type { SwapAsset } from '@/hooks/use-swap-assets';
+import { useFormat } from '@/hooks/use-format';
 import { useI18n } from '@/i18n';
-import { formatNumber, formatTokenAmount } from '@/lib/format';
 import { minReceived } from '@/lib/slippage';
 import type { SwapQuote } from '@/mocks/swap';
 import { cardShadow, colors } from '@/theme/colors';
@@ -38,6 +38,7 @@ export function SwapDetailsCard({
   slippage,
   onEditSlippage,
 }: SwapDetailsCardProps) {
+  const { formatNumber, formatTokenAmount } = useFormat();
   const { t } = useI18n();
 
   if (loading || !quote) {

@@ -4,8 +4,9 @@ import { Pressable, Text, View } from 'react-native';
 import { NetworkIcon } from '@/components/crypto/network-icon';
 import { TokenNetworkIcon } from '@/components/crypto/token-network-icon';
 import type { SendableAsset } from '@/hooks/use-sendable-assets';
+import { useFormat } from '@/hooks/use-format';
 import { useI18n } from '@/i18n';
-import { formatFiat, formatTokenAmount, MASKED_VALUE } from '@/lib/format';
+import { MASKED_VALUE } from '@/lib/format';
 import { cardShadow, colors } from '@/theme/colors';
 import type { FiatCurrency, FxRates } from '@/types/wallet';
 
@@ -19,6 +20,7 @@ type AssetSelectorProps = {
 
 /** Kartu aset terpilih (koin + jaringan + saldo); ketuk untuk ganti. */
 export function AssetSelector({ asset, onPress, currency, fxRates, hidden }: AssetSelectorProps) {
+  const { formatFiat, formatTokenAmount } = useFormat();
   const { t } = useI18n();
   const balance = hidden ? MASKED_VALUE : formatTokenAmount(asset.amount, asset.isStablecoin);
 

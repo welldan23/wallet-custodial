@@ -13,10 +13,11 @@ import { useGasSummary } from '@/hooks/use-gas-summary';
 import { usePortfolio } from '@/hooks/use-portfolio';
 import { useActivity, type ActivityItem } from '@/hooks/use-activity';
 import { useDisplayCurrency } from '@/hooks/use-settings';
+import { useFormat } from '@/hooks/use-format';
 import { useI18n } from '@/i18n';
 import type { Dictionary } from '@/i18n/id';
 import { shortenAddress } from '@/lib/address';
-import { formatTokenAmount, MASKED_VALUE } from '@/lib/format';
+import { MASKED_VALUE, type Formatter } from '@/lib/format';
 import type { Network, NetworkId } from '@/types/wallet';
 
 const QUICK_ACTION_ROUTES: Record<QuickAction, Href> = {
@@ -46,6 +47,7 @@ function describeActivity(
   t: Dictionary,
   networkName: (id: NetworkId) => string,
   hidden: boolean,
+  formatTokenAmount: Formatter['formatTokenAmount'],
 ) {
   const confirmed = item.status === 'confirmed';
   if (item.kind === 'swap') {
@@ -75,6 +77,7 @@ function describeActivity(
 export default function HomeScreen() {
   const { t } = useI18n();
   const displayCurrency = useDisplayCurrency();
+  const { formatTokenAmount } = useFormat();
   const { portfolio, networks, fxRates, pricesUpdatedAt } = usePortfolio();
   const gas = useGasSummary();
   const { hidden: balanceHidden, toggleHidden } = useBalanceVisibility();
@@ -85,7 +88,8 @@ export default function HomeScreen() {
   const latest = activity[0];
   const networkName = (id: NetworkId) =>
     networks.find((network: Network) => network.id === id)?.name ?? id;
-  const latestText = latest && describeActivity(latest, t, networkName, balanceHidden);
+  const latestText =
+    latest && describeActivity(latest, t, networkName, balanceHidden, formatTokenAmount);
 
   return (
     <TabScreen active="home">

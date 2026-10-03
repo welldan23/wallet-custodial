@@ -14,9 +14,9 @@ import { defaultSwapPair, useSwapAssets, type SwapAsset } from '@/hooks/use-swap
 import { useSwapGas, useSwapQuote } from '@/hooks/use-swap-quote';
 import { useSimulatedTransactions } from '@/hooks/use-simulated-transactions';
 import { useDisplayCurrency } from '@/hooks/use-settings';
+import { useFormat } from '@/hooks/use-format';
 import { useI18n } from '@/i18n';
 import { checkAmount, formatAmountForInput } from '@/lib/amount';
-import { formatFiat, formatTokenAmount } from '@/lib/format';
 import { DEFAULT_SLIPPAGE } from '@/lib/slippage';
 import { MOCK_FX_RATES } from '@/mocks/wallet';
 import { cardShadow, colors } from '@/theme/colors';
@@ -81,6 +81,7 @@ function SwapForm({
   setFromId,
   setToId,
 }: SwapFormProps) {
+  const { formatFiat, formatTokenAmount, locale } = useFormat();
   const displayCurrency = useDisplayCurrency();
   const { t } = useI18n();
   const isDemo = useSimulatedTransactions();
@@ -135,7 +136,7 @@ function SwapForm({
           editable
           value={amountInput}
           onChange={setAmountInput}
-          onMax={() => setAmountInput(formatAmountForInput(from.balance, from.decimals))}
+          onMax={() => setAmountInput(formatAmountForInput(from.balance, from.decimals, locale))}
           caption={
             check.status === 'invalid'
               ? t.send.amountError[check.reason]

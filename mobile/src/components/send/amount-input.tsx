@@ -1,9 +1,9 @@
 import { Pressable, Text, TextInput, View } from 'react-native';
 
 import type { SendableAsset } from '@/hooks/use-sendable-assets';
+import { useFormat } from '@/hooks/use-format';
 import { useI18n } from '@/i18n';
 import { formatAmountForInput, normalizeAmountInput, type AmountCheck } from '@/lib/amount';
-import { formatFiat } from '@/lib/format';
 import { cardShadow, colors } from '@/theme/colors';
 import type { FiatCurrency, FxRates } from '@/types/wallet';
 
@@ -30,6 +30,7 @@ export function AmountInput({
   currency,
   fxRates,
 }: AmountInputProps) {
+  const { formatFiat, locale } = useFormat();
   const { t } = useI18n();
   const parsed = Number(normalizeAmountInput(value));
   const fiat = Number.isFinite(parsed) ? formatFiat(parsed * usdPrice, currency, fxRates) : '—';
@@ -55,7 +56,7 @@ export function AmountInput({
         />
         <Text className="text-base font-bold text-ink-soft">{asset.symbol}</Text>
         <Pressable
-          onPress={() => onChange(formatAmountForInput(maxAmount, asset.decimals))}
+          onPress={() => onChange(formatAmountForInput(maxAmount, asset.decimals, locale))}
           accessibilityRole="button"
           accessibilityLabel={t.send.maxLabel}
           className="rounded-full bg-primary-50 px-3 py-1.5 active:opacity-70">

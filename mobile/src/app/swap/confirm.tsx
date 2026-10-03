@@ -14,9 +14,9 @@ import { useSwapGas } from '@/hooks/use-swap-quote';
 import { useSwaps } from '@/hooks/use-swaps';
 import { useSimulatedTransactions } from '@/hooks/use-simulated-transactions';
 import { useDisplayCurrency } from '@/hooks/use-settings';
+import { useFormat } from '@/hooks/use-format';
 import { useI18n } from '@/i18n';
 import { checkAmount } from '@/lib/amount';
-import { formatFiat, formatTokenAmount } from '@/lib/format';
 import { authorizeSigning } from '@/lib/biometric';
 import { checkSlippage, minReceived } from '@/lib/slippage';
 import { getMockSwapQuote, type SwapQuote } from '@/mocks/swap';
@@ -28,6 +28,7 @@ const QUOTE_TTL_SECONDS = 30;
 
 /** Format USD ke mata uang tampilan dari Pengaturan. */
 function useFiat() {
+  const { formatFiat } = useFormat();
   const displayCurrency = useDisplayCurrency();
   return (usd: number) => formatFiat(usd, displayCurrency, MOCK_FX_RATES);
 }
@@ -96,6 +97,7 @@ const fetchQuote = (from: SwapAsset, to: SwapAsset, amount: number) =>
   });
 
 function SwapConfirmation({ from, to, amount, slippage }: SwapConfirmationProps) {
+  const { formatTokenAmount } = useFormat();
   const fiat = useFiat();
   const { t } = useI18n();
   const toast = useToast();
@@ -267,6 +269,7 @@ function SwapLeg({
   amount: number;
   highlight?: boolean;
 }) {
+  const { formatTokenAmount } = useFormat();
   const fiat = useFiat();
   return (
     <View className="flex-row items-center gap-3">

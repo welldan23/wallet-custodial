@@ -4,8 +4,9 @@ import { Pressable, Text, View } from 'react-native';
 
 import { NetworkBadges } from '@/components/crypto/network-badges';
 import { TokenIcon } from '@/components/crypto/token-icon';
+import { useFormat } from '@/hooks/use-format';
 import { useI18n } from '@/i18n';
-import { formatFiat, formatTokenAmount, MASKED_VALUE } from '@/lib/format';
+import { MASKED_VALUE } from '@/lib/format';
 import type { PortfolioAsset } from '@/lib/portfolio';
 import { colors } from '@/theme/colors';
 import type { FiatCurrency, FxRates } from '@/types/wallet';
@@ -27,6 +28,7 @@ const tabularNums = { fontVariant: ['tabular-nums' as const] };
  * Ketuk baris untuk membuka rincian saldo per jaringan.
  */
 export function AssetRow({ asset, currency, fxRates, hidden, isLast }: AssetRowProps) {
+  const { formatFiat, formatTokenAmount } = useFormat();
   const { t } = useI18n();
   const [expanded, setExpanded] = useState(false);
   const networks = asset.holdings.map((holding) => holding.network);

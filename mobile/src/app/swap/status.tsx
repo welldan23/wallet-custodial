@@ -13,9 +13,10 @@ import { useSupportedNetworks } from '@/hooks/use-supported-networks';
 import { useSwaps } from '@/hooks/use-swaps';
 import { useSimulatedTransactions } from '@/hooks/use-simulated-transactions';
 import { useDisplayCurrency } from '@/hooks/use-settings';
+import { useFormat } from '@/hooks/use-format';
 import { useI18n } from '@/i18n';
 import { shortenAddress } from '@/lib/address';
-import { formatFiat, formatTime, formatTokenAmount } from '@/lib/format';
+import { formatTime } from '@/lib/format';
 import { explorerTxUrl } from '@/lib/sent-transfers';
 import { MOCK_FX_RATES } from '@/mocks/wallet';
 import { cardShadow, colors } from '@/theme/colors';
@@ -32,6 +33,7 @@ const swapAgain = () => {
 
 /** Status swap setelah disetujui: diproses → berhasil. */
 export default function SwapStatusScreen() {
+  const { formatFiat, formatTokenAmount } = useFormat();
   const displayCurrency = useDisplayCurrency();
   const { t } = useI18n();
   const toast = useToast();
@@ -219,6 +221,7 @@ function Leg({
   amount: number;
   highlight?: boolean;
 }) {
+  const { formatTokenAmount } = useFormat();
   return (
     <View className="flex-row items-center gap-3">
       <TokenNetworkIcon symbol={symbol} networkId={network.id} size={34} />

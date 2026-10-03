@@ -10,8 +10,8 @@ import { useBalanceVisibility } from '@/hooks/use-balance-visibility';
 import { useHistory } from '@/hooks/use-history';
 import { useSupportedNetworks } from '@/hooks/use-supported-networks';
 import { useDisplayCurrency } from '@/hooks/use-settings';
+import { useFormat } from '@/hooks/use-format';
 import { useI18n } from '@/i18n';
-import { formatFiat } from '@/lib/format';
 import {
   availableMonths,
   daysAgo,
@@ -26,6 +26,7 @@ import type { NetworkId } from '@/types/wallet';
 
 /** Riwayat: semua kirim, terima, dan swap, dikelompokkan per hari. */
 export default function HistoryScreen() {
+  const { formatFiat } = useFormat();
   const { t } = useI18n();
   const displayCurrency = useDisplayCurrency();
   const history = useHistory();

@@ -38,11 +38,17 @@ export function checkAmount(input: string, balance: number, tokenDecimals: numbe
 
 /**
  * Angka untuk diisi ke kolom (mis. tombol Maks): dibulatkan KE BAWAH supaya
- * tidak pernah melebihi saldo, tanpa pemisah ribuan.
+ * tidak pernah melebihi saldo, tanpa pemisah ribuan. Bahasa Indonesia memakai
+ * koma desimal (`12,5`); `normalizeAmountInput` menerima keduanya.
  */
-export function formatAmountForInput(value: number, decimals: number): string {
+export function formatAmountForInput(
+  value: number,
+  decimals: number,
+  locale: 'id' | 'en' = 'en',
+): string {
   const places = Math.min(decimals, 6);
   const factor = 10 ** places;
   const floored = Math.floor(Math.max(0, value) * factor + 1e-9) / factor;
-  return floored.toFixed(places).replace(/\.?0+$/, '') || '0';
+  const text = floored.toFixed(places).replace(/\.?0+$/, '') || '0';
+  return locale === 'id' ? text.replace('.', ',') : text;
 }

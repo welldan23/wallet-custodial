@@ -5,8 +5,9 @@ import { Pressable, ScrollView, Text, TextInput, View } from 'react-native';
 import { TokenNetworkIcon } from '@/components/crypto/token-network-icon';
 import { BottomSheet } from '@/components/ui/bottom-sheet';
 import type { SendableAsset } from '@/hooks/use-sendable-assets';
+import { useFormat } from '@/hooks/use-format';
 import { useI18n } from '@/i18n';
-import { formatFiat, formatTokenAmount, MASKED_VALUE } from '@/lib/format';
+import { MASKED_VALUE } from '@/lib/format';
 import { colors } from '@/theme/colors';
 import type { FiatCurrency, FxRates } from '@/types/wallet';
 
@@ -41,6 +42,7 @@ export function AssetPickerSheet({
   fxRates,
   hidden,
 }: AssetPickerSheetProps) {
+  const { formatFiat, formatTokenAmount } = useFormat();
   const { t } = useI18n();
   const [query, setQuery] = useState('');
   const filtered = assets.filter((asset) => matchesAssetQuery(asset, query));

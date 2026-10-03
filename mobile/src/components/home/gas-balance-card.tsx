@@ -2,8 +2,9 @@ import Ionicons from '@expo/vector-icons/Ionicons';
 import { Pressable, Text, View } from 'react-native';
 
 import { NetworkIcon } from '@/components/crypto/network-icon';
+import { useFormat } from '@/hooks/use-format';
 import { useI18n } from '@/i18n';
-import { formatFiat, formatTokenAmount, formatUsd, MASKED_VALUE } from '@/lib/format';
+import { MASKED_VALUE } from '@/lib/format';
 import type { ChainGas, GasStatus, GasSummary } from '@/lib/gas';
 import { cardShadow, colors } from '@/theme/colors';
 import type { FiatCurrency, FxRates, NetworkId } from '@/types/wallet';
@@ -36,6 +37,7 @@ export function GasBalanceCard({
   hidden,
   onTopUp,
 }: GasBalanceCardProps) {
+  const { formatFiat, formatUsd } = useFormat();
   const { t } = useI18n();
   const attention = summary.needsTopUp;
 
@@ -94,6 +96,7 @@ type GasChainRowProps = {
 };
 
 function GasChainRow({ chain, hidden, isLast, onTopUp }: GasChainRowProps) {
+  const { formatTokenAmount } = useFormat();
   const { t } = useI18n();
   const style = STATUS_STYLES[chain.status];
   const statusLabel = t.gas.status[chain.status];

@@ -1,8 +1,9 @@
 import Ionicons from '@expo/vector-icons/Ionicons';
 import { Pressable, Text, View } from 'react-native';
 
+import { useFormat } from '@/hooks/use-format';
 import { useI18n } from '@/i18n';
-import { formatFiat, formatTime, formatUsd, formatUsdNumber, MASKED_VALUE } from '@/lib/format';
+import { formatTime, MASKED_VALUE } from '@/lib/format';
 import { cardShadow, colors } from '@/theme/colors';
 import type { FiatCurrency, FxRates } from '@/types/wallet';
 
@@ -31,6 +32,7 @@ export function BalanceCard({
   onToggleHidden,
   onPressDetail,
 }: BalanceCardProps) {
+  const { formatFiat, formatUsd, formatUsdNumber } = useFormat();
   const { t } = useI18n();
   const showConversion = currency !== 'USD';
   const convertedTotal = showConversion ? formatFiat(totalUsd, currency, fxRates) : undefined;

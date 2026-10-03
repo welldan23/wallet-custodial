@@ -7,9 +7,10 @@ import { TokenNetworkIcon } from '@/components/crypto/token-network-icon';
 import { ConfirmRow } from '@/components/send/confirm-row';
 import { useToast } from '@/components/ui/toast';
 import { useCopy } from '@/hooks/use-copy';
+import { useFormat } from '@/hooks/use-format';
 import { useI18n } from '@/i18n';
 import { groupAddress, shortenAddress } from '@/lib/address';
-import { formatFiat, formatTime, formatTokenAmount, MASKED_VALUE } from '@/lib/format';
+import { formatTime, MASKED_VALUE } from '@/lib/format';
 import { historyAmounts, localDay, type HistoryItem, type HistoryStatus } from '@/lib/history';
 import { explorerTxUrl } from '@/lib/sent-transfers';
 import { cardShadow, colors } from '@/theme/colors';
@@ -64,6 +65,7 @@ export function TransactionDetail({
   hidden,
   isDemo,
 }: TransactionDetailProps) {
+  const { formatFiat, formatTokenAmount } = useFormat();
   const { t } = useI18n();
   const toast = useToast();
   const copy = useCopy();

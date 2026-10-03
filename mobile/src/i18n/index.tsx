@@ -37,3 +37,8 @@ export function useI18n() {
   if (!value) throw new Error('useI18n harus dipakai di dalam <I18nProvider>');
   return value;
 }
+
+/** Kamus untuk kode di luar komponen React (mis. teks notifikasi). */
+export function getDictionary(language: Language): Dictionary {
+  return dictionaries[language];
+}

@@ -11,9 +11,9 @@ import { useToast } from '@/components/ui/toast';
 import { useContacts } from '@/hooks/use-contacts';
 import { useSettings } from '@/hooks/use-settings';
 import { useWalletAccounts } from '@/hooks/use-wallet-accounts';
+import { useFormat } from '@/hooks/use-format';
 import { useI18n } from '@/i18n';
 import { shortenAddress } from '@/lib/address';
-import { formatFiat } from '@/lib/format';
 import { MOCK_FX_RATES } from '@/mocks/wallet';
 import { cardShadow, colors } from '@/theme/colors';
 
@@ -21,6 +21,7 @@ const monoFont = Platform.select({ ios: 'Menlo', default: 'monospace' });
 
 /** Profil & Pengaturan: wallet, preferensi tampilan, keamanan, dan Buku Alamat. */
 export default function ProfileScreen() {
+  const { formatFiat } = useFormat();
   const { t } = useI18n();
   const toast = useToast();
   const { contacts } = useContacts();
