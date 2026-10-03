@@ -3,12 +3,13 @@ import { Platform, Pressable, Text, View } from 'react-native';
 
 import { useI18n } from '@/i18n';
 import { differingIndexes, type LookalikeMatch } from '@/lib/lookalike';
-import { colors } from '@/theme/colors';
+import { useThemeColors } from '@/hooks/use-theme';
 
 const monoFont = Platform.select({ ios: 'Menlo', default: 'monospace' });
 
 /** Alamat dengan karakter yang berbeda dari pembanding ditandai merah. */
 function DiffAddress({ address, other, label }: { address: string; other: string; label: string }) {
+  const colors = useThemeColors();
   const diff = differingIndexes(address, other);
   return (
     <View className="gap-0.5">
@@ -46,6 +47,7 @@ export function LookalikeWarning({
   acknowledged,
   onAcknowledge,
 }: LookalikeWarningProps) {
+  const colors = useThemeColors();
   const { t } = useI18n();
 
   return (
@@ -97,6 +99,7 @@ export function LookalikeWarning({
 
 /** Info positif: alamat persis sama dengan kontak/penerima sebelumnya. */
 export function KnownRecipientNote({ label }: { label: string }) {
+  const colors = useThemeColors();
   const { t } = useI18n();
   return (
     <View className="flex-row items-center gap-1.5 px-1">

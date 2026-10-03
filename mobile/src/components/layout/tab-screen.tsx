@@ -3,7 +3,8 @@ import type { ReactNode } from 'react';
 import { ScrollView, StyleSheet, Text, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
-import { headerGradient, sheetGradient } from '@/theme/colors';
+import { useThemeColors } from '@/hooks/use-theme';
+import { themeGradients } from '@/theme/colors';
 
 import { TopNavPills, type TopNavKey } from './top-nav-pills';
 
@@ -20,12 +21,14 @@ type TabScreenProps = {
  * bersudut melengkung yang bisa di-scroll.
  */
 export function TabScreen({ active, title, children }: TabScreenProps) {
+  const colors = useThemeColors();
+  const gradients = themeGradients(colors);
   const insets = useSafeAreaInsets();
 
   return (
     <View className="flex-1 bg-teal-300">
       <LinearGradient
-        colors={headerGradient}
+        colors={gradients.header}
         start={{ x: 0, y: 0 }}
         end={{ x: 1, y: 1 }}
         pointerEvents="none"
@@ -40,7 +43,7 @@ export function TabScreen({ active, title, children }: TabScreenProps) {
 
       <View className="flex-1 overflow-hidden rounded-t-[28px] bg-canvas">
         <LinearGradient
-          colors={sheetGradient}
+          colors={gradients.sheet}
           pointerEvents="none"
           style={[StyleSheet.absoluteFill, { height: 360 }]}
         />

@@ -5,7 +5,7 @@ import { NetworkIcon } from '@/components/crypto/network-icon';
 import { useI18n } from '@/i18n';
 import { shortenAddress } from '@/lib/address';
 import { avatarColorIndex, chainTypeOfAddress, contactInitials } from '@/lib/contacts';
-import { colors } from '@/theme/colors';
+import { useThemeColors } from '@/hooks/use-theme';
 import type { Contact, Network } from '@/types/wallet';
 
 const monoFont = Platform.select({ ios: 'Menlo', default: 'monospace' });
@@ -30,6 +30,7 @@ export function ContactRow({
   isLast: boolean;
   onPress?: () => void;
 }) {
+  const colors = useThemeColors();
   const { t } = useI18n();
   const chainType = chainTypeOfAddress(contact.address);
   const networkLabel = network ? network.name : t.contacts.allNetworks[chainType];

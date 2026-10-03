@@ -2,8 +2,11 @@ import { Pressable, View } from 'react-native';
 import QRCode from 'react-native-qrcode-svg';
 
 import { NetworkIcon } from '@/components/crypto/network-icon';
-import { colors } from '@/theme/colors';
+import { lightColors } from '@/theme/colors';
 import type { NetworkId } from '@/types/wallet';
+
+const QR_DARK = lightColors.ink.DEFAULT;
+const QR_LIGHT = lightColors.white;
 
 type AddressQrProps = {
   /** Isi QR: alamat polos supaya terbaca semua wallet & exchange. */
@@ -32,21 +35,17 @@ export function AddressQr({
     <Pressable
       onPress={onPress}
       disabled={!onPress}
-      className="items-center justify-center rounded-3xl border border-line bg-surface p-3 active:opacity-80"
+      // QR selalu gelap di atas putih (juga di mode gelap) supaya kamera mana pun bisa membacanya.
+      className="items-center justify-center rounded-3xl border border-line p-3 active:opacity-80"
+      style={{ backgroundColor: QR_LIGHT }}
       accessible
       accessibilityRole={onPress ? 'button' : 'image'}
       accessibilityLabel={accessibilityLabel}>
-      <QRCode
-        value={address}
-        size={size}
-        ecl="H"
-        color={colors.ink.DEFAULT}
-        backgroundColor={colors.surface}
-      />
+      <QRCode value={address} size={size} ecl="H" color={QR_DARK} backgroundColor={QR_LIGHT} />
       <View
         pointerEvents="none"
-        className="absolute items-center justify-center rounded-full bg-surface"
-        style={{ width: logoSize + 8, height: logoSize + 8 }}>
+        className="absolute items-center justify-center rounded-full"
+        style={{ width: logoSize + 8, height: logoSize + 8, backgroundColor: QR_LIGHT }}>
         <NetworkIcon networkId={networkId} size={logoSize} />
       </View>
     </Pressable>

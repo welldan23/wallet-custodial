@@ -21,6 +21,7 @@ import { useSimulatedTransactions } from '@/hooks/use-simulated-transactions';
 import { useWalletAccounts } from '@/hooks/use-wallet-accounts';
 import { useDisplayCurrency } from '@/hooks/use-settings';
 import { useFormat } from '@/hooks/use-format';
+import { useThemeColors } from '@/hooks/use-theme';
 import { useI18n } from '@/i18n';
 import { groupAddress } from '@/lib/address';
 import { validateRecipient } from '@/lib/address-validation';
@@ -29,7 +30,7 @@ import { contactNetworkStatus, findContactByAddress } from '@/lib/contacts';
 import { authorizeSigning } from '@/lib/biometric';
 import { recognizeRecipient } from '@/lib/lookalike';
 import { buildSendQuote } from '@/lib/send-quote';
-import { cardShadow, colors } from '@/theme/colors';
+import { cardShadow } from '@/theme/colors';
 
 const monoFont = Platform.select({ ios: 'Menlo', default: 'monospace' });
 
@@ -38,6 +39,7 @@ const monoFont = Platform.select({ ios: 'Menlo', default: 'monospace' });
  * URL divalidasi ulang di sini — kalau tidak cocok, layar menolak lanjut.
  */
 export default function ConfirmSendScreen() {
+  const colors = useThemeColors();
   const { formatFiat, formatTokenAmount } = useFormat();
   const displayCurrency = useDisplayCurrency();
   const { t } = useI18n();
@@ -253,11 +255,7 @@ export default function ConfirmSendScreen() {
         className={`flex-row items-center justify-center gap-2 rounded-full py-4 ${
           canSign ? 'bg-primary-500 active:opacity-80' : 'bg-line'
         }`}>
-        <Ionicons
-          name="finger-print"
-          size={20}
-          color={canSign ? colors.surface : colors.ink.faint}
-        />
+        <Ionicons name="finger-print" size={20} color={canSign ? colors.white : colors.ink.faint} />
         <Text className={`text-base font-semibold ${canSign ? 'text-white' : 'text-ink-faint'}`}>
           {authorizing ? t.send.authorizing : t.send.confirmSend}
         </Text>

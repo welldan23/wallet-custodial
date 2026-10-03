@@ -4,7 +4,7 @@ import { Text, View } from 'react-native';
 import Animated, { FadeInDown, FadeOutDown } from 'react-native-reanimated';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
-import { colors } from '@/theme/colors';
+import { useThemeColors } from '@/hooks/use-theme';
 
 export type ToastOptions = {
   title: string;
@@ -20,6 +20,7 @@ const ToastContext = createContext<((options: ToastOptions) => void) | null>(nul
 
 /** Notifikasi singkat di bawah layar. Toast baru menggantikan yang lama. */
 export function ToastProvider({ children }: { children: ReactNode }) {
+  const colors = useThemeColors();
   const insets = useSafeAreaInsets();
   const [toast, setToast] = useState<ToastState | null>(null);
   const nextId = useRef(0);

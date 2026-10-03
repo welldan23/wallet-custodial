@@ -19,7 +19,8 @@ import {
   type ContactScope,
 } from '@/lib/contact-form';
 import { parseScannedAddress } from '@/lib/payment-uri';
-import { cardShadow, colors } from '@/theme/colors';
+import { useThemeColors } from '@/hooks/use-theme';
+import { cardShadow } from '@/theme/colors';
 import type { Contact } from '@/types/wallet';
 
 const monoFont = Platform.select({ ios: 'Menlo', default: 'monospace' });
@@ -43,6 +44,7 @@ export function ContactForm({
   onSubmit,
   footer,
 }: ContactFormProps) {
+  const colors = useThemeColors();
   const { t } = useI18n();
   const toast = useToast();
   const { contacts } = useContacts();
@@ -239,7 +241,7 @@ export function ContactForm({
           onValueChange={setIsFavorite}
           accessibilityLabel={t.contacts.form.favoriteLabel}
           trackColor={{ true: colors.primary[500], false: colors.line }}
-          thumbColor={colors.surface}
+          thumbColor={colors.white}
         />
       </View>
 
@@ -277,6 +279,7 @@ type AddressFeedbackProps = {
 };
 
 function AddressFeedback({ check, networkName, showEmpty }: AddressFeedbackProps) {
+  const colors = useThemeColors();
   const { t } = useI18n();
   const form = t.contacts.form;
   if (check.status === 'empty' && !showEmpty) return null;

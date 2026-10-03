@@ -21,13 +21,13 @@ import { useSupportedNetworks } from '@/hooks/use-supported-networks';
 import { useSendableAssets } from '@/hooks/use-sendable-assets';
 import { useWalletAccounts } from '@/hooks/use-wallet-accounts';
 import { useDisplayCurrency } from '@/hooks/use-settings';
+import { useThemeColors } from '@/hooks/use-theme';
 import { useI18n } from '@/i18n';
 import { validateRecipient } from '@/lib/address-validation';
 import { checkAmount, normalizeAmountInput } from '@/lib/amount';
 import { contactNetworkStatus, findContactByAddress } from '@/lib/contacts';
 import { recognizeRecipient } from '@/lib/lookalike';
 import { parseScannedAddress } from '@/lib/payment-uri';
-import { colors } from '@/theme/colors';
 import type { Contact } from '@/types/wallet';
 
 /**
@@ -35,6 +35,7 @@ import type { Contact } from '@/types/wallet';
  * (`/send?token=usdc-arbitrum`); default-nya saldo terbesar.
  */
 export default function SendScreen() {
+  const colors = useThemeColors();
   const displayCurrency = useDisplayCurrency();
   const { t } = useI18n();
   const params = useLocalSearchParams<{ token?: string }>();

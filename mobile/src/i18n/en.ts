@@ -298,6 +298,11 @@ export const en: Dictionary = {
     languageNative: { id: 'Indonesian', en: 'English' },
     theme: 'Theme',
     themeValue: { light: 'Light', dark: 'Dark', system: 'Follow system' },
+    themeHint: {
+      light: 'White background, good in bright places.',
+      dark: 'Dark background, easier on the eyes at night.',
+      system: "Follows your phone's display setting.",
+    },
     autoLock: 'Auto-lock',
     autoLockValue: (minutes: number) => (minutes === 0 ? 'Immediately' : `After ${minutes} min`),
     biometricSigning: 'Biometrics when sending',

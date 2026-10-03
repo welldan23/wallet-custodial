@@ -3,7 +3,8 @@ import { Pressable, Text, View } from 'react-native';
 
 import { useI18n } from '@/i18n';
 import type { PortfolioAsset } from '@/lib/portfolio';
-import { cardShadow, colors } from '@/theme/colors';
+import { useThemeColors } from '@/hooks/use-theme';
+import { cardShadow } from '@/theme/colors';
 import type { FiatCurrency, FxRates } from '@/types/wallet';
 
 import { AssetRow } from './asset-row';
@@ -32,6 +33,7 @@ export function AssetSection({
   emptyText,
   onSeeAll,
 }: AssetSectionProps) {
+  const colors = useThemeColors();
   const { t } = useI18n();
 
   return (

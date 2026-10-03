@@ -15,13 +15,14 @@ import { useSwaps } from '@/hooks/use-swaps';
 import { useSimulatedTransactions } from '@/hooks/use-simulated-transactions';
 import { useDisplayCurrency } from '@/hooks/use-settings';
 import { useFormat } from '@/hooks/use-format';
+import { useThemeColors } from '@/hooks/use-theme';
 import { useI18n } from '@/i18n';
 import { checkAmount } from '@/lib/amount';
 import { authorizeSigning } from '@/lib/biometric';
 import { checkSlippage, minReceived } from '@/lib/slippage';
 import { getMockSwapQuote, type SwapQuote } from '@/mocks/swap';
 import { MOCK_FX_RATES } from '@/mocks/wallet';
-import { cardShadow, colors } from '@/theme/colors';
+import { cardShadow } from '@/theme/colors';
 
 /** Kurs dari agregator cuma berlaku sebentar; setelah itu wajib diperbarui. */
 const QUOTE_TTL_SECONDS = 30;
@@ -38,6 +39,7 @@ function useFiat() {
  * divalidasi ulang di sini; kurs kedaluwarsa setelah 30 detik.
  */
 export default function ConfirmSwapScreen() {
+  const colors = useThemeColors();
   const { t } = useI18n();
   const params = useLocalSearchParams<{
     from?: string;
@@ -97,6 +99,7 @@ const fetchQuote = (from: SwapAsset, to: SwapAsset, amount: number) =>
   });
 
 function SwapConfirmation({ from, to, amount, slippage }: SwapConfirmationProps) {
+  const colors = useThemeColors();
   const { formatTokenAmount } = useFormat();
   const fiat = useFiat();
   const { t } = useI18n();
@@ -241,7 +244,7 @@ function SwapConfirmation({ from, to, amount, slippage }: SwapConfirmationProps)
         <Ionicons
           name="finger-print"
           size={20}
-          color={canConfirm ? colors.surface : colors.ink.faint}
+          color={canConfirm ? colors.white : colors.ink.faint}
         />
         <Text className={`text-base font-semibold ${canConfirm ? 'text-white' : 'text-ink-faint'}`}>
           {authorizing ? t.send.authorizing : t.swap.confirmSwap}

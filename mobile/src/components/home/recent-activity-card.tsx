@@ -2,7 +2,8 @@ import Ionicons from '@expo/vector-icons/Ionicons';
 import { ActivityIndicator, Pressable, Text, View } from 'react-native';
 
 import { useI18n } from '@/i18n';
-import { cardShadow, colors } from '@/theme/colors';
+import { useThemeColors } from '@/hooks/use-theme';
+import { cardShadow } from '@/theme/colors';
 
 type RecentActivityCardProps = {
   confirmed: boolean;
@@ -20,6 +21,7 @@ export function RecentActivityCard({
   onOpen,
   onDismiss,
 }: RecentActivityCardProps) {
+  const colors = useThemeColors();
   const { t } = useI18n();
 
   return (

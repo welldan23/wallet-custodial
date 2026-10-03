@@ -290,6 +290,11 @@ export const id = {
     languageNative: { id: 'Bahasa Indonesia', en: 'Bahasa Inggris' },
     theme: 'Tema',
     themeValue: { light: 'Terang', dark: 'Gelap', system: 'Ikuti sistem' },
+    themeHint: {
+      light: 'Latar putih, cocok di tempat terang.',
+      dark: 'Latar gelap, nyaman di mata saat malam.',
+      system: 'Ikut pengaturan tampilan HP kamu.',
+    },
     autoLock: 'Kunci otomatis',
     autoLockValue: (minutes: number) => (minutes === 0 ? 'Langsung' : `Setelah ${minutes} menit`),
     biometricSigning: 'Biometrik saat kirim',

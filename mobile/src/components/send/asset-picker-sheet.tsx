@@ -8,7 +8,7 @@ import type { SendableAsset } from '@/hooks/use-sendable-assets';
 import { useFormat } from '@/hooks/use-format';
 import { useI18n } from '@/i18n';
 import { MASKED_VALUE } from '@/lib/format';
-import { colors } from '@/theme/colors';
+import { useThemeColors } from '@/hooks/use-theme';
 import type { FiatCurrency, FxRates } from '@/types/wallet';
 
 type AssetPickerSheetProps = {
@@ -42,6 +42,7 @@ export function AssetPickerSheet({
   fxRates,
   hidden,
 }: AssetPickerSheetProps) {
+  const colors = useThemeColors();
   const { formatFiat, formatTokenAmount } = useFormat();
   const { t } = useI18n();
   const [query, setQuery] = useState('');

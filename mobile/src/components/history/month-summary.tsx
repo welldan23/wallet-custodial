@@ -4,7 +4,8 @@ import { Text, View } from 'react-native';
 import { useI18n } from '@/i18n';
 import { MASKED_VALUE } from '@/lib/format';
 import type { HistorySummary } from '@/lib/history';
-import { cardShadow, colors } from '@/theme/colors';
+import { useThemeColors } from '@/hooks/use-theme';
+import { cardShadow } from '@/theme/colors';
 
 const tabularNums = { fontVariant: ['tabular-nums' as const] };
 
@@ -20,6 +21,7 @@ export function MonthSummary({
   formatValue: (usd: number) => string;
   hidden: boolean;
 }) {
+  const colors = useThemeColors();
   const { t } = useI18n();
   const value = (usd: number) => (hidden ? MASKED_VALUE : formatValue(usd));
   const extras = [

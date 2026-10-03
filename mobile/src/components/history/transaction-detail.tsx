@@ -13,7 +13,8 @@ import { groupAddress, shortenAddress } from '@/lib/address';
 import { formatTime, MASKED_VALUE } from '@/lib/format';
 import { historyAmounts, localDay, type HistoryItem, type HistoryStatus } from '@/lib/history';
 import { explorerTxUrl } from '@/lib/sent-transfers';
-import { cardShadow, colors } from '@/theme/colors';
+import { useThemeColors } from '@/hooks/use-theme';
+import { cardShadow, type ThemeColors } from '@/theme/colors';
 import type { FiatCurrency, FxRates, Network, NetworkId } from '@/types/wallet';
 
 const monoFont = Platform.select({ ios: 'Menlo', default: 'monospace' });
@@ -21,23 +22,28 @@ const tabularNums = { fontVariant: ['tabular-nums' as const] };
 
 const STATUS_STYLES: Record<
   HistoryStatus,
-  { icon: ComponentProps<typeof Ionicons>['name']; color: string; tile: string; text: string }
+  {
+    icon: ComponentProps<typeof Ionicons>['name'];
+    color: (c: ThemeColors) => string;
+    tile: string;
+    text: string;
+  }
 > = {
   success: {
     icon: 'checkmark-circle',
-    color: colors.success[500],
+    color: (c: ThemeColors) => c.success[500],
     tile: 'bg-success-50',
     text: 'text-success-600',
   },
   pending: {
     icon: 'time',
-    color: colors.warning[500],
+    color: (c: ThemeColors) => c.warning[500],
     tile: 'bg-warning-50',
     text: 'text-warning-600',
   },
   failed: {
     icon: 'close-circle',
-    color: colors.danger[500],
+    color: (c: ThemeColors) => c.danger[500],
     tile: 'bg-danger-50',
     text: 'text-danger-600',
   },
@@ -65,6 +71,7 @@ export function TransactionDetail({
   hidden,
   isDemo,
 }: TransactionDetailProps) {
+  const colors = useThemeColors();
   const { formatFiat, formatTokenAmount } = useFormat();
   const { t } = useI18n();
   const toast = useToast();
@@ -126,7 +133,7 @@ export function TransactionDetail({
         <View
           className={`mt-3 flex-row items-center gap-1.5 rounded-full px-3 py-1 ${status.tile}`}
           accessibilityLabel={t.history.statusLabel(t.history.statusFull[item.status])}>
-          <Ionicons name={status.icon} size={14} color={status.color} />
+          <Ionicons name={status.icon} size={14} color={status.color(colors)} />
           <Text className={`text-xs font-bold ${status.text}`}>
             {t.history.statusFull[item.status]}
           </Text>

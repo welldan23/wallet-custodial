@@ -8,13 +8,15 @@ import { StackScreen } from '@/components/layout/stack-screen';
 import { BottomSheet } from '@/components/ui/bottom-sheet';
 import { useToast } from '@/components/ui/toast';
 import { useContacts } from '@/hooks/use-contacts';
+import { useThemeColors } from '@/hooks/use-theme';
 import { useI18n } from '@/i18n';
 import { shortenAddress } from '@/lib/address';
 import { contactToFormInput } from '@/lib/contact-form';
-import { cardShadow, colors } from '@/theme/colors';
+import { cardShadow } from '@/theme/colors';
 
 /** Ubah kontak, atau hapus setelah konfirmasi. */
 export default function EditContactScreen() {
+  const colors = useThemeColors();
   const { t } = useI18n();
   const toast = useToast();
   const { id } = useLocalSearchParams<{ id: string }>();

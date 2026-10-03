@@ -1,4 +1,4 @@
-const palette = require('./src/theme/palette');
+const { light, tailwindColors } = require('./src/theme/palette');
 
 /** @type {import('tailwindcss').Config} */
 module.exports = {
@@ -6,7 +6,8 @@ module.exports = {
   presets: [require('nativewind/preset')],
   theme: {
     extend: {
-      colors: palette,
+      // Nilai aslinya dipasang sebagai variabel CSS oleh ThemeProvider (terang/gelap).
+      colors: tailwindColors(light),
     },
   },
   plugins: [],

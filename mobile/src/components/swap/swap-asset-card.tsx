@@ -7,7 +7,8 @@ import type { SwapAsset } from '@/hooks/use-swap-assets';
 import { useFormat } from '@/hooks/use-format';
 import { useI18n } from '@/i18n';
 import { MASKED_VALUE } from '@/lib/format';
-import { cardShadow, colors } from '@/theme/colors';
+import { useThemeColors } from '@/hooks/use-theme';
+import { cardShadow } from '@/theme/colors';
 
 type SwapAssetCardProps = {
   label: string;
@@ -27,6 +28,7 @@ const tabularNums = { fontVariant: ['tabular-nums' as const] };
 
 /** Kartu "Dari" (bisa diketik) atau "Ke" (hasil perkiraan) di layar Swap. */
 export function SwapAssetCard(props: SwapAssetCardProps) {
+  const colors = useThemeColors();
   const { formatTokenAmount } = useFormat();
   const { t } = useI18n();
   const { label, asset, hidden, caption, captionIsError, onPickAsset } = props;

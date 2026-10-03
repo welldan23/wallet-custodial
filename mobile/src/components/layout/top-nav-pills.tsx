@@ -4,7 +4,7 @@ import type { ComponentProps } from 'react';
 import { Pressable, Text, View } from 'react-native';
 
 import { useI18n } from '@/i18n';
-import { colors } from '@/theme/colors';
+import { useThemeColors } from '@/hooks/use-theme';
 
 export type TopNavKey = 'history' | 'home' | 'portfolio';
 
@@ -16,6 +16,7 @@ const ITEMS: { key: TopNavKey; href: Href; icon: ComponentProps<typeof Ionicons>
 
 /** Menu pil di header teal: Tracker | Home | Portfolio. */
 export function TopNavPills({ active }: { active: TopNavKey }) {
+  const colors = useThemeColors();
   const { t } = useI18n();
 
   return (
@@ -35,7 +36,7 @@ export function TopNavPills({ active }: { active: TopNavKey }) {
             <Ionicons
               name={item.icon}
               size={17}
-              color={isActive ? colors.primary[500] : colors.surface}
+              color={isActive ? colors.primary[500] : colors.white}
             />
             <Text
               className={`text-[14px] font-semibold ${isActive ? 'text-ink' : 'text-white'}`}

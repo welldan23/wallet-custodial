@@ -8,7 +8,7 @@ import { useShareAddress } from '@/hooks/use-share-address';
 import { useWalletAccounts } from '@/hooks/use-wallet-accounts';
 import { useI18n } from '@/i18n';
 import { shortenAddress } from '@/lib/address';
-import { colors } from '@/theme/colors';
+import { useThemeColors } from '@/hooks/use-theme';
 import type { Network } from '@/types/wallet';
 
 import { AddressQr } from './address-qr';
@@ -23,6 +23,7 @@ type QrFullscreenProps = {
 
 /** QR ukuran besar di layar putih penuh, untuk ditunjukkan ke pengirim. */
 export function QrFullscreen({ visible, onClose, network, address, symbols }: QrFullscreenProps) {
+  const colors = useThemeColors();
   const { t } = useI18n();
   const insets = useSafeAreaInsets();
   const { width } = useWindowDimensions();
@@ -77,7 +78,7 @@ export function QrFullscreen({ visible, onClose, network, address, symbols }: Qr
           accessibilityRole="button"
           accessibilityLabel={t.receive.share}
           className="w-full max-w-[520px] flex-row items-center justify-center gap-2 rounded-full bg-primary-500 py-3.5 active:opacity-80">
-          <Ionicons name="share-outline" size={18} color={colors.surface} />
+          <Ionicons name="share-outline" size={18} color={colors.white} />
           <Text className="text-[15px] font-semibold text-white">{t.receive.share}</Text>
         </Pressable>
       </View>

@@ -3,7 +3,8 @@ import { Pressable, Text, View } from 'react-native';
 
 import { NetworkIcon } from '@/components/crypto/network-icon';
 import { useI18n } from '@/i18n';
-import { cardShadow, colors } from '@/theme/colors';
+import { useThemeColors } from '@/hooks/use-theme';
+import { cardShadow } from '@/theme/colors';
 import type { Network } from '@/types/wallet';
 
 type EmptyAssetsProps = {
@@ -15,6 +16,7 @@ type EmptyAssetsProps = {
 
 /** Pengganti daftar aset saat wallet belum punya aset sama sekali. */
 export function EmptyAssets({ networks, onReceive }: EmptyAssetsProps) {
+  const colors = useThemeColors();
   const { t } = useI18n();
 
   return (
@@ -45,7 +47,7 @@ export function EmptyAssets({ networks, onReceive }: EmptyAssetsProps) {
           accessibilityRole="button"
           accessibilityLabel={t.home.emptyCta}
           className="mt-6 w-full flex-row items-center justify-center gap-2 rounded-full bg-primary-500 py-3.5 active:opacity-80">
-          <Ionicons name="arrow-down" size={18} color={colors.surface} />
+          <Ionicons name="arrow-down" size={18} color={colors.white} />
           <Text className="text-[15px] font-semibold text-white">{t.home.emptyCta}</Text>
         </Pressable>
       )}

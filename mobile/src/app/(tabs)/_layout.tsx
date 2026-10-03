@@ -5,8 +5,8 @@ import type { ComponentProps } from 'react';
 import type { ColorValue } from 'react-native';
 
 import { useWallet } from '@/hooks/use-wallet';
+import { useThemeColors } from '@/hooks/use-theme';
 import { useI18n } from '@/i18n';
-import { colors } from '@/theme/colors';
 
 type IconName = ComponentProps<typeof Ionicons>['name'];
 
@@ -23,6 +23,7 @@ function TabIcon({ focused, color, size, icons: [active, inactive] }: TabIconPro
 }
 
 export default function TabsLayout() {
+  const colors = useThemeColors();
   const { t } = useI18n();
   const wallet = useWallet();
 

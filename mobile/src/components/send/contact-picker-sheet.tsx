@@ -14,7 +14,7 @@ import {
   filterContacts,
   groupContacts,
 } from '@/lib/contacts';
-import { colors } from '@/theme/colors';
+import { useThemeColors } from '@/hooks/use-theme';
 import type { Contact, Network } from '@/types/wallet';
 
 type ContactPickerSheetProps = {
@@ -57,6 +57,7 @@ export function ContactPickerSheet({
   selectedAddress,
   onSelect,
 }: ContactPickerSheetProps) {
+  const colors = useThemeColors();
   const { t } = useI18n();
   const [query, setQuery] = useState('');
   const usable = contactsForNetwork(contacts, network, networks);
@@ -228,7 +229,7 @@ export function ContactPickerSheet({
           onPress={() => goTo('/contacts/new')}
           accessibilityRole="button"
           className="flex-1 flex-row items-center justify-center gap-1.5 rounded-full bg-primary-500 py-3 active:opacity-80">
-          <Ionicons name="person-add" size={16} color={colors.surface} />
+          <Ionicons name="person-add" size={16} color={colors.white} />
           <Text className="text-[13px] font-semibold text-white">{t.contacts.add}</Text>
         </Pressable>
         <Pressable

@@ -7,7 +7,8 @@ import { useFormat } from '@/hooks/use-format';
 import { useI18n } from '@/i18n';
 import { minReceived } from '@/lib/slippage';
 import type { SwapQuote } from '@/mocks/swap';
-import { cardShadow, colors } from '@/theme/colors';
+import { useThemeColors } from '@/hooks/use-theme';
+import { cardShadow } from '@/theme/colors';
 
 type SwapDetailsCardProps = {
   from: SwapAsset;
@@ -38,6 +39,7 @@ export function SwapDetailsCard({
   slippage,
   onEditSlippage,
 }: SwapDetailsCardProps) {
+  const colors = useThemeColors();
   const { formatNumber, formatTokenAmount } = useFormat();
   const { t } = useI18n();
 

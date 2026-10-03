@@ -7,14 +7,16 @@ import { OnboardingButton, OnboardingScreen } from '@/components/onboarding/onbo
 import { useToast } from '@/components/ui/toast';
 import { useOnboardingDraft } from '@/hooks/use-onboarding-draft';
 import { useWallet } from '@/hooks/use-wallet';
+import { useThemeColors } from '@/hooks/use-theme';
 import { useI18n } from '@/i18n';
-import { cardShadow, colors } from '@/theme/colors';
+import { cardShadow } from '@/theme/colors';
 
 /**
  * Langkah terakhir: simpan frasa di penyimpanan aman HP (Keychain/Keystore)
  * lalu masuk ke Home. Frasa di memori onboarding dihapus setelah tersimpan.
  */
 export default function SecureWalletScreen() {
+  const colors = useThemeColors();
   const { t } = useI18n();
   const toast = useToast();
   const draft = useOnboardingDraft();

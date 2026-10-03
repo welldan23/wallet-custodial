@@ -6,7 +6,8 @@ import { NetworkIcon } from '@/components/crypto/network-icon';
 import { useShareAddress } from '@/hooks/use-share-address';
 import { useI18n } from '@/i18n';
 import { groupAddress } from '@/lib/address';
-import { cardShadow, colors } from '@/theme/colors';
+import { useThemeColors } from '@/hooks/use-theme';
+import { cardShadow } from '@/theme/colors';
 import type { Network } from '@/types/wallet';
 
 import { AddressQr } from './address-qr';
@@ -113,6 +114,7 @@ type SecondaryButtonProps = {
 };
 
 function SecondaryButton({ icon, label, onPress }: SecondaryButtonProps) {
+  const colors = useThemeColors();
   return (
     <Pressable
       onPress={onPress}

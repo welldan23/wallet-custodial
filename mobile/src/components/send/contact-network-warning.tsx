@@ -3,7 +3,7 @@ import { Pressable, Text, View } from 'react-native';
 
 import { NetworkIcon } from '@/components/crypto/network-icon';
 import { useI18n } from '@/i18n';
-import { colors } from '@/theme/colors';
+import { useThemeColors } from '@/hooks/use-theme';
 import type { Network } from '@/types/wallet';
 
 type ContactNetworkWarningProps = {
@@ -32,6 +32,7 @@ export function ContactNetworkWarning({
   acknowledged,
   onAcknowledge,
 }: ContactNetworkWarningProps) {
+  const colors = useThemeColors();
   const { t } = useI18n();
   const copy = t.send.contactNetwork;
 

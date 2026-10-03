@@ -9,7 +9,7 @@ import type { SwapAsset } from '@/hooks/use-swap-assets';
 import { useFormat } from '@/hooks/use-format';
 import { useI18n } from '@/i18n';
 import { MASKED_VALUE } from '@/lib/format';
-import { colors } from '@/theme/colors';
+import { useThemeColors } from '@/hooks/use-theme';
 import type { NetworkId } from '@/types/wallet';
 
 export type SwapSide = 'from' | 'to';
@@ -42,6 +42,7 @@ export function SwapAssetPickerSheet({
   hidden,
   onSelect,
 }: SwapAssetPickerSheetProps) {
+  const colors = useThemeColors();
   const { formatTokenAmount } = useFormat();
   const { t } = useI18n();
   const symbols = [...new Set(assets.map((asset) => asset.symbol))].sort();

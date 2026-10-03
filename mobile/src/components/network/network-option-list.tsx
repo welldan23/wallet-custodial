@@ -2,12 +2,13 @@ import Ionicons from '@expo/vector-icons/Ionicons';
 import { Pressable, Text, View } from 'react-native';
 
 import { NetworkIcon } from '@/components/crypto/network-icon';
-import { colors } from '@/theme/colors';
+import { useThemeColors } from '@/hooks/use-theme';
 
 import type { NetworkPickerProps } from './types';
 
 /** Daftar jaringan bergaya radio: logo, nama, keterangan, tanda pilih. */
 export function NetworkOptionList({ options, selectedId, onSelect }: NetworkPickerProps) {
+  const colors = useThemeColors();
   return (
     <View accessibilityRole="radiogroup">
       {options.map(({ network, description }, index) => {

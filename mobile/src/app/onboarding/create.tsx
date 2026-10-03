@@ -7,8 +7,8 @@ import { MnemonicGrid } from '@/components/onboarding/mnemonic-grid';
 import { NoScreenCapture } from '@/components/onboarding/no-screen-capture';
 import { OnboardingButton, OnboardingScreen } from '@/components/onboarding/onboarding-screen';
 import { useOnboardingDraft } from '@/hooks/use-onboarding-draft';
+import { useThemeColors } from '@/hooks/use-theme';
 import { useI18n } from '@/i18n';
-import { colors } from '@/theme/colors';
 
 /**
  * Langkah 1 bikin wallet: tampilkan 12 kata pemulihan untuk dicatat.
@@ -17,6 +17,7 @@ import { colors } from '@/theme/colors';
  * dibaca app lain) dan screenshot diblokir.
  */
 export default function CreateWalletScreen() {
+  const colors = useThemeColors();
   const { t } = useI18n();
   const draft = useOnboardingDraft();
   const words = draft.mnemonic;
@@ -92,7 +93,7 @@ export default function CreateWalletScreen() {
           className={`mt-0.5 h-5 w-5 items-center justify-center rounded-md border-2 ${
             written ? 'border-primary-500 bg-primary-500' : 'border-ink-faint'
           }`}>
-          {written && <Ionicons name="checkmark" size={14} color={colors.surface} />}
+          {written && <Ionicons name="checkmark" size={14} color={colors.white} />}
         </View>
         <Text className="flex-1 text-[13px] leading-5 text-ink">
           {revealed ? t.onboarding.writtenCheck : t.onboarding.revealFirst}

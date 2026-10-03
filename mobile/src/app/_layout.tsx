@@ -10,29 +10,44 @@ import { ContactsProvider } from '@/hooks/use-contacts';
 import { SentTransfersProvider } from '@/hooks/use-sent-transfers';
 import { SettingsProvider } from '@/hooks/use-settings';
 import { SwapsProvider } from '@/hooks/use-swaps';
+import { ThemeProvider, useTheme } from '@/hooks/use-theme';
 import { WalletProvider } from '@/hooks/use-wallet';
 import { I18nProvider } from '@/i18n';
 
 export default function RootLayout() {
   return (
     <SettingsProvider>
-      <I18nProvider>
-        <WalletProvider>
-          <BalanceVisibilityProvider>
-            <SentTransfersProvider>
-              <SwapsProvider>
-                <ContactsProvider>
-                  <ToastProvider>
-                    <StatusBar style="dark" />
-                    <Stack screenOptions={{ headerShown: false }} />
-                    <AppLockGate />
-                  </ToastProvider>
-                </ContactsProvider>
-              </SwapsProvider>
-            </SentTransfersProvider>
-          </BalanceVisibilityProvider>
-        </WalletProvider>
-      </I18nProvider>
+      <ThemeProvider>
+        <I18nProvider>
+          <WalletProvider>
+            <BalanceVisibilityProvider>
+              <SentTransfersProvider>
+                <SwapsProvider>
+                  <ContactsProvider>
+                    <ToastProvider>
+                      <ThemedStack />
+                      <AppLockGate />
+                    </ToastProvider>
+                  </ContactsProvider>
+                </SwapsProvider>
+              </SentTransfersProvider>
+            </BalanceVisibilityProvider>
+          </WalletProvider>
+        </I18nProvider>
+      </ThemeProvider>
     </SettingsProvider>
+  );
+}
+
+/** Navigasi + status bar yang mengikuti tema (latar layar = kanvas tema). */
+function ThemedStack() {
+  const { scheme, colors } = useTheme();
+  return (
+    <>
+      <StatusBar style={scheme === 'dark' ? 'light' : 'dark'} />
+      <Stack
+        screenOptions={{ headerShown: false, contentStyle: { backgroundColor: colors.canvas } }}
+      />
+    </>
   );
 }

@@ -5,7 +5,7 @@ import { Pressable, Text, TextInput, View } from 'react-native';
 import { BottomSheet } from '@/components/ui/bottom-sheet';
 import { useI18n } from '@/i18n';
 import { checkSlippage, SLIPPAGE_PRESETS } from '@/lib/slippage';
-import { colors } from '@/theme/colors';
+import { useThemeColors } from '@/hooks/use-theme';
 
 type SlippageSheetProps = {
   visible: boolean;
@@ -22,6 +22,7 @@ const isPreset = (value: number) => (SLIPPAGE_PRESETS as readonly number[]).incl
  * baru tiap kali dibuka supaya isian mulai dari nilai yang tersimpan.
  */
 export function SlippageSheet({ visible, onClose, value, onSave }: SlippageSheetProps) {
+  const colors = useThemeColors();
   const { t } = useI18n();
   const [preset, setPreset] = useState<number | null>(isPreset(value) ? value : null);
   const [custom, setCustom] = useState(isPreset(value) ? '' : String(value));

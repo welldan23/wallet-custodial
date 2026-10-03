@@ -4,7 +4,8 @@ import type { SendableAsset } from '@/hooks/use-sendable-assets';
 import { useFormat } from '@/hooks/use-format';
 import { useI18n } from '@/i18n';
 import { formatAmountForInput, normalizeAmountInput, type AmountCheck } from '@/lib/amount';
-import { cardShadow, colors } from '@/theme/colors';
+import { useThemeColors } from '@/hooks/use-theme';
+import { cardShadow } from '@/theme/colors';
 import type { FiatCurrency, FxRates } from '@/types/wallet';
 
 type AmountInputProps = {
@@ -30,6 +31,7 @@ export function AmountInput({
   currency,
   fxRates,
 }: AmountInputProps) {
+  const colors = useThemeColors();
   const { formatFiat, locale } = useFormat();
   const { t } = useI18n();
   const parsed = Number(normalizeAmountInput(value));

@@ -6,7 +6,7 @@ import { Pressable, Text } from 'react-native';
 import { useToast } from '@/components/ui/toast';
 import { useI18n } from '@/i18n';
 import { shortenAddress } from '@/lib/address';
-import { colors } from '@/theme/colors';
+import { useThemeColors } from '@/hooks/use-theme';
 import type { Network } from '@/types/wallet';
 
 type CopyAddressButtonProps = {
@@ -19,6 +19,7 @@ type CopyAddressButtonProps = {
  * berisi jaringan + potongan alamat supaya pengguna bisa mencocokkan.
  */
 export function CopyAddressButton({ address, network }: CopyAddressButtonProps) {
+  const colors = useThemeColors();
   const { t } = useI18n();
   const toast = useToast();
   const [copied, setCopied] = useState(false);
@@ -55,7 +56,7 @@ export function CopyAddressButton({ address, network }: CopyAddressButtonProps) 
       className={`w-full flex-row items-center justify-center gap-2 rounded-full py-3.5 active:opacity-80 ${
         copied ? 'bg-success-500' : 'bg-primary-500'
       }`}>
-      <Ionicons name={copied ? 'checkmark' : 'copy-outline'} size={18} color={colors.surface} />
+      <Ionicons name={copied ? 'checkmark' : 'copy-outline'} size={18} color={colors.white} />
       <Text className="text-[15px] font-semibold text-white">
         {copied ? t.receive.copied : t.receive.copyAddress}
       </Text>

@@ -15,17 +15,19 @@ import { useSwapGas, useSwapQuote } from '@/hooks/use-swap-quote';
 import { useSimulatedTransactions } from '@/hooks/use-simulated-transactions';
 import { useDisplayCurrency } from '@/hooks/use-settings';
 import { useFormat } from '@/hooks/use-format';
+import { useThemeColors } from '@/hooks/use-theme';
 import { useI18n } from '@/i18n';
 import { checkAmount, formatAmountForInput } from '@/lib/amount';
 import { DEFAULT_SLIPPAGE } from '@/lib/slippage';
 import { MOCK_FX_RATES } from '@/mocks/wallet';
-import { cardShadow, colors } from '@/theme/colors';
+import { cardShadow } from '@/theme/colors';
 
 /**
  * Swap antar stablecoin: isi jumlah koin asal, lihat perkiraan koin tujuan.
  * Sementara kurs dari data tiruan; nanti rute dari LI.FI (EVM) / Jupiter (Solana).
  */
 export default function SwapScreen() {
+  const colors = useThemeColors();
   const { t } = useI18n();
   const assets = useSwapAssets();
   const [initialPair] = useState(() => defaultSwapPair(assets));
@@ -81,6 +83,7 @@ function SwapForm({
   setFromId,
   setToId,
 }: SwapFormProps) {
+  const colors = useThemeColors();
   const { formatFiat, formatTokenAmount, locale } = useFormat();
   const displayCurrency = useDisplayCurrency();
   const { t } = useI18n();
@@ -152,7 +155,7 @@ function SwapForm({
             accessibilityRole="button"
             accessibilityLabel={t.swap.flipLabel}
             className="h-11 w-11 items-center justify-center rounded-full border-4 border-canvas bg-primary-500 active:opacity-80">
-            <Ionicons name="swap-vertical" size={20} color={colors.surface} />
+            <Ionicons name="swap-vertical" size={20} color={colors.white} />
           </Pressable>
         </View>
 

@@ -2,7 +2,7 @@ import Ionicons from '@expo/vector-icons/Ionicons';
 import { Pressable, Text, View } from 'react-native';
 
 import { BottomSheet } from '@/components/ui/bottom-sheet';
-import { colors } from '@/theme/colors';
+import { useThemeColors } from '@/hooks/use-theme';
 
 export type SettingOption<T extends string | number> = {
   value: T;
@@ -31,6 +31,7 @@ export function OptionSheet<T extends string | number>({
   selected,
   onSelect,
 }: OptionSheetProps<T>) {
+  const colors = useThemeColors();
   return (
     <BottomSheet visible={visible} onClose={onClose} title={title}>
       {description && (

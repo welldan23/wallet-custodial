@@ -14,12 +14,13 @@ import { useSwaps } from '@/hooks/use-swaps';
 import { useSimulatedTransactions } from '@/hooks/use-simulated-transactions';
 import { useDisplayCurrency } from '@/hooks/use-settings';
 import { useFormat } from '@/hooks/use-format';
+import { useThemeColors } from '@/hooks/use-theme';
 import { useI18n } from '@/i18n';
 import { shortenAddress } from '@/lib/address';
 import { formatTime } from '@/lib/format';
 import { explorerTxUrl } from '@/lib/sent-transfers';
 import { MOCK_FX_RATES } from '@/mocks/wallet';
-import { cardShadow, colors } from '@/theme/colors';
+import { cardShadow } from '@/theme/colors';
 import type { Network, NetworkId } from '@/types/wallet';
 
 const monoFont = Platform.select({ ios: 'Menlo', default: 'monospace' });
@@ -33,6 +34,7 @@ const swapAgain = () => {
 
 /** Status swap setelah disetujui: diproses → berhasil. */
 export default function SwapStatusScreen() {
+  const colors = useThemeColors();
   const { formatFiat, formatTokenAmount } = useFormat();
   const displayCurrency = useDisplayCurrency();
   const { t } = useI18n();

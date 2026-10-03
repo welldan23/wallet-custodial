@@ -5,7 +5,7 @@ import { Modal, Pressable, Text, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { useI18n } from '@/i18n';
-import { colors } from '@/theme/colors';
+import { useThemeColors } from '@/hooks/use-theme';
 
 type QrScannerModalProps = {
   visible: boolean;
@@ -16,6 +16,7 @@ type QrScannerModalProps = {
 
 /** Pemindai QR layar penuh dengan bingkai bidik; minta izin kamera saat perlu. */
 export function QrScannerModal({ visible, onClose, onScanned }: QrScannerModalProps) {
+  const colors = useThemeColors();
   const { t } = useI18n();
   const insets = useSafeAreaInsets();
   const [permission, requestPermission] = useCameraPermissions();
@@ -43,7 +44,7 @@ export function QrScannerModal({ visible, onClose, onScanned }: QrScannerModalPr
           />
         ) : (
           <View className="flex-1 items-center justify-center gap-4 px-8">
-            <Ionicons name="camera-outline" size={44} color={colors.surface} />
+            <Ionicons name="camera-outline" size={44} color={colors.white} />
             <Text className="text-center text-base font-semibold text-white">
               {permission && !permission.canAskAgain
                 ? t.send.cameraDeniedTitle
@@ -76,7 +77,7 @@ export function QrScannerModal({ visible, onClose, onScanned }: QrScannerModalPr
           accessibilityLabel={t.common.close}
           className="absolute right-4 h-11 w-11 items-center justify-center rounded-full bg-black/50"
           style={{ top: insets.top + 8 }}>
-          <Ionicons name="close" size={24} color={colors.surface} />
+          <Ionicons name="close" size={24} color={colors.white} />
         </Pressable>
       </View>
     </Modal>

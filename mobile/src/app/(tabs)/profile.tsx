@@ -12,21 +12,23 @@ import { useContacts } from '@/hooks/use-contacts';
 import { useSettings } from '@/hooks/use-settings';
 import { useWalletAccounts } from '@/hooks/use-wallet-accounts';
 import { useFormat } from '@/hooks/use-format';
+import { useThemeColors } from '@/hooks/use-theme';
 import { useI18n } from '@/i18n';
 import { shortenAddress } from '@/lib/address';
 import { MOCK_FX_RATES } from '@/mocks/wallet';
-import { cardShadow, colors } from '@/theme/colors';
+import { cardShadow } from '@/theme/colors';
 
 const monoFont = Platform.select({ ios: 'Menlo', default: 'monospace' });
 
 /** Profil & Pengaturan: wallet, preferensi tampilan, keamanan, dan Buku Alamat. */
 export default function ProfileScreen() {
+  const colors = useThemeColors();
   const { formatFiat } = useFormat();
   const { t } = useI18n();
   const toast = useToast();
   const { contacts } = useContacts();
   const { settings, updateSettings } = useSettings();
-  const [sheet, setSheet] = useState<'currency' | 'language' | null>(null);
+  const [sheet, setSheet] = useState<'currency' | 'language' | 'theme' | null>(null);
   const { accounts, isDemo } = useWalletAccounts();
   const s = t.settings;
   const soon = () => toast({ title: t.common.comingSoon, message: s.soonMessage });
@@ -37,7 +39,7 @@ export default function ProfileScreen() {
       <View className="gap-3 rounded-[20px] bg-surface p-4" style={cardShadow}>
         <View className="flex-row items-center gap-3">
           <View className="h-12 w-12 items-center justify-center rounded-full bg-teal-500">
-            <Ionicons name="wallet" size={22} color={colors.surface} />
+            <Ionicons name="wallet" size={22} color={colors.white} />
           </View>
           <View className="flex-1">
             <Text className="text-base font-bold text-ink">{s.walletName}</Text>
@@ -83,7 +85,7 @@ export default function ProfileScreen() {
           icon="contrast-outline"
           label={s.theme}
           value={s.themeValue[settings.theme]}
-          onPress={soon}
+          onPress={() => setSheet('theme')}
           isLast
         />
       </SettingsGroup>
@@ -105,7 +107,7 @@ export default function ProfileScreen() {
               onValueChange={soon}
               accessibilityLabel={s.biometricSigning}
               trackColor={{ true: colors.primary[500], false: colors.line }}
-              thumbColor={colors.surface}
+              thumbColor={colors.white}
             />
           }
         />
@@ -167,6 +169,19 @@ export default function ProfileScreen() {
         }))}
         selected={settings.language}
         onSelect={(language) => updateSettings({ language })}
+      />
+
+      <OptionSheet
+        visible={sheet === 'theme'}
+        onClose={() => setSheet(null)}
+        title={s.theme}
+        options={(['light', 'dark', 'system'] as const).map((theme) => ({
+          value: theme,
+          label: s.themeValue[theme],
+          hint: s.themeHint[theme],
+        }))}
+        selected={settings.theme}
+        onSelect={(theme) => updateSettings({ theme })}
       />
     </TabScreen>
   );

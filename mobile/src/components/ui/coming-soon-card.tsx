@@ -2,10 +2,12 @@ import Ionicons from '@expo/vector-icons/Ionicons';
 import { Text, View } from 'react-native';
 
 import { useI18n } from '@/i18n';
-import { cardShadow, colors } from '@/theme/colors';
+import { useThemeColors } from '@/hooks/use-theme';
+import { cardShadow } from '@/theme/colors';
 
 /** Kartu "Segera hadir" untuk halaman yang fiturnya belum dibangun. */
 export function ComingSoonCard({ description }: { description?: string }) {
+  const colors = useThemeColors();
   const { t } = useI18n();
 
   return (

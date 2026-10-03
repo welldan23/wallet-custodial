@@ -3,7 +3,8 @@ import type { ComponentProps } from 'react';
 import { Pressable, Text, View } from 'react-native';
 
 import { useI18n } from '@/i18n';
-import { cardShadow, colors } from '@/theme/colors';
+import { useThemeColors } from '@/hooks/use-theme';
+import { cardShadow, type ThemeColors } from '@/theme/colors';
 
 type HistoryEmptyProps =
   /** Wallet belum pernah bertransaksi sama sekali. */
@@ -11,14 +12,19 @@ type HistoryEmptyProps =
   /** Ada riwayat, tapi tidak ada di bulan yang dipilih. */
   | { variant: 'month'; monthLabel: string; onShowAll: () => void };
 
-const KINDS: { icon: ComponentProps<typeof Ionicons>['name']; tile: string; color: string }[] = [
-  { icon: 'arrow-down', tile: 'bg-success-50', color: colors.success[500] },
-  { icon: 'arrow-up', tile: 'bg-primary-50', color: colors.primary[500] },
-  { icon: 'swap-horizontal', tile: 'bg-teal-300/25', color: colors.teal[500] },
+const KINDS: {
+  icon: ComponentProps<typeof Ionicons>['name'];
+  tile: string;
+  color: (c: ThemeColors) => string;
+}[] = [
+  { icon: 'arrow-down', tile: 'bg-success-50', color: (c: ThemeColors) => c.success[500] },
+  { icon: 'arrow-up', tile: 'bg-primary-50', color: (c: ThemeColors) => c.primary[500] },
+  { icon: 'swap-horizontal', tile: 'bg-teal-300/25', color: (c: ThemeColors) => c.teal[500] },
 ];
 
 /** Tampilan saat Riwayat kosong: wallet baru, atau bulan terpilih tanpa transaksi. */
 export function HistoryEmpty(props: HistoryEmptyProps) {
+  const colors = useThemeColors();
   const { t } = useI18n();
   const isMonth = props.variant === 'month';
 
@@ -34,7 +40,7 @@ export function HistoryEmpty(props: HistoryEmptyProps) {
             className={`h-12 w-12 items-center justify-center rounded-full border-4 border-surface ${kind.tile} ${
               index > 0 ? '-ml-3' : ''
             }`}>
-            <Ionicons name={kind.icon} size={20} color={kind.color} />
+            <Ionicons name={kind.icon} size={20} color={kind.color(colors)} />
           </View>
         ))}
       </View>
@@ -68,7 +74,7 @@ export function HistoryEmpty(props: HistoryEmptyProps) {
         <Ionicons
           name={isMonth ? 'list' : 'arrow-down'}
           size={18}
-          color={isMonth ? colors.primary[500] : colors.surface}
+          color={isMonth ? colors.primary[500] : colors.white}
         />
         <Text className={`font-semibold ${isMonth ? 'text-primary-500' : 'text-white'}`}>
           {isMonth ? t.history.showAllMonths : t.home.emptyCta}

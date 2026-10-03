@@ -6,16 +6,18 @@ import { Pressable, Text, View } from 'react-native';
 import { NoScreenCapture } from '@/components/onboarding/no-screen-capture';
 import { OnboardingButton, OnboardingScreen } from '@/components/onboarding/onboarding-screen';
 import { useOnboardingDraft } from '@/hooks/use-onboarding-draft';
+import { useThemeColors } from '@/hooks/use-theme';
 import { useI18n } from '@/i18n';
 import { MNEMONIC_WORDLIST } from '@/lib/mnemonic';
 import { buildMnemonicQuiz } from '@/lib/mnemonic-quiz';
-import { cardShadow, colors } from '@/theme/colors';
+import { cardShadow } from '@/theme/colors';
 
 /**
  * Langkah 2 bikin wallet: pastikan 12 kata benar-benar sudah dicatat
  * dengan menanyakan 3 posisi acak. Salah boleh dicoba lagi.
  */
 export default function ConfirmMnemonicScreen() {
+  const colors = useThemeColors();
   const { t } = useI18n();
   const { mnemonic } = useOnboardingDraft();
   const [quiz] = useState(() =>

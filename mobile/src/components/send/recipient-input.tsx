@@ -5,7 +5,8 @@ import { Platform, Pressable, Text, TextInput, View } from 'react-native';
 import { useToast } from '@/components/ui/toast';
 import { useI18n } from '@/i18n';
 import type { RecipientCheck } from '@/lib/address-validation';
-import { cardShadow, colors } from '@/theme/colors';
+import { useThemeColors } from '@/hooks/use-theme';
+import { cardShadow } from '@/theme/colors';
 import type { Network } from '@/types/wallet';
 
 type RecipientInputProps = {
@@ -31,6 +32,7 @@ export function RecipientInput({
   onOpenScanner,
   onOpenContacts,
 }: RecipientInputProps) {
+  const colors = useThemeColors();
   const { t } = useI18n();
   const toast = useToast();
 
@@ -107,6 +109,7 @@ export function RecipientInput({
 }
 
 function RecipientFeedback({ check, network }: { check: RecipientCheck; network: Network }) {
+  const colors = useThemeColors();
   const { t } = useI18n();
   if (check.status === 'empty') return null;
 
@@ -147,6 +150,7 @@ type SourceButtonProps = {
 };
 
 function SourceButton({ icon, label, onPress }: SourceButtonProps) {
+  const colors = useThemeColors();
   return (
     <Pressable
       onPress={onPress}

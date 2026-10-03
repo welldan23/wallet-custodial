@@ -3,7 +3,7 @@ import { Pressable, Text, View } from 'react-native';
 
 import { BottomSheet } from '@/components/ui/bottom-sheet';
 import { useI18n } from '@/i18n';
-import { colors } from '@/theme/colors';
+import { useThemeColors } from '@/hooks/use-theme';
 
 type DemoAuthSheetProps = {
   visible: boolean;
@@ -16,6 +16,7 @@ type DemoAuthSheetProps = {
  * sensor (preview web). Di HP selalu memakai sidik jari/FaceID asli.
  */
 export function DemoAuthSheet({ visible, onClose, onApprove }: DemoAuthSheetProps) {
+  const colors = useThemeColors();
   const { t } = useI18n();
 
   return (

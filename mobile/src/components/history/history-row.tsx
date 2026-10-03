@@ -14,33 +14,39 @@ import {
   type HistoryStatus,
   type HistoryType,
 } from '@/lib/history';
-import { colors } from '@/theme/colors';
+import { useThemeColors } from '@/hooks/use-theme';
+import type { ThemeColors } from '@/theme/colors';
 import type { FiatCurrency, FxRates, NetworkId } from '@/types/wallet';
 
 const TYPE_STYLES: Record<
   HistoryType,
-  { icon: ComponentProps<typeof Ionicons>['name']; tile: string; color: string }
+  { icon: ComponentProps<typeof Ionicons>['name']; tile: string; color: (c: ThemeColors) => string }
 > = {
-  receive: { icon: 'arrow-down', tile: 'bg-success-50', color: colors.success[500] },
-  send: { icon: 'arrow-up', tile: 'bg-primary-50', color: colors.primary[500] },
-  swap: { icon: 'swap-horizontal', tile: 'bg-teal-300/25', color: colors.teal[500] },
+  receive: { icon: 'arrow-down', tile: 'bg-success-50', color: (c: ThemeColors) => c.success[500] },
+  send: { icon: 'arrow-up', tile: 'bg-primary-50', color: (c: ThemeColors) => c.primary[500] },
+  swap: { icon: 'swap-horizontal', tile: 'bg-teal-300/25', color: (c: ThemeColors) => c.teal[500] },
 };
 
 const STATUS_STYLES: Record<
   Exclude<HistoryStatus, 'success'>,
-  { chip: string; text: string; icon: ComponentProps<typeof Ionicons>['name']; color: string }
+  {
+    chip: string;
+    text: string;
+    icon: ComponentProps<typeof Ionicons>['name'];
+    color: (c: ThemeColors) => string;
+  }
 > = {
   pending: {
     chip: 'bg-warning-50',
     text: 'text-warning-600',
     icon: 'time',
-    color: colors.warning[600],
+    color: (c: ThemeColors) => c.warning[600],
   },
   failed: {
     chip: 'bg-danger-50',
     text: 'text-danger-600',
     icon: 'close-circle',
-    color: colors.danger[600],
+    color: (c: ThemeColors) => c.danger[600],
   },
 };
 
@@ -70,6 +76,7 @@ export function HistoryRow({
   isLast,
   onPress,
 }: HistoryRowProps) {
+  const colors = useThemeColors();
   const { formatFiat, formatTokenAmount } = useFormat();
   const { t } = useI18n();
   const style = TYPE_STYLES[item.type];
@@ -117,7 +124,11 @@ export function HistoryRow({
       }`}>
       <View>
         <View className={`h-11 w-11 items-center justify-center rounded-full ${style.tile}`}>
-          <Ionicons name={style.icon} size={20} color={failed ? colors.ink.faint : style.color} />
+          <Ionicons
+            name={style.icon}
+            size={20}
+            color={failed ? colors.ink.faint : style.color(colors)}
+          />
         </View>
         <View className="absolute -bottom-0.5 -right-0.5 rounded-full border-2 border-surface">
           <NetworkIcon networkId={item.networkId} size={16} />
@@ -139,7 +150,7 @@ export function HistoryRow({
         {status && statusLabel && (
           <View
             className={`mt-0.5 flex-row items-center gap-1 self-start rounded-full px-2 py-0.5 ${status.chip}`}>
-            <Ionicons name={status.icon} size={11} color={status.color} />
+            <Ionicons name={status.icon} size={11} color={status.color(colors)} />
             <Text className={`text-[10px] font-bold ${status.text}`}>{statusLabel}</Text>
           </View>
         )}

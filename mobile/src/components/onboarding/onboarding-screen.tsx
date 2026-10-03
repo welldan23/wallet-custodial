@@ -6,7 +6,8 @@ import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { useI18n } from '@/i18n';
-import { colors, headerGradient, sheetGradient } from '@/theme/colors';
+import { useThemeColors } from '@/hooks/use-theme';
+import { themeGradients } from '@/theme/colors';
 
 type OnboardingScreenProps = {
   title: string;
@@ -35,13 +36,15 @@ export function OnboardingScreen({
   children,
   footer,
 }: OnboardingScreenProps) {
+  const colors = useThemeColors();
+  const gradients = themeGradients(colors);
   const { t } = useI18n();
   const insets = useSafeAreaInsets();
 
   return (
     <View className="flex-1 bg-teal-300">
       <LinearGradient
-        colors={headerGradient}
+        colors={gradients.header}
         start={{ x: 0, y: 0 }}
         end={{ x: 1, y: 1 }}
         pointerEvents="none"
@@ -59,7 +62,7 @@ export function OnboardingScreen({
               accessibilityRole="button"
               accessibilityLabel={t.common.back}
               className="-ml-2 h-11 w-11 items-center justify-center rounded-full active:bg-white/20">
-              <Ionicons name="arrow-back" size={24} color={colors.surface} />
+              <Ionicons name="arrow-back" size={24} color={colors.white} />
             </Pressable>
           ) : (
             <View className="h-11 w-11" />
@@ -93,7 +96,7 @@ export function OnboardingScreen({
 
       <View className="flex-1 overflow-hidden rounded-t-[28px] bg-canvas">
         <LinearGradient
-          colors={sheetGradient}
+          colors={gradients.sheet}
           pointerEvents="none"
           style={[StyleSheet.absoluteFill, { height: 360 }]}
         />
@@ -133,8 +136,9 @@ export function OnboardingButton({
   icon,
   disabled,
 }: ActionButtonProps) {
+  const colors = useThemeColors();
   const primary = variant === 'primary';
-  const fg = disabled ? colors.ink.faint : primary ? colors.surface : colors.primary[500];
+  const fg = disabled ? colors.ink.faint : primary ? colors.white : colors.primary[500];
   return (
     <Pressable
       onPress={onPress}

@@ -9,13 +9,15 @@ import { useHistory } from '@/hooks/use-history';
 import { useSupportedNetworks } from '@/hooks/use-supported-networks';
 import { useSimulatedTransactions } from '@/hooks/use-simulated-transactions';
 import { useDisplayCurrency } from '@/hooks/use-settings';
+import { useThemeColors } from '@/hooks/use-theme';
 import { useI18n } from '@/i18n';
 import { MOCK_FX_RATES } from '@/mocks/wallet';
-import { cardShadow, colors } from '@/theme/colors';
+import { cardShadow } from '@/theme/colors';
 import type { NetworkId } from '@/types/wallet';
 
 /** Halaman detail satu transaksi dari Riwayat. */
 export default function TransactionDetailScreen() {
+  const colors = useThemeColors();
   const displayCurrency = useDisplayCurrency();
   const { t } = useI18n();
   const { id } = useLocalSearchParams<{ id: string }>();

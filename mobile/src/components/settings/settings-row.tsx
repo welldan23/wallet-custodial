@@ -2,7 +2,8 @@ import Ionicons from '@expo/vector-icons/Ionicons';
 import type { ComponentProps, ReactNode } from 'react';
 import { Pressable, Text, View } from 'react-native';
 
-import { cardShadow, colors } from '@/theme/colors';
+import { useThemeColors } from '@/hooks/use-theme';
+import { cardShadow } from '@/theme/colors';
 
 type IconName = ComponentProps<typeof Ionicons>['name'];
 
@@ -46,6 +47,7 @@ export function SettingsRow({
   tone = 'default',
   isLast,
 }: SettingsRowProps) {
+  const colors = useThemeColors();
   const danger = tone === 'danger';
   return (
     <Pressable

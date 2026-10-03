@@ -9,6 +9,7 @@ import { OnboardingButton, OnboardingScreen } from '@/components/onboarding/onbo
 import { NetworkIcon } from '@/components/crypto/network-icon';
 import { useToast } from '@/components/ui/toast';
 import { useOnboardingDraft } from '@/hooks/use-onboarding-draft';
+import { useThemeColors } from '@/hooks/use-theme';
 import { useI18n } from '@/i18n';
 import { groupAddress } from '@/lib/address';
 import { deriveAddresses } from '@/lib/keys';
@@ -20,7 +21,7 @@ import {
   suggestWords,
   wordStatus,
 } from '@/lib/mnemonic-input';
-import { cardShadow, colors } from '@/theme/colors';
+import { cardShadow } from '@/theme/colors';
 import type { WalletAccounts } from '@/types/wallet';
 
 const EMPTY = Array<string>(MNEMONIC_LENGTH).fill('');
@@ -32,6 +33,7 @@ const monoFont = Platform.select({ ios: 'Menlo', default: 'monospace' });
  * hasil turunan untuk dikonfirmasi sebelum dipakai.
  */
 export default function ImportWalletScreen() {
+  const colors = useThemeColors();
   const { t } = useI18n();
   const draft = useOnboardingDraft();
   const toast = useToast();

@@ -6,7 +6,8 @@ import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { useI18n } from '@/i18n';
-import { colors, stackGradient } from '@/theme/colors';
+import { useThemeColors } from '@/hooks/use-theme';
+import { themeGradients } from '@/theme/colors';
 
 type StackScreenProps = {
   title: string;
@@ -19,13 +20,15 @@ const goBack = () => (router.canGoBack() ? router.back() : router.replace('/'));
 
 /** Kerangka halaman di atas tab (Kirim, Terima, Swap): tombol kembali + judul di tengah. */
 export function StackScreen({ title, children, onBack = goBack }: StackScreenProps) {
+  const colors = useThemeColors();
+  const gradients = themeGradients(colors);
   const { t } = useI18n();
   const insets = useSafeAreaInsets();
 
   return (
     <View className="flex-1 bg-canvas">
       <LinearGradient
-        colors={stackGradient}
+        colors={gradients.stack}
         pointerEvents="none"
         style={[StyleSheet.absoluteFill, { height: 320 }]}
       />

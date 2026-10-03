@@ -7,7 +7,8 @@ import type { SendableAsset } from '@/hooks/use-sendable-assets';
 import { useFormat } from '@/hooks/use-format';
 import { useI18n } from '@/i18n';
 import { MASKED_VALUE } from '@/lib/format';
-import { cardShadow, colors } from '@/theme/colors';
+import { useThemeColors } from '@/hooks/use-theme';
+import { cardShadow } from '@/theme/colors';
 import type { FiatCurrency, FxRates } from '@/types/wallet';
 
 type AssetSelectorProps = {
@@ -20,6 +21,7 @@ type AssetSelectorProps = {
 
 /** Kartu aset terpilih (koin + jaringan + saldo); ketuk untuk ganti. */
 export function AssetSelector({ asset, onPress, currency, fxRates, hidden }: AssetSelectorProps) {
+  const colors = useThemeColors();
   const { formatFiat, formatTokenAmount } = useFormat();
   const { t } = useI18n();
   const balance = hidden ? MASKED_VALUE : formatTokenAmount(asset.amount, asset.isStablecoin);

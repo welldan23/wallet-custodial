@@ -7,9 +7,10 @@ import { Pressable, Text, View } from 'react-native';
 import { OnboardingButton, OnboardingScreen } from '@/components/onboarding/onboarding-screen';
 import { useOnboardingDraft } from '@/hooks/use-onboarding-draft';
 import { useWallet } from '@/hooks/use-wallet';
+import { useThemeColors } from '@/hooks/use-theme';
 import { useI18n } from '@/i18n';
 import { createMnemonic } from '@/lib/mnemonic';
-import { cardShadow, colors } from '@/theme/colors';
+import { cardShadow } from '@/theme/colors';
 
 const POINTS: {
   icon: ComponentProps<typeof Ionicons>['name'];
@@ -22,6 +23,7 @@ const POINTS: {
 
 /** Layar sambutan: pilih bikin wallet baru atau impor dari 12 kata. */
 export default function WelcomeScreen() {
+  const colors = useThemeColors();
   const { t } = useI18n();
   const draft = useOnboardingDraft();
   const wallet = useWallet();
@@ -71,7 +73,7 @@ export default function WelcomeScreen() {
           style={cardShadow}
           accessibilityElementsHidden
           importantForAccessibility="no-hide-descendants">
-          <Ionicons name="wallet" size={48} color={colors.surface} />
+          <Ionicons name="wallet" size={48} color={colors.white} />
         </View>
         <Text className="mt-3 text-xl font-bold text-ink">MyWallet</Text>
         <Text className="text-[13px] text-ink-muted">{t.onboarding.tagline}</Text>

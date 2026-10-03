@@ -4,7 +4,8 @@ import { Pressable, Text, View } from 'react-native';
 import { useFormat } from '@/hooks/use-format';
 import { useI18n } from '@/i18n';
 import { formatTime, MASKED_VALUE } from '@/lib/format';
-import { cardShadow, colors } from '@/theme/colors';
+import { useThemeColors } from '@/hooks/use-theme';
+import { cardShadow } from '@/theme/colors';
 import type { FiatCurrency, FxRates } from '@/types/wallet';
 
 type BalanceCardProps = {
@@ -32,6 +33,7 @@ export function BalanceCard({
   onToggleHidden,
   onPressDetail,
 }: BalanceCardProps) {
+  const colors = useThemeColors();
   const { formatFiat, formatUsd, formatUsdNumber } = useFormat();
   const { t } = useI18n();
   const showConversion = currency !== 'USD';

@@ -5,7 +5,7 @@ import Animated, { FadeIn, SlideInDown } from 'react-native-reanimated';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { useI18n } from '@/i18n';
-import { colors } from '@/theme/colors';
+import { useThemeColors } from '@/hooks/use-theme';
 
 type BottomSheetProps = {
   visible: boolean;
@@ -16,6 +16,7 @@ type BottomSheetProps = {
 
 /** Lembar dari bawah layar dengan judul + tombol tutup; ketuk latar untuk menutup. */
 export function BottomSheet({ visible, onClose, title, children }: BottomSheetProps) {
+  const colors = useThemeColors();
   const { t } = useI18n();
   const insets = useSafeAreaInsets();
 

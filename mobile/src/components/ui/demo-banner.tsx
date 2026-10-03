@@ -1,10 +1,11 @@
 import Ionicons from '@expo/vector-icons/Ionicons';
 import { Text, View } from 'react-native';
 
-import { colors } from '@/theme/colors';
+import { useThemeColors } from '@/hooks/use-theme';
 
 /** Peringatan mencolok saat layar memakai data contoh yang tidak boleh dipakai beneran. */
 export function DemoBanner({ message }: { message: string }) {
+  const colors = useThemeColors();
   return (
     <View
       className="flex-row items-start gap-2 rounded-2xl border border-warning-500/40 bg-warning-50 px-3.5 py-3"

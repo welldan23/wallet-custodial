@@ -7,13 +7,15 @@ import { ContactRow } from '@/components/contacts/contact-row';
 import { StackScreen } from '@/components/layout/stack-screen';
 import { useContacts } from '@/hooks/use-contacts';
 import { useSupportedNetworks } from '@/hooks/use-supported-networks';
+import { useThemeColors } from '@/hooks/use-theme';
 import { useI18n } from '@/i18n';
 import { contactNetwork, filterContacts, groupContacts } from '@/lib/contacts';
-import { cardShadow, colors } from '@/theme/colors';
+import { cardShadow } from '@/theme/colors';
 import type { Contact } from '@/types/wallet';
 
 /** Buku Alamat: cari, favorit dulu, lalu semua kontak A–Z. */
 export default function ContactsScreen() {
+  const colors = useThemeColors();
   const { t } = useI18n();
   const { contacts } = useContacts();
   const networks = useSupportedNetworks().map((item) => item.network);
@@ -65,7 +67,7 @@ export default function ContactsScreen() {
         onPress={() => router.push('/contacts/new')}
         accessibilityRole="button"
         className="flex-row items-center justify-center gap-2 rounded-full bg-primary-500 py-3.5 active:opacity-80">
-        <Ionicons name="person-add" size={18} color={colors.surface} />
+        <Ionicons name="person-add" size={18} color={colors.white} />
         <Text className="text-[15px] font-semibold text-white">{t.contacts.add}</Text>
       </Pressable>
 

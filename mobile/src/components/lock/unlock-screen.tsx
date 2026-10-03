@@ -8,7 +8,8 @@ import { useWallet } from '@/hooks/use-wallet';
 import { useI18n } from '@/i18n';
 import { shortenAddress } from '@/lib/address';
 import { authorizeSigning, type SigningAuthResult } from '@/lib/biometric';
-import { colors, headerGradient } from '@/theme/colors';
+import { useThemeColors } from '@/hooks/use-theme';
+import { themeGradients } from '@/theme/colors';
 
 /**
  * Layar kunci di atas seluruh app: buka pakai sidik jari / Face ID (PIN HP
@@ -16,6 +17,8 @@ import { colors, headerGradient } from '@/theme/colors';
  * navigasi di bawahnya tidak terlihat sampai terbuka.
  */
 export function UnlockScreen() {
+  const colors = useThemeColors();
+  const gradients = themeGradients(colors);
   const { t } = useI18n();
   const insets = useSafeAreaInsets();
   const wallet = useWallet();
@@ -68,7 +71,7 @@ export function UnlockScreen() {
       accessibilityViewIsModal
       importantForAccessibility="yes">
       <LinearGradient
-        colors={headerGradient}
+        colors={gradients.header}
         start={{ x: 0, y: 0 }}
         end={{ x: 1, y: 1 }}
         style={StyleSheet.absoluteFill}
@@ -78,7 +81,7 @@ export function UnlockScreen() {
         style={{ paddingTop: insets.top + 80, paddingBottom: insets.bottom + 32 }}>
         <View className="items-center">
           <View className="h-24 w-24 items-center justify-center rounded-[28px] bg-white/25">
-            <Ionicons name="lock-closed" size={44} color={colors.surface} />
+            <Ionicons name="lock-closed" size={44} color={colors.white} />
           </View>
           <Text className="mt-6 text-[26px] font-bold text-white" accessibilityRole="header">
             {t.lock.title}

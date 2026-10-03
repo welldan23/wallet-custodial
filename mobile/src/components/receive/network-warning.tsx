@@ -3,7 +3,7 @@ import { Text, View } from 'react-native';
 
 import { useI18n } from '@/i18n';
 import { COMMON_UNSUPPORTED_NETWORKS, EXCHANGE_NETWORK_LABELS } from '@/lib/network-labels';
-import { colors } from '@/theme/colors';
+import { useThemeColors } from '@/hooks/use-theme';
 import type { Network } from '@/types/wallet';
 
 type NetworkWarningProps = {
@@ -18,6 +18,7 @@ type NetworkWarningProps = {
  * jaringan yang tidak didukung, dan aset yang tidak akan tampil.
  */
 export function NetworkWarning({ network, symbols }: NetworkWarningProps) {
+  const colors = useThemeColors();
   const { t } = useI18n();
 
   return (
