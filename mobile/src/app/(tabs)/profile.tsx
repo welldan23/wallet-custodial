@@ -116,6 +116,12 @@ export default function ProfileScreen() {
           }
         />
         <SettingsRow
+          icon="shield-checkmark-outline"
+          label={s.phraseProtection}
+          hint={s.phraseProtectionHint}
+          onPress={() => router.push('/security/phrase-protection')}
+        />
+        <SettingsRow
           icon="key-outline"
           label={s.recoveryPhrase}
           hint={s.recoveryPhraseHint}

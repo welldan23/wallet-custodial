@@ -278,6 +278,54 @@ export const en: Dictionary = {
       backToList: 'Back to address book',
     },
   },
+  phraseProtection: {
+    title: 'Phrase Protection',
+    headline: 'Your 12 words = the key to all your assets',
+    intro:
+      'Anyone who knows these 12 words can take everything in the wallet, from any phone. Here is how MyWallet protects them.',
+    status: {
+      title: 'Status on this phone',
+      stored: "The phrase is stored encrypted in this phone's secure storage.",
+      notStored: "The phrase isn't stored permanently here (web preview). Keep your 12-word note.",
+      biometric: 'Reading the phrase requires fingerprint/Face ID.',
+      noBiometric:
+        "The phrase isn't biometric-locked yet (no fingerprint/Face ID, or Expo Go). Your phone's screen lock still protects it.",
+      noWallet: 'No wallet on this phone yet (demo mode). Create or import a wallet first.',
+    },
+    onDevice: {
+      title: 'Only on this phone',
+      body: 'Stored encrypted in the Keychain (iPhone) or Keystore (Android), tied to this device. Not included in iCloud or Google backups.',
+    },
+    biometric: {
+      title: 'Locked with fingerprint/Face ID',
+      body: "Revealing the phrase or signing a transaction asks for verification. If your phone's fingerprints change, the old key is wiped and you'll need to re-import your 12 words.",
+    },
+    neverSent: {
+      title: 'Never sent anywhere',
+      body: 'MyWallet servers only know your public addresses. Transactions are signed on your phone; the phrase never goes into logs, servers, or analytics.',
+    },
+    screen: {
+      title: 'Safe from screenshots',
+      body: 'While the 12 words are on screen, screenshots are blocked on Android and hidden from screen recordings on iPhone.',
+    },
+    clipboard: {
+      title: 'Clipboard cleared right away',
+      body: 'MyWallet never copies the phrase automatically. If you paste your 12 words when importing, the clipboard is wiped immediately.',
+    },
+    yourPart: {
+      title: 'Your part',
+      items: [
+        'Write the 12 words on paper and keep them in two separate safe places.',
+        "Don't photograph, screenshot, or save them in chat, email, or the cloud.",
+        'The MyWallet team will NEVER ask for your 12 words. Anyone who does is a scammer.',
+        "Don't type your 12 words into other sites or apps promising rewards or help.",
+      ],
+    },
+    lostPhone: {
+      title: 'If your phone is lost or broken',
+      body: 'Your assets stay safe on the blockchain. Install MyWallet on a new phone and import your 12 words. If you suspect someone saw your phrase, move your assets to a new wallet right away.',
+    },
+  },
   settings: {
     title: 'Settings',
     walletName: 'Main wallet',
@@ -317,6 +365,8 @@ export const en: Dictionary = {
     } as Record<number, string>,
     biometricSigning: 'Biometrics when sending',
     biometricSigningHint: 'Ask for fingerprint/Face ID before signing a transaction.',
+    phraseProtection: 'Phrase protection',
+    phraseProtectionHint: 'How MyWallet keeps your 12 words safe.',
     recoveryPhrase: 'View recovery phrase',
     recoveryPhraseHint: 'Requires verification. Never show it to anyone.',
     version: 'App version',

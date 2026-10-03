@@ -270,6 +270,54 @@ export const id = {
       backToList: 'Kembali ke Buku Alamat',
     },
   },
+  phraseProtection: {
+    title: 'Perlindungan Frasa',
+    headline: '12 kata kamu = kunci semua aset',
+    intro:
+      'Siapa pun yang tahu 12 kata ini bisa mengambil seluruh isi wallet, dari HP mana pun. Begini cara MyWallet menjaganya.',
+    status: {
+      title: 'Status di HP ini',
+      stored: 'Frasa tersimpan terenkripsi di penyimpanan aman HP ini.',
+      notStored: 'Frasa tidak disimpan permanen di sini (preview web). Simpan catatan 12 katamu.',
+      biometric: 'Membaca frasa wajib sidik jari/Face ID.',
+      noBiometric:
+        'Frasa belum dikunci biometrik (HP tanpa sidik jari/Face ID, atau Expo Go). Kunci layar HP tetap melindunginya.',
+      noWallet: 'Belum ada wallet di HP ini (mode demo). Bikin atau impor wallet dulu.',
+    },
+    onDevice: {
+      title: 'Cuma ada di HP ini',
+      body: 'Disimpan terenkripsi di Keychain (iPhone) atau Keystore (Android), khusus perangkat ini. Nggak ikut backup iCloud atau Google.',
+    },
+    biometric: {
+      title: 'Dikunci sidik jari/Face ID',
+      body: 'Membuka frasa atau menandatangani transaksi minta verifikasi. Kalau sidik jari di HP diganti, kunci lama ikut terhapus dan kamu perlu impor ulang dari 12 kata.',
+    },
+    neverSent: {
+      title: 'Nggak pernah dikirim ke mana pun',
+      body: 'Server MyWallet cuma tahu alamat publik. Transaksi ditandatangani di HP, frasa nggak masuk log, server, atau analytics.',
+    },
+    screen: {
+      title: 'Aman dari tangkapan layar',
+      body: 'Saat 12 kata tampil, screenshot dicegah di Android dan disembunyikan dari rekaman layar di iPhone.',
+    },
+    clipboard: {
+      title: 'Clipboard langsung dibersihkan',
+      body: 'MyWallet nggak pernah menyalin frasa otomatis. Kalau kamu menempel 12 kata saat impor, clipboard langsung dikosongkan.',
+    },
+    yourPart: {
+      title: 'Bagian yang harus kamu jaga',
+      items: [
+        'Tulis 12 kata di kertas, simpan di dua tempat aman yang berbeda.',
+        'Jangan difoto, di-screenshot, atau disimpan di chat, email, maupun cloud.',
+        'Tim MyWallet NGGAK AKAN PERNAH minta 12 kata kamu. Yang minta pasti penipu.',
+        'Jangan ketik 12 kata di situs atau aplikasi lain yang menjanjikan hadiah atau bantuan.',
+      ],
+    },
+    lostPhone: {
+      title: 'Kalau HP hilang atau rusak',
+      body: 'Asetmu tetap aman di blockchain. Pasang MyWallet di HP baru lalu impor 12 kata. Kalau curiga frasamu pernah dilihat orang lain, segera pindahkan aset ke wallet baru.',
+    },
+  },
   settings: {
     title: 'Pengaturan',
     walletName: 'Wallet utama',
@@ -309,6 +357,8 @@ export const id = {
     } as Record<number, string>,
     biometricSigning: 'Biometrik saat kirim',
     biometricSigningHint: 'Minta sidik jari/Face ID sebelum transaksi ditandatangani.',
+    phraseProtection: 'Perlindungan frasa',
+    phraseProtectionHint: 'Cara MyWallet menjaga 12 kata kamu.',
     recoveryPhrase: 'Lihat frasa pemulihan',
     recoveryPhraseHint: 'Butuh verifikasi. Jangan tunjukkan ke siapa pun.',
     version: 'Versi aplikasi',
