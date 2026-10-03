@@ -10,6 +10,7 @@ import { SettingsGroup, SettingsRow } from '@/components/settings/settings-row';
 import { useToast } from '@/components/ui/toast';
 import { useContacts } from '@/hooks/use-contacts';
 import { useSettings } from '@/hooks/use-settings';
+import { useWallet } from '@/hooks/use-wallet';
 import { useWalletAccounts } from '@/hooks/use-wallet-accounts';
 import { useFormat } from '@/hooks/use-format';
 import { useThemeColors } from '@/hooks/use-theme';
@@ -31,6 +32,7 @@ export default function ProfileScreen() {
   const { settings, updateSettings } = useSettings();
   const [sheet, setSheet] = useState<'currency' | 'language' | 'theme' | 'autoLock' | null>(null);
   const { accounts, isDemo } = useWalletAccounts();
+  const { lockNow } = useWallet();
   const s = t.settings;
   const soon = () => toast({ title: t.common.comingSoon, message: s.soonMessage });
   const version = Constants.expoConfig?.version ?? '–';
@@ -92,6 +94,7 @@ export default function ProfileScreen() {
       </SettingsGroup>
 
       <SettingsGroup title={s.security}>
+        <SettingsRow icon="lock-closed" label={s.lockNow} hint={s.lockNowHint} onPress={lockNow} />
         <SettingsRow
           icon="lock-closed-outline"
           label={s.autoLock}

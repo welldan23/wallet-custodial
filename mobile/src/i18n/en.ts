@@ -303,6 +303,8 @@ export const en: Dictionary = {
       dark: 'Dark background, easier on the eyes at night.',
       system: "Follows your phone's display setting.",
     },
+    lockNow: 'Lock now',
+    lockNowHint: 'Hide your balances until unlocked with your fingerprint.',
     autoLock: 'Auto-lock',
     autoLockValue: (minutes: number) => (minutes === 0 ? 'Immediately' : `After ${minutes} min`),
     autoLockDescription:
@@ -328,9 +330,16 @@ export const en: Dictionary = {
     subtitle: 'Unlock with fingerprint or Face ID to see your balance and transactions.',
     prompt: 'Unlock MyWallet',
     unlock: 'Unlock with fingerprint',
-    previewUnlock: 'Unlock (preview simulation)',
-    previewNote:
-      'The web preview has no biometric sensor. On a phone this step requires fingerprint, Face ID, or PIN.',
+    simulated: {
+      idle: 'Touch the sensor to unlock',
+      scanning: 'Scanning fingerprint…',
+      success: 'Match! Unlocking…',
+      failed: (left: number) => `Fingerprint not recognized. ${left} attempts left.`,
+      sensorLabel: 'Fingerprint sensor (simulated)',
+      note: 'This is a simulation for the preview. On your phone, MyWallet uses your real fingerprint, Face ID, or PIN.',
+      simulateFail: 'Simulate a wrong fingerprint',
+      reset: 'Start over',
+    },
     errors: {
       cancelled: 'Verification cancelled. Tap the button below to try again.',
       failed: 'Verification failed. Please try again.',

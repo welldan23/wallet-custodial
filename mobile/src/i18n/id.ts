@@ -295,6 +295,8 @@ export const id = {
       dark: 'Latar gelap, nyaman di mata saat malam.',
       system: 'Ikut pengaturan tampilan HP kamu.',
     },
+    lockNow: 'Kunci sekarang',
+    lockNowHint: 'Tutup akses ke saldo sampai dibuka pakai sidik jari.',
     autoLock: 'Kunci otomatis',
     autoLockValue: (minutes: number) => (minutes === 0 ? 'Langsung' : `Setelah ${minutes} menit`),
     autoLockDescription:
@@ -319,9 +321,16 @@ export const id = {
     subtitle: 'Buka pakai sidik jari atau Face ID buat lihat saldo dan transaksi.',
     prompt: 'Buka MyWallet',
     unlock: 'Buka pakai sidik jari',
-    previewUnlock: 'Buka (simulasi preview)',
-    previewNote:
-      'Preview web nggak punya sensor biometrik. Di HP, langkah ini wajib sidik jari, Face ID, atau PIN.',
+    simulated: {
+      idle: 'Sentuh sensor buat membuka',
+      scanning: 'Memindai sidik jari…',
+      success: 'Cocok! Membuka…',
+      failed: (left: number) => `Sidik jari nggak cocok. Sisa ${left} percobaan.`,
+      sensorLabel: 'Sensor sidik jari (simulasi)',
+      note: 'Ini simulasi buat preview. Di HP, MyWallet pakai sidik jari, Face ID, atau PIN asli.',
+      simulateFail: 'Simulasikan sidik jari salah',
+      reset: 'Ulangi dari awal',
+    },
     errors: {
       cancelled: 'Verifikasi dibatalkan. Ketuk tombol di bawah buat coba lagi.',
       failed: 'Verifikasi gagal. Coba lagi.',

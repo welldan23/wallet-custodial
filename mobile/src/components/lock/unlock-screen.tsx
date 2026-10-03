@@ -5,11 +5,14 @@ import { ActivityIndicator, BackHandler, Pressable, StyleSheet, Text, View } fro
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { useWallet } from '@/hooks/use-wallet';
+import { useWalletAccounts } from '@/hooks/use-wallet-accounts';
 import { useI18n } from '@/i18n';
 import { shortenAddress } from '@/lib/address';
 import { authorizeSigning, type SigningAuthResult } from '@/lib/biometric';
 import { useThemeColors } from '@/hooks/use-theme';
 import { themeGradients } from '@/theme/colors';
+
+import { SimulatedBiometric } from './simulated-biometric';
 
 /**
  * Layar kunci di atas seluruh app: buka pakai sidik jari / Face ID (PIN HP
@@ -22,6 +25,8 @@ export function UnlockScreen() {
   const { t } = useI18n();
   const insets = useSafeAreaInsets();
   const wallet = useWallet();
+  // Alamat wallet asli, atau alamat contoh di mode demo.
+  const { accounts } = useWalletAccounts();
   const [busy, setBusy] = useState(false);
   const [result, setResult] = useState<SigningAuthResult | null>(null);
 
@@ -89,47 +94,38 @@ export function UnlockScreen() {
           <Text className="mt-2 text-center text-[15px] leading-[22px] text-white/90">
             {t.lock.subtitle}
           </Text>
-          {wallet.accounts && (
-            <View className="mt-4 rounded-full bg-white/20 px-3 py-1.5">
-              <Text className="text-xs font-semibold text-white">
-                {shortenAddress(wallet.accounts.evm)}
-              </Text>
-            </View>
-          )}
+          <View className="mt-4 rounded-full bg-white/20 px-3 py-1.5">
+            <Text className="text-xs font-semibold text-white">{shortenAddress(accounts.evm)}</Text>
+          </View>
         </View>
 
         <View className="w-full max-w-[420px] gap-3">
           {message && (
             <View
-              className="flex-row items-start gap-2 rounded-2xl bg-white/95 px-4 py-3"
+              className="flex-row items-start gap-2 rounded-2xl bg-surface/95 px-4 py-3"
               accessibilityRole="alert">
               <Ionicons name="alert-circle" size={18} color={colors.danger[600]} />
               <Text className="flex-1 text-[13px] leading-5 text-ink-soft">{message}</Text>
             </View>
           )}
-          {isPreview && (
-            <View className="flex-row items-start gap-2 rounded-2xl bg-white/95 px-4 py-3">
-              <Ionicons name="information-circle" size={18} color={colors.warning[600]} />
-              <Text className="flex-1 text-[13px] leading-5 text-ink-soft">
-                {t.lock.previewNote}
-              </Text>
-            </View>
+          {isPreview ? (
+            // Tanpa sensor (preview web): pakai sidik jari tiruan.
+            <SimulatedBiometric onSuccess={wallet.unlock} />
+          ) : (
+            <Pressable
+              onPress={tryUnlock}
+              disabled={busy}
+              accessibilityRole="button"
+              accessibilityState={{ busy }}
+              className="flex-row items-center justify-center gap-2 rounded-full bg-white py-4 active:opacity-80">
+              {busy ? (
+                <ActivityIndicator color={colors.primary[500]} />
+              ) : (
+                <Ionicons name="finger-print" size={22} color={colors.primary[500]} />
+              )}
+              <Text className="text-base font-semibold text-primary-500">{t.lock.unlock}</Text>
+            </Pressable>
           )}
-          <Pressable
-            onPress={isPreview ? wallet.unlock : tryUnlock}
-            disabled={busy}
-            accessibilityRole="button"
-            accessibilityState={{ busy }}
-            className="flex-row items-center justify-center gap-2 rounded-full bg-white py-4 active:opacity-80">
-            {busy ? (
-              <ActivityIndicator color={colors.primary[500]} />
-            ) : (
-              <Ionicons name="finger-print" size={22} color={colors.primary[500]} />
-            )}
-            <Text className="text-base font-semibold text-primary-500">
-              {isPreview ? t.lock.previewUnlock : t.lock.unlock}
-            </Text>
-          </Pressable>
         </View>
       </View>
     </View>

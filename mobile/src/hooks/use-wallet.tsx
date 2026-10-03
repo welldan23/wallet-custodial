@@ -26,9 +26,11 @@ type WalletState = {
   /** Belum punya wallet tapi memilih melihat demo dulu (sesi ini saja). */
   demoMode: boolean;
   exploreDemo: () => void;
-  /** `true` = tampilkan layar kunci (wallet ada, belum dibuka sesi ini). */
+  /** `true` = tampilkan layar kunci (wallet ada/mode demo, belum dibuka). */
   locked: boolean;
   unlock: () => void;
+  /** Kunci sekarang juga, mis. dari Pengaturan. */
+  lockNow: () => void;
 };
 
 const WalletContext = createContext<WalletState | null>(null);
@@ -104,8 +106,10 @@ export function WalletProvider({
     },
     demoMode,
     exploreDemo: () => setDemoMode(true),
-    locked: status === 'ready' && locked,
+    // Mode demo juga bisa terkunci supaya alur kunci bisa dicoba tanpa wallet.
+    locked: (status === 'ready' || demoMode) && locked,
     unlock: () => setLocked(false),
+    lockNow: () => setLocked(true),
   };
 
   return <WalletContext value={value}>{children}</WalletContext>;
