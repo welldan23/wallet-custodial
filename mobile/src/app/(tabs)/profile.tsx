@@ -1,34 +1,137 @@
 import Ionicons from '@expo/vector-icons/Ionicons';
+import Constants from 'expo-constants';
 import { router } from 'expo-router';
-import { Pressable, Text, View } from 'react-native';
+import { Platform, Switch, Text, View } from 'react-native';
 
 import { TabScreen } from '@/components/layout/tab-screen';
-import { ComingSoonCard } from '@/components/ui/coming-soon-card';
+import { SettingsGroup, SettingsRow } from '@/components/settings/settings-row';
+import { useToast } from '@/components/ui/toast';
 import { useContacts } from '@/hooks/use-contacts';
+import { useSettings } from '@/hooks/use-settings';
+import { useWalletAccounts } from '@/hooks/use-wallet-accounts';
 import { useI18n } from '@/i18n';
+import { shortenAddress } from '@/lib/address';
 import { cardShadow, colors } from '@/theme/colors';
 
+const monoFont = Platform.select({ ios: 'Menlo', default: 'monospace' });
+
+/** Profil & Pengaturan: wallet, preferensi tampilan, keamanan, dan Buku Alamat. */
 export default function ProfileScreen() {
   const { t } = useI18n();
+  const toast = useToast();
   const { contacts } = useContacts();
+  const { settings } = useSettings();
+  const { accounts, isDemo } = useWalletAccounts();
+  const s = t.settings;
+  const soon = () => toast({ title: t.common.comingSoon, message: s.soonMessage });
+  const version = Constants.expoConfig?.version ?? '–';
+
   return (
-    <TabScreen active={null} title={t.tabs.profile}>
-      <View className="rounded-[20px] bg-surface px-4" style={cardShadow}>
-        <Pressable
-          onPress={() => router.push('/contacts')}
-          accessibilityRole="button"
-          className="flex-row items-center gap-3 py-3.5 active:opacity-70">
-          <View className="h-10 w-10 items-center justify-center rounded-full bg-primary-50">
-            <Ionicons name="people" size={20} color={colors.primary[500]} />
+    <TabScreen active={null} title={s.title}>
+      <View className="gap-3 rounded-[20px] bg-surface p-4" style={cardShadow}>
+        <View className="flex-row items-center gap-3">
+          <View className="h-12 w-12 items-center justify-center rounded-full bg-teal-500">
+            <Ionicons name="wallet" size={22} color={colors.surface} />
           </View>
           <View className="flex-1">
-            <Text className="text-[15px] font-semibold text-ink">{t.contacts.title}</Text>
-            <Text className="text-xs text-ink-muted">{t.contacts.count(contacts.length)}</Text>
+            <Text className="text-base font-bold text-ink">{s.walletName}</Text>
+            <Text className="text-xs text-ink-muted">{s.nonCustodial}</Text>
           </View>
-          <Ionicons name="chevron-forward" size={16} color={colors.ink.faint} />
-        </Pressable>
+          {isDemo && (
+            <View className="rounded-full bg-warning-50 px-2.5 py-1">
+              <Text className="text-[11px] font-semibold text-warning-600">{s.demoBadge}</Text>
+            </View>
+          )}
+        </View>
+        <View className="gap-1.5 rounded-2xl bg-subtle px-3 py-2.5">
+          {(
+            [
+              ['EVM', accounts.evm],
+              ['Solana', accounts.solana],
+            ] as const
+          ).map(([label, address]) => (
+            <View key={label} className="flex-row items-center justify-between gap-2">
+              <Text className="text-xs font-semibold text-ink-soft">{label}</Text>
+              <Text className="text-xs text-ink-muted" style={{ fontFamily: monoFont }}>
+                {shortenAddress(address)}
+              </Text>
+            </View>
+          ))}
+        </View>
       </View>
-      <ComingSoonCard description={t.profile.moreSoon} />
+
+      <SettingsGroup title={s.general}>
+        <SettingsRow
+          icon="cash-outline"
+          label={s.currency}
+          value={s.currencyValue[settings.displayCurrency]}
+          onPress={soon}
+        />
+        <SettingsRow
+          icon="language-outline"
+          label={s.language}
+          value={s.languageValue[settings.language]}
+          onPress={soon}
+        />
+        <SettingsRow
+          icon="contrast-outline"
+          label={s.theme}
+          value={s.themeValue[settings.theme]}
+          onPress={soon}
+          isLast
+        />
+      </SettingsGroup>
+
+      <SettingsGroup title={s.security}>
+        <SettingsRow
+          icon="lock-closed-outline"
+          label={s.autoLock}
+          value={s.autoLockValue(settings.autoLockMinutes)}
+          onPress={soon}
+        />
+        <SettingsRow
+          icon="finger-print"
+          label={s.biometricSigning}
+          hint={s.biometricSigningHint}
+          trailing={
+            <Switch
+              value={settings.biometricSigning}
+              onValueChange={soon}
+              accessibilityLabel={s.biometricSigning}
+              trackColor={{ true: colors.primary[500], false: colors.line }}
+              thumbColor={colors.surface}
+            />
+          }
+        />
+        <SettingsRow
+          icon="key-outline"
+          label={s.recoveryPhrase}
+          hint={s.recoveryPhraseHint}
+          onPress={soon}
+          isLast
+        />
+      </SettingsGroup>
+
+      <SettingsGroup title={s.other}>
+        <SettingsRow
+          icon="people-outline"
+          label={t.contacts.title}
+          value={t.contacts.count(contacts.length)}
+          onPress={() => router.push('/contacts')}
+        />
+        <SettingsRow icon="information-circle-outline" label={s.version} value={version} isLast />
+      </SettingsGroup>
+
+      <SettingsGroup title={s.dangerZone}>
+        <SettingsRow
+          icon="trash-outline"
+          label={s.removeWallet}
+          hint={s.removeWalletHint}
+          tone="danger"
+          onPress={soon}
+          isLast
+        />
+      </SettingsGroup>
     </TabScreen>
   );
 }

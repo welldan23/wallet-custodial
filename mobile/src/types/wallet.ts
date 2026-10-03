@@ -65,3 +65,14 @@ export type Contact = {
   networkId: NetworkId | null;
   isFavorite: boolean;
 };
+
+/** Preferensi aplikasi — tabel `settings` di PRD. */
+export type AppSettings = {
+  displayCurrency: FiatCurrency;
+  language: 'id' | 'en';
+  theme: 'light' | 'dark' | 'system';
+  /** Kunci otomatis setelah sekian menit di background; `0` = langsung. */
+  autoLockMinutes: number;
+  /** Minta sidik jari/Face ID sebelum tanda tangan transaksi. */
+  biometricSigning: boolean;
+};
