@@ -15,15 +15,11 @@ export const themeColors = (scheme: ColorScheme): ThemeColors =>
 export const themeCssVars = (scheme: ColorScheme): Record<string, string> =>
   palette.cssVars(scheme === 'dark' ? palette.dark : palette.light) as Record<string, string>;
 
-/**
- * Gradient tema: header teal (di belakang menu pil), lembaran konten
- * (permukaan → kanvas), dan latar halaman di atas tab (biru muda → kanvas).
- */
+/** Gradient tema: header teal (semua layar) dan lembaran konten (permukaan → kanvas). */
 export const themeGradients = (colors: ThemeColors) =>
   ({
     header: [colors.teal[500], colors.teal[400], colors.teal[300]],
     sheet: [colors.surface, colors.canvas],
-    stack: [colors.primary[50], colors.canvas],
   }) as const;
 
 /** Bayangan halus untuk kartu. */

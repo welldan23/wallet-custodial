@@ -18,7 +18,10 @@ type StackScreenProps = {
 
 const goBack = () => (router.canGoBack() ? router.back() : router.replace('/'));
 
-/** Kerangka halaman di atas tab (Kirim, Terima, Swap): tombol kembali + judul di tengah. */
+/**
+ * Kerangka halaman di atas tab (Kirim, Terima, Swap, …): header teal yang sama
+ * dengan layar tab, tombol kembali + judul di tengah, lalu lembaran konten.
+ */
 export function StackScreen({ title, children, onBack = goBack }: StackScreenProps) {
   const colors = useThemeColors();
   const gradients = themeGradients(colors);
@@ -26,23 +29,25 @@ export function StackScreen({ title, children, onBack = goBack }: StackScreenPro
   const insets = useSafeAreaInsets();
 
   return (
-    <View className="flex-1 bg-canvas">
+    <View className="flex-1 bg-teal-300">
       <LinearGradient
-        colors={gradients.stack}
+        colors={gradients.header}
+        start={{ x: 0, y: 0 }}
+        end={{ x: 1, y: 1 }}
         pointerEvents="none"
-        style={[StyleSheet.absoluteFill, { height: 320 }]}
+        style={[StyleSheet.absoluteFill, { height: insets.top + 160 }]}
       />
 
       <View
-        className="w-full max-w-[520px] flex-row items-center self-center px-2 pb-2"
-        style={{ paddingTop: insets.top + 6 }}>
+        className="w-full max-w-[520px] flex-row items-center self-center px-3 pb-3"
+        style={{ paddingTop: insets.top + 8 }}>
         <Pressable
           onPress={onBack}
           hitSlop={6}
           accessibilityRole="button"
           accessibilityLabel={t.common.back}
-          className="h-11 w-11 items-center justify-center rounded-full active:bg-black/5">
-          <Ionicons name="arrow-back" size={24} color={colors.ink.DEFAULT} />
+          className="h-11 w-11 items-center justify-center rounded-full bg-white/30 active:opacity-70">
+          <Ionicons name="arrow-back" size={22} color={colors.ink.DEFAULT} />
         </Pressable>
         <Text
           className="flex-1 text-center text-lg font-bold text-ink"
@@ -54,12 +59,19 @@ export function StackScreen({ title, children, onBack = goBack }: StackScreenPro
         <View className="h-11 w-11" />
       </View>
 
-      <ScrollView
-        className="flex-1"
-        contentContainerStyle={{ paddingTop: 8, paddingBottom: insets.bottom + 24 }}
-        showsVerticalScrollIndicator={false}>
-        <View className="w-full max-w-[520px] gap-4 self-center px-4">{children}</View>
-      </ScrollView>
+      <View className="flex-1 overflow-hidden rounded-t-[28px] bg-canvas">
+        <LinearGradient
+          colors={gradients.sheet}
+          pointerEvents="none"
+          style={[StyleSheet.absoluteFill, { height: 360 }]}
+        />
+        <ScrollView
+          className="flex-1"
+          contentContainerStyle={{ paddingTop: 16, paddingBottom: insets.bottom + 24 }}
+          showsVerticalScrollIndicator={false}>
+          <View className="w-full max-w-[520px] gap-4 self-center px-4">{children}</View>
+        </ScrollView>
+      </View>
     </View>
   );
 }
