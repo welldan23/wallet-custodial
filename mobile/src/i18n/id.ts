@@ -3,7 +3,7 @@ export const id = {
     home: 'Home',
     history: 'Tracker',
     portfolio: 'Portfolio',
-    profile: 'Profile',
+    profile: 'Pengaturan',
   },
   common: {
     back: 'Kembali',
@@ -349,6 +349,7 @@ export const id = {
   },
   settings: {
     title: 'Pengaturan',
+    open: 'Buka Pengaturan',
     walletName: 'Wallet utama',
     nonCustodial: 'Kunci cuma ada di HP ini',
     demoBadge: 'Mode demo',

@@ -65,7 +65,7 @@ export default function TabsLayout() {
         name="profile"
         options={{
           title: t.tabs.profile,
-          tabBarIcon: (props) => <TabIcon {...props} icons={['person', 'person-outline']} />,
+          tabBarIcon: (props) => <TabIcon {...props} icons={['settings', 'settings-outline']} />,
         }}
       />
     </Tabs>

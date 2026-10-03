@@ -14,38 +14,48 @@ const ITEMS: { key: TopNavKey; href: Href; icon: ComponentProps<typeof Ionicons>
   { key: 'portfolio', href: '/portfolio', icon: 'wallet' },
 ];
 
-/** Menu pil di header teal: Tracker | Home | Portfolio. */
+/** Menu pil di header teal: Tracker | Home | Portfolio, plus tombol Pengaturan. */
 export function TopNavPills({ active }: { active: TopNavKey }) {
   const colors = useThemeColors();
   const { t } = useI18n();
 
   return (
-    <View className="flex-row gap-2" accessibilityRole="tablist">
-      {ITEMS.map((item) => {
-        const isActive = item.key === active;
-        return (
-          <Pressable
-            key={item.key}
-            onPress={() => !isActive && router.navigate(item.href)}
-            accessibilityRole="tab"
-            accessibilityLabel={t.tabs[item.key]}
-            aria-selected={isActive}
-            className={`flex-1 flex-row items-center justify-center gap-1.5 rounded-full py-2.5 active:opacity-80 ${
-              isActive ? 'bg-surface' : 'bg-white/25'
-            }`}>
-            <Ionicons
-              name={item.icon}
-              size={17}
-              color={isActive ? colors.primary[500] : colors.white}
-            />
-            <Text
-              className={`text-[14px] font-semibold ${isActive ? 'text-ink' : 'text-white'}`}
-              numberOfLines={1}>
-              {t.tabs[item.key]}
-            </Text>
-          </Pressable>
-        );
-      })}
+    <View className="flex-row items-center gap-2">
+      <View className="flex-1 flex-row gap-2" accessibilityRole="tablist">
+        {ITEMS.map((item) => {
+          const isActive = item.key === active;
+          return (
+            <Pressable
+              key={item.key}
+              onPress={() => !isActive && router.navigate(item.href)}
+              accessibilityRole="tab"
+              accessibilityLabel={t.tabs[item.key]}
+              aria-selected={isActive}
+              className={`flex-1 flex-row items-center justify-center gap-1.5 rounded-full py-2.5 active:opacity-80 ${
+                isActive ? 'bg-surface' : 'bg-white/25'
+              }`}>
+              <Ionicons
+                name={item.icon}
+                size={17}
+                color={isActive ? colors.primary[500] : colors.white}
+              />
+              <Text
+                className={`text-[14px] font-semibold ${isActive ? 'text-ink' : 'text-white'}`}
+                numberOfLines={1}>
+                {t.tabs[item.key]}
+              </Text>
+            </Pressable>
+          );
+        })}
+      </View>
+      <Pressable
+        onPress={() => router.navigate('/profile')}
+        accessibilityRole="button"
+        accessibilityLabel={t.settings.open}
+        hitSlop={4}
+        className="h-11 w-11 items-center justify-center rounded-full bg-white/25 active:opacity-80">
+        <Ionicons name="settings-outline" size={20} color={colors.white} />
+      </Pressable>
     </View>
   );
 }

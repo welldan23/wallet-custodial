@@ -5,7 +5,7 @@ export const en: Dictionary = {
     home: 'Home',
     history: 'Tracker',
     portfolio: 'Portfolio',
-    profile: 'Profile',
+    profile: 'Settings',
   },
   common: {
     back: 'Back',
@@ -356,6 +356,7 @@ export const en: Dictionary = {
   },
   settings: {
     title: 'Settings',
+    open: 'Open Settings',
     walletName: 'Main wallet',
     nonCustodial: 'Keys stay on this phone only',
     demoBadge: 'Demo mode',
