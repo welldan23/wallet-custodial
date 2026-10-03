@@ -125,7 +125,7 @@ export default function ProfileScreen() {
           icon="key-outline"
           label={s.recoveryPhrase}
           hint={s.recoveryPhraseHint}
-          onPress={soon}
+          onPress={() => router.push('/security/recovery-phrase')}
           isLast
         />
       </SettingsGroup>

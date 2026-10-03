@@ -318,6 +318,35 @@ export const id = {
       body: 'Asetmu tetap aman di blockchain. Pasang MyWallet di HP baru lalu impor 12 kata. Kalau curiga frasamu pernah dilihat orang lain, segera pindahkan aset ke wallet baru.',
     },
   },
+  revealPhrase: {
+    title: 'Frasa Pemulihan',
+    headline: 'Sebelum 12 kata tampil',
+    intro: 'Pastikan nggak ada yang bisa melihat layar HP kamu. Centang semua dulu buat lanjut.',
+    acks: [
+      'Aku sendirian dan nggak ada kamera atau orang yang bisa melihat layar.',
+      'Aku paham: siapa pun yang tahu 12 kata ini bisa mengambil semua asetku.',
+      'Aku nggak akan memberikan 12 kata ke siapa pun, termasuk yang mengaku tim MyWallet.',
+    ],
+    reveal: 'Verifikasi & tampilkan',
+    prompt: 'Verifikasi untuk melihat frasa pemulihan',
+    revealedWarning: 'Jangan screenshot atau difoto. Catat di kertas lalu sembunyikan lagi.',
+    autoHide: 'Otomatis disembunyikan dalam 1 menit atau saat kamu pindah aplikasi.',
+    hideNow: 'Sembunyikan sekarang',
+    learnMore: 'Gimana MyWallet melindungi frasa ini?',
+    reimport: 'Impor ulang dari 12 kata',
+    noWalletTitle: 'Belum ada frasa',
+    noWalletBody:
+      'Kamu masih di mode demo. Bikin atau impor wallet dulu buat punya frasa pemulihan.',
+    setUpWallet: 'Bikin atau impor wallet',
+    errors: {
+      cancelled: 'Verifikasi dibatalkan. Coba lagi kalau sudah siap.',
+      failed: 'Verifikasi gagal. Coba lagi.',
+      lockout: 'Terlalu banyak percobaan. Buka kunci HP pakai PIN dulu, lalu coba lagi.',
+      no_lock: 'HP ini belum punya kunci layar. Aktifkan sidik jari, Face ID, atau PIN dulu.',
+      missing:
+        'Frasa nggak bisa dibuka di HP ini, biasanya karena sidik jari/Face ID di HP diubah (atau preview web dimuat ulang). Asetmu tetap aman: impor ulang pakai catatan 12 kata.',
+    },
+  },
   settings: {
     title: 'Pengaturan',
     walletName: 'Wallet utama',
