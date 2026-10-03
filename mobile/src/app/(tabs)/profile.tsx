@@ -15,6 +15,7 @@ import { useFormat } from '@/hooks/use-format';
 import { useThemeColors } from '@/hooks/use-theme';
 import { useI18n } from '@/i18n';
 import { shortenAddress } from '@/lib/address';
+import { AUTO_LOCK_OPTIONS } from '@/lib/settings';
 import { MOCK_FX_RATES } from '@/mocks/wallet';
 import { cardShadow } from '@/theme/colors';
 
@@ -28,7 +29,7 @@ export default function ProfileScreen() {
   const toast = useToast();
   const { contacts } = useContacts();
   const { settings, updateSettings } = useSettings();
-  const [sheet, setSheet] = useState<'currency' | 'language' | 'theme' | null>(null);
+  const [sheet, setSheet] = useState<'currency' | 'language' | 'theme' | 'autoLock' | null>(null);
   const { accounts, isDemo } = useWalletAccounts();
   const s = t.settings;
   const soon = () => toast({ title: t.common.comingSoon, message: s.soonMessage });
@@ -95,7 +96,7 @@ export default function ProfileScreen() {
           icon="lock-closed-outline"
           label={s.autoLock}
           value={s.autoLockValue(settings.autoLockMinutes)}
-          onPress={soon}
+          onPress={() => setSheet('autoLock')}
         />
         <SettingsRow
           icon="finger-print"
@@ -182,6 +183,20 @@ export default function ProfileScreen() {
         }))}
         selected={settings.theme}
         onSelect={(theme) => updateSettings({ theme })}
+      />
+
+      <OptionSheet
+        visible={sheet === 'autoLock'}
+        onClose={() => setSheet(null)}
+        title={s.autoLock}
+        description={s.autoLockDescription}
+        options={AUTO_LOCK_OPTIONS.map((minutes) => ({
+          value: minutes,
+          label: s.autoLockValue(minutes),
+          hint: s.autoLockHint[minutes],
+        }))}
+        selected={settings.autoLockMinutes}
+        onSelect={(autoLockMinutes) => updateSettings({ autoLockMinutes })}
       />
     </TabScreen>
   );

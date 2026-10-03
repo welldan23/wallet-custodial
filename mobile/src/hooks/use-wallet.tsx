@@ -1,8 +1,9 @@
 import { createContext, use, useEffect, useRef, useState, type ReactNode } from 'react';
 import { AppState } from 'react-native';
 
+import { useSettings } from '@/hooks/use-settings';
 import { useI18n } from '@/i18n';
-import { shouldLockOnResume } from '@/lib/auto-lock';
+import { autoLockMs, shouldLockOnResume } from '@/lib/auto-lock';
 import { deriveAddresses } from '@/lib/keys';
 import type { ReadMnemonicResult, WalletStorage } from '@/lib/storage';
 import { walletStorage } from '@/lib/wallet-storage';
@@ -49,6 +50,7 @@ export function WalletProvider({
   const [locked, setLocked] = useState(false);
   const [demoMode, setDemoMode] = useState(false);
   const backgroundAt = useRef<number | null>(null);
+  const lockAfterMs = autoLockMs(useSettings().settings.autoLockMinutes);
 
   useEffect(() => {
     let active = true;
@@ -67,17 +69,19 @@ export function WalletProvider({
     };
   }, [storage]);
 
-  // Kunci lagi kalau app lama ditinggal di latar belakang.
+  // Kunci lagi kalau app ditinggal di latar belakang selama durasi di Pengaturan.
   useEffect(() => {
     const subscription = AppState.addEventListener('change', (state) => {
       if (state === 'background') backgroundAt.current = Date.now();
       if (state === 'active') {
-        if (shouldLockOnResume(backgroundAt.current, Date.now())) setLocked(true);
+        if (shouldLockOnResume(backgroundAt.current, Date.now(), lockAfterMs)) {
+          setLocked(true);
+        }
         backgroundAt.current = null;
       }
     });
     return () => subscription.remove();
-  }, []);
+  }, [lockAfterMs]);
 
   const value: WalletState = {
     status,

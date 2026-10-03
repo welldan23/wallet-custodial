@@ -297,6 +297,14 @@ export const id = {
     },
     autoLock: 'Kunci otomatis',
     autoLockValue: (minutes: number) => (minutes === 0 ? 'Langsung' : `Setelah ${minutes} menit`),
+    autoLockDescription:
+      'Setelah app ditinggal ke aplikasi lain selama waktu ini, MyWallet terkunci dan minta sidik jari/Face ID lagi.',
+    autoLockHint: {
+      0: 'Paling aman. Terkunci begitu pindah aplikasi.',
+      1: 'Disarankan. Sempat balas chat sebentar.',
+      5: 'Lebih santai, cocok saat sering bolak-balik aplikasi.',
+      15: 'Paling longgar. Pastikan HP sendiri terkunci.',
+    } as Record<number, string>,
     biometricSigning: 'Biometrik saat kirim',
     biometricSigningHint: 'Minta sidik jari/Face ID sebelum transaksi ditandatangani.',
     recoveryPhrase: 'Lihat frasa pemulihan',

@@ -305,6 +305,14 @@ export const en: Dictionary = {
     },
     autoLock: 'Auto-lock',
     autoLockValue: (minutes: number) => (minutes === 0 ? 'Immediately' : `After ${minutes} min`),
+    autoLockDescription:
+      'After you switch to another app for this long, MyWallet locks and asks for your fingerprint/Face ID again.',
+    autoLockHint: {
+      0: 'Safest. Locks as soon as you switch apps.',
+      1: 'Recommended. Time for a quick reply in chat.',
+      5: 'More relaxed, good when you switch apps often.',
+      15: "Loosest. Make sure your phone's own lock is on.",
+    } as Record<number, string>,
     biometricSigning: 'Biometrics when sending',
     biometricSigningHint: 'Ask for fingerprint/Face ID before signing a transaction.',
     recoveryPhrase: 'View recovery phrase',
